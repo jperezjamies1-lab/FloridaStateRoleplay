@@ -1,87 +1,11 @@
-(function () {
-  "use strict";
 
-  function showToast(message) {
-    const toast = document.getElementById("toast");
-    if (!toast) return;
-    toast.textContent = message;
-    toast.classList.add("is-visible");
-    clearTimeout(showToast.timer);
-    showToast.timer = setTimeout(() => toast.classList.remove("is-visible"), 3200);
-  }
-
-  function observeReveals() {
-    const nodes = [...document.querySelectorAll(".reveal:not(.is-visible)")];
-    if (!nodes.length) return;
-    if (!("IntersectionObserver" in window)) { nodes.forEach((node) => node.classList.add("is-visible")); return; }
-    const observer = new IntersectionObserver((entries, obs) => {
-      entries.forEach((entry) => {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add("is-visible");
-        obs.unobserve(entry.target);
-      });
-    }, { threshold: .1, rootMargin: "0px 0px -30px" });
-    nodes.forEach((node) => observer.observe(node));
-  }
-
-  function initHeader() {
-    const mobileToggle = document.getElementById("mobile-toggle");
-    const drawer = document.getElementById("mobile-drawer");
-    mobileToggle?.addEventListener("click", () => {
-      const open = !drawer.classList.contains("is-open");
-      drawer.classList.toggle("is-open", open);
-      mobileToggle.setAttribute("aria-expanded", String(open));
-      document.body.classList.toggle("is-locked", open);
-    });
-    const explore = document.getElementById("explore-trigger");
-    explore?.addEventListener("click", () => {
-      const host = explore.closest(".nav-menu");
-      const open = !host.classList.contains("is-open");
-      host.classList.toggle("is-open", open);
-      explore.setAttribute("aria-expanded", String(open));
-    });
-    document.addEventListener("click", (event) => {
-      if (!event.target.closest(".nav-menu")) {
-        document.querySelector(".nav-menu")?.classList.remove("is-open");
-        explore?.setAttribute("aria-expanded", "false");
-      }
-    });
-    document.querySelectorAll("[data-scroll-top]").forEach((button) => button.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" })));
-  }
-
-  async function initCloud() {
-    const result = await window.FSRP_STORE.hydrateCloud();
-    const storage = document.getElementById("manager-storage-status");
-    if (storage) storage.textContent = result.ok && result.found ? "Cloud connected" : "Local fallback ready";
-    if (!result.ok) console.info("FSRP cloud settings fallback:", result.error);
-  }
-
-  function initFooter() { document.getElementById("footer-year").textContent = new Date().getFullYear(); }
-
-  async function boot() {
-    window.FSRP_TOAST = showToast;
-    window.FSRP_REVEAL = observeReveals;
-    initHeader();
-    initFooter();
-    window.FSRP_ROUTER.init();
-    window.FSRP_SOUND.init();
-    window.FSRP_SEARCH.init();
-    window.FSRP_NOTIFICATIONS.init();
-    window.FSRP_STAFF.init();
-    window.FSRP_DASHBOARD.init();
-    window.FSRP_MANAGER.init();
-    observeReveals();
-
-    // Hide the loader after the first local render. Cloud/API requests continue
-    // in the background, so a slow binding or external service can never hold
-    // the whole website on a loading screen.
-    setTimeout(() => document.getElementById("app-loader")?.classList.add("is-hidden"), 140);
-
-    // Cloud hydration runs after first paint. The store publishes one content
-    // event when cloud data arrives, updating the visible UI without a reload.
-    initCloud();
-  }
-
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot, { once: true });
-  else boot();
+(function(){
+ function render(){const s=FSRP_STORE.get();document.documentElement.style.setProperty('--cyan',s.theme?.cyan||'#63cfff');document.documentElement.style.setProperty('--gold',s.theme?.gold||'#ffd467');const title=document.getElementById('hero-title');if(title)title.innerHTML=`${s.hero.title1}<span class="title-accent">${s.hero.title2}</span>`;document.getElementById('hero-subtitle').textContent=s.hero.subtitle;const p=document.getElementById('hero-primary');p.textContent=s.hero.primaryLabel;p.href=s.hero.primaryUrl;document.querySelectorAll('[data-link]').forEach(a=>{const u=s.links[a.dataset.link];if(u)a.href=u});const notice=document.getElementById('site-notice');notice.style.display=s.notice.enabled?'block':'none';document.getElementById('notice-label').textContent=s.notice.label;document.getElementById('notice-text').textContent=s.notice.text;const dep=(root,filter='all')=>{if(!root)return;root.innerHTML=(s.departments||[]).filter(d=>filter==='all'||d.category===filter).map(d=>`<article class="dept-card" style="--dept-color:${d.color}"><div class="dept-code">${d.short}</div><span class="badge ${d.status==='Open'?'is-live':''}">${d.status}</span><h3>${d.name}</h3><p>${d.description}</p><a class="btn btn-secondary btn-small" href="${s.links.discord}" target="_blank" rel="noopener">View in Discord</a></article>`).join('')};dep(document.getElementById('home-departments'));dep(document.getElementById('departments-grid'),document.querySelector('[data-dept-filter].is-active')?.dataset.deptFilter||'all');const sys=document.getElementById('systems-grid');if(sys)sys.innerHTML=(s.systems||[]).map(x=>`<article class="system-card"><span class="eyebrow">FSRP System</span><h3>${x.title}</h3><p>${x.description}</p></article>`).join('');const steps=document.getElementById('join-steps');if(steps)steps.innerHTML=(s.joinSteps||[]).map((x,i)=>`<article class="value-item"><b>0${i+1}</b><div><h3>${x.title}</h3><p>${x.description}</p></div></article>`).join('');const faq=document.getElementById('faq-list');if(faq)faq.innerHTML=(s.faqs||[]).map((x,i)=>`<article class="faq-item"><button class="faq-question" data-faq="${i}">${x.question}<span>+</span></button><div class="faq-answer" hidden>${x.answer}</div></article>`).join('');const sup=document.getElementById('support-grid');if(sup)sup.innerHTML=(s.support||[]).map(x=>`<article class="support-card"><span class="eyebrow">Support</span><h3>${x.title}</h3><p>${x.description}</p><a class="btn btn-secondary btn-small" href="${x.url}" target="_blank" rel="noopener">Open Support</a></article>`).join('');renderAnnouncements(s);renderEvents(s);renderTimeline(s);renderGallery(s);renderRules(s);renderScene(s);const maint=document.getElementById('maintenance-screen');maint.hidden=!s.maintenance.enabled;document.getElementById('maintenance-title').textContent=s.maintenance.title;document.getElementById('maintenance-message').textContent=s.maintenance.message}
+ function renderAnnouncements(s){const root=document.getElementById('announcement-grid');if(root)root.innerHTML=(s.announcements||[]).map(a=>`<article class="bento-card span-4"><span class="eyebrow">${a.category||'Announcement'}</span><h3>${a.title}</h3><p>${a.body}</p><small>${a.date||''}</small></article>`).join('');const f=(s.announcements||[]).find(a=>a.featured)||(s.announcements||[])[0];if(f){document.getElementById('featured-announcement-title').textContent=f.title;document.getElementById('featured-announcement-body').textContent=f.body;document.getElementById('featured-announcement-date').textContent=f.date||''}}
+ function renderEvents(s){const root=document.getElementById('events-rail');if(root)root.innerHTML=(s.events||[]).map(x=>`<article class="event-card"><span class="eyebrow">Event</span><h3>${x.title}</h3><p>${x.description}</p><strong>${x.date}</strong></article>`).join('')||'<p class="muted">No event is currently scheduled.</p>';const n=(s.events||[])[0];document.getElementById('next-event-title').textContent=n?.title||'No event scheduled';document.getElementById('next-event-description').textContent=n?.description||'Leadership can publish the next SSU, training, meeting, or community event from the Manager panel.';document.getElementById('next-event-date').textContent=n?.date||'Awaiting schedule';document.getElementById('next-event-short').textContent=n?.title||'Not scheduled'}
+ function renderTimeline(s){const root=document.getElementById('community-timeline');if(root)root.innerHTML=(s.timeline||[]).map(x=>`<article class="timeline-item"><span class="eyebrow">${x.date}</span><h3>${x.title}</h3><p>${x.description}</p></article>`).join('')}
+ function renderGallery(s){const root=document.getElementById('media-gallery');if(root)root.innerHTML=(s.gallery||[]).map(x=>`<article class="media-item">${x.type==='video'?`<video controls src="${x.url}"></video>`:`<img src="${x.url}" alt="${x.title}">`}<h3>${x.title}</h3></article>`).join('')||'<p class="muted">No public media has been published.</p>'}
+ function renderRules(s){const nav=document.getElementById('rule-nav'),root=document.getElementById('rule-content');if(!nav||!root)return;nav.innerHTML=(s.rules||[]).map((x,i)=>`<button class="${i===0?'is-active':''}" data-rule="${i}">${x.title}</button>`).join('');const show=i=>{const x=s.rules[i];if(!x)return;root.innerHTML=`<article class="panel rule-category"><span class="eyebrow">Official Rules</span><h2>${x.title}</h2><ol>${(x.items||[]).map(y=>`<li>${y}</li>`).join('')}</ol></article>`};show(0);nav.onclick=e=>{const b=e.target.closest('[data-rule]');if(b){nav.querySelectorAll('button').forEach(x=>x.classList.toggle('is-active',x===b));show(+b.dataset.rule)}}}
+ function renderScene(s){if(document.getElementById('scene-week'))return;const anchor=document.querySelector('#page-home .section-block.compact .container');if(!anchor)return;const x=s.sceneOfWeek||{};const sec=document.createElement('article');sec.id='scene-week';sec.className='panel scene-week';sec.innerHTML=`<div class="scene-week-media">${x.imageUrl?`<img src="${x.imageUrl}" alt="${x.title}">`:'ER:LC'}</div><div class="scene-week-copy"><span class="eyebrow">Community Feature</span><h3>${x.title}</h3><p>${x.description}</p><span class="badge">${x.date}</span></div>`;anchor.append(sec)}
+ document.addEventListener('click',e=>{const f=e.target.closest('[data-dept-filter]');if(f){document.querySelectorAll('[data-dept-filter]').forEach(x=>x.classList.toggle('is-active',x===f));render()}const q=e.target.closest('[data-faq]');if(q){const a=q.nextElementSibling;a.hidden=!a.hidden}const tab=e.target.closest('[data-community-tab]');if(tab){document.querySelectorAll('[data-community-tab]').forEach(x=>x.classList.toggle('is-active',x===tab));document.querySelectorAll('[data-community-panel]').forEach(x=>{x.hidden=x.dataset.communityPanel!==tab.dataset.communityTab;x.classList.toggle('is-active',!x.hidden)})}const jump=e.target.closest('[data-community-tab-jump]');if(jump){document.querySelector(`[data-community-tab="${jump.dataset.communityTabJump}"]`)?.click()}if(e.target.closest('#mobile-toggle'))document.getElementById('mobile-drawer').classList.toggle('is-open');if(e.target.closest('#explore-trigger'))e.target.closest('.nav-menu').classList.toggle('is-open');if(e.target.closest('[data-scroll-top]'))window.scrollTo({top:0,behavior:'smooth'})});document.addEventListener('fsrp:state',render);document.addEventListener('DOMContentLoaded',async()=>{document.getElementById('footer-year').textContent=new Date().getFullYear();await FSRP_STORE.loadCloud();render();setTimeout(()=>document.getElementById('app-loader')?.classList.add('is-hidden'),350)})
 })();

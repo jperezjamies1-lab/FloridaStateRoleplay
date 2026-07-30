@@ -1,6 +1,2 @@
-.reveal { opacity: 0; transform: translateY(18px); transition: opacity .62s var(--ease), transform .62s var(--ease); }
-.reveal.is-visible { opacity: 1; transform: translateY(0); }
-.ambient-orb { position: absolute; border-radius: 50%; filter: blur(1px); opacity: .35; pointer-events: none; animation: float-orb 9s ease-in-out infinite; }
-.ambient-orb.one { width: 220px; height: 220px; right: 12%; top: 15%; background: radial-gradient(circle, rgba(67,199,241,.22), transparent 65%); }
-.ambient-orb.two { width: 260px; height: 260px; right: 33%; bottom: 8%; background: radial-gradient(circle, rgba(217,162,58,.14), transparent 67%); animation-delay: -4s; }
-@keyframes float-orb { 50% { transform: translate3d(12px, -17px, 0) scale(1.05); } }
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}.page-view.is-active .reveal{animation:fadeUp .55s ease both}

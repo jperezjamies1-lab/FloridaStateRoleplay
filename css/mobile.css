@@ -1,16 +1,2 @@
-@media (max-width: 500px) {
-  .container { width: calc(100% - 22px); }
-  .site-notice { min-height: 30px; }
-  .notice-inner { font-size: .6rem; }
-  .notice-inner span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .brand-copy strong { font-size: .68rem; }
-  .section-copy, .page-hero p { font-size: .92rem; }
-  .btn { width: 100%; }
-  .hero-actions { display: grid; }
-  .command-center { padding: 18px; }
-  .command-heading { align-items: flex-start; flex-direction: column; }
-  .command-row { min-height: 54px; }
-  .bento-card { padding: 20px; }
-  .bento-card.media-card { min-height: 310px; }
-  .notification-panel { right: 14px; }
-}
+
+@media(max-width:1050px){.main-nav{display:none}.mobile-toggle{display:grid}.header-status{display:none}.hero-grid,.intro-grid,.status-overview,.dashboard-grid,.staff-spotlight{grid-template-columns:1fr}.hero-copy{padding-bottom:35px}.command-center{margin-bottom:45px}.dept-showcase,.staff-grid,.support-grid,.market-grid,.media-gallery,.events-rail,.timeline,.system-grid{grid-template-columns:repeat(2,1fr)}.footer-grid{grid-template-columns:1.5fr 1fr 1fr}.footer-col:last-child{grid-column:2/4}.manager-layout{grid-template-columns:1fr}.manager-sidebar{position:static;max-height:none}.manager-nav{grid-template-columns:repeat(3,1fr)}.status-side{grid-template-columns:1fr 1fr}.status-overview{grid-template-columns:1fr}.social-rail{grid-template-columns:1fr 1fr}}@media(max-width:720px){.container{width:min(100% - 24px,var(--container))}.header-inner{min-height:68px}.brand-copy{display:none}.header-join,.header-actions .icon-btn:not(.mobile-toggle){display:none}.mobile-drawer{top:68px}.section-block{padding:55px 0}.page-hero{padding:70px 0 45px}.page-hero-grid,.section-head,.footer-bottom{align-items:start;flex-direction:column}.display-title{font-size:clamp(3.2rem,17vw,5.6rem)}.hero-stats{grid-template-columns:1fr 1fr}.hero-stat{border-bottom:1px solid var(--line)}.values-row,.dept-showcase,.staff-grid,.recognition-board,.support-grid,.market-grid,.media-gallery,.events-rail,.timeline,.system-grid,.social-rail{grid-template-columns:1fr}.bento{display:grid;grid-template-columns:1fr}.span-4,.span-5,.span-7,.span-8,.span-12{grid-column:1}.field-grid,.status-grid,.quick-grid{grid-template-columns:1fr}.rule-layout{grid-template-columns:1fr}.footer-grid{grid-template-columns:1fr}.footer-col:last-child{grid-column:auto}.manager-nav{grid-template-columns:1fr 1fr}.staff-spotlight{padding:10px}.spotlight-visual{min-height:290px}.spotlight-copy{padding:18px 10px}.quick-dock{bottom:10px}.device-clock{display:none!important}}@media(max-width:430px){.hero-stats{grid-template-columns:1fr}.status-side{grid-template-columns:1fr}.manager-nav{grid-template-columns:1fr}}

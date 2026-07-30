@@ -3,5 +3,9 @@
   "include": [
     "/api/*"
   ],
-  "exclude": []
+  "exclude": [
+    "/assets/*",
+    "/css/*",
+    "/js/*"
+  ]
 }

@@ -1,0 +1,1 @@
+Upload every file and folder from this ZIP to the ROOT of your GitHub repository. Do not upload only index.html. Read README-SETUP.md before configuring Cloudflare.
