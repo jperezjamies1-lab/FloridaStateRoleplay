@@ -126,3 +126,6 @@ Paste the direct file URL into Manager → Intro media URL. Large permanent uplo
 ## External ER:LC API note
 
 The website includes a secure, working FSRP CAD API backed by Cloudflare KV. It does not claim to connect to an undocumented ER:LC game API. To sync real game players, vehicles, or server status automatically, add the official provider's API documentation, endpoint, and server-side credential later. Never put that credential in browser JavaScript.
+
+## Maintenance-screen visibility fix
+This package includes a CSS correction ensuring the maintenance overlay stays hidden when `maintenance.enabled` is false. The overlay is only shown when enabled through Website Manager.
