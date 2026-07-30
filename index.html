@@ -339,5 +339,402 @@
   <script src="/js/staff.js" defer></script>
   <script src="/js/manager.js" defer></script>
   <script src="/js/app.js" defer></script>
+<!-- ======================================================
+     FSRP INTRO + LIVE DEVICE TIME
+     Paste this directly before </body>
+======================================================= -->
+
+<style>
+  /* ---------- LIVE DEVICE TIME ---------- */
+  #fsrp-device-clock {
+    position: fixed;
+    top: 88px;
+    right: 18px;
+    z-index: 9000;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 10px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+
+    background: rgba(7, 11, 18, 0.88);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    color: #ffffff;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4);
+  }
+
+  #fsrp-device-clock .clock-live-dot {
+    width: 8px;
+    height: 8px;
+    flex-shrink: 0;
+
+    border-radius: 50%;
+    background: #38d889;
+    box-shadow: 0 0 14px rgba(56, 216, 137, 0.9);
+  }
+
+  #fsrp-device-clock .clock-information {
+    display: grid;
+    gap: 2px;
+  }
+
+  #fsrp-device-time {
+    font-size: 0.76rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  #fsrp-device-zone {
+    max-width: 190px;
+    overflow: hidden;
+    color: #aab2bd;
+    font-size: 0.55rem;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* ---------- INTRO SCREEN ---------- */
+  #fsrp-intro {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+
+    display: grid;
+    place-items: center;
+
+    background:
+      radial-gradient(
+        circle at center,
+        rgba(31, 98, 168, 0.22),
+        transparent 36%
+      ),
+      linear-gradient(145deg, #020407, #07111d 52%, #020407);
+
+    opacity: 1;
+    visibility: visible;
+    transition:
+      opacity 0.85s ease,
+      visibility 0.85s ease;
+  }
+
+  #fsrp-intro.intro-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .fsrp-intro-content {
+    width: min(540px, calc(100% - 36px));
+    text-align: center;
+  }
+
+  .fsrp-intro-logo {
+    width: 118px;
+    height: 118px;
+    margin: 0 auto 24px;
+
+    display: grid;
+    place-items: center;
+
+    border: 2px solid rgba(99, 190, 255, 0.55);
+    border-radius: 28px;
+
+    background: linear-gradient(
+      145deg,
+      rgba(24, 79, 130, 0.9),
+      rgba(5, 13, 23, 0.96)
+    );
+
+    color: #ffffff;
+    font-size: 2rem;
+    font-weight: 1000;
+    letter-spacing: -0.08em;
+
+    box-shadow:
+      0 0 60px rgba(52, 152, 255, 0.25),
+      inset 0 0 30px rgba(255, 255, 255, 0.05);
+
+    animation: fsrpLogoEnter 1.1s cubic-bezier(.22, 1, .36, 1);
+  }
+
+  .fsrp-intro-small {
+    margin-bottom: 10px;
+    color: #64caff;
+    font-size: 0.65rem;
+    font-weight: 900;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  .fsrp-intro-title {
+    margin: 0;
+    color: #ffffff;
+    font-size: clamp(2.3rem, 8vw, 5rem);
+    font-weight: 1000;
+    line-height: 0.92;
+    letter-spacing: -0.065em;
+    text-transform: uppercase;
+
+    animation: fsrpTextEnter 1.1s 0.15s both
+      cubic-bezier(.22, 1, .36, 1);
+  }
+
+  .fsrp-intro-title span {
+    color: #63beff;
+  }
+
+  .fsrp-intro-tagline {
+    margin: 18px 0 25px;
+    color: #9faaba;
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+
+    animation: fsrpTextEnter 1.1s 0.3s both
+      cubic-bezier(.22, 1, .36, 1);
+  }
+
+  .fsrp-intro-loader {
+    width: min(290px, 80%);
+    height: 4px;
+    margin: auto;
+    overflow: hidden;
+
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.09);
+  }
+
+  .fsrp-intro-loader span {
+    display: block;
+    width: 100%;
+    height: 100%;
+
+    border-radius: inherit;
+    background: linear-gradient(
+      90deg,
+      #0b6db8,
+      #64caff,
+      #ffffff
+    );
+
+    transform: translateX(-100%);
+    animation: fsrpLoading 2.6s 0.35s forwards ease;
+  }
+
+  #fsrp-skip-intro {
+    margin-top: 22px;
+    padding: 8px 15px;
+
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    border-radius: 999px;
+
+    background: rgba(255, 255, 255, 0.04);
+    color: #9faaba;
+
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  #fsrp-skip-intro:hover {
+    color: #ffffff;
+    border-color: rgba(99, 190, 255, 0.55);
+  }
+
+  @keyframes fsrpLogoEnter {
+    from {
+      opacity: 0;
+      transform: translateY(35px) scale(0.78) rotate(-5deg);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1) rotate(0);
+    }
+  }
+
+  @keyframes fsrpTextEnter {
+    from {
+      opacity: 0;
+      transform: translateY(25px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fsrpLoading {
+    from {
+      transform: translateX(-100%);
+    }
+
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  @media (max-width: 700px) {
+    #fsrp-device-clock {
+      top: 76px;
+      right: 10px;
+      padding: 9px 11px;
+    }
+
+    #fsrp-device-zone {
+      display: none;
+    }
+
+    .fsrp-intro-logo {
+      width: 95px;
+      height: 95px;
+      border-radius: 23px;
+      font-size: 1.65rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fsrp-intro-logo,
+    .fsrp-intro-title,
+    .fsrp-intro-tagline,
+    .fsrp-intro-loader span {
+      animation-duration: 0.01ms !important;
+    }
+  }
+</style>
+
+<!-- Intro Screen -->
+<div id="fsrp-intro">
+  <div class="fsrp-intro-content">
+    <!-- Replace "FSRP" below with an image if needed -->
+    <div class="fsrp-intro-logo">FSRP</div>
+
+    <div class="fsrp-intro-small">Official ER:LC Community</div>
+
+    <h1 class="fsrp-intro-title">
+      Florida State<br>
+      <span>Roleplay</span>
+    </h1>
+
+    <p class="fsrp-intro-tagline">
+      Honor • Service • Integrity
+    </p>
+
+    <div class="fsrp-intro-loader">
+      <span></span>
+    </div>
+
+    <button id="fsrp-skip-intro" type="button">
+      Enter Website
+    </button>
+  </div>
+</div>
+
+<!-- Live Device Time -->
+<div id="fsrp-device-clock" title="Time from your device">
+  <span class="clock-live-dot"></span>
+
+  <span class="clock-information">
+    <span id="fsrp-device-time">--:--:--</span>
+    <span id="fsrp-device-zone">Device Time</span>
+  </span>
+</div>
+
+<script>
+  (function () {
+    const intro = document.getElementById("fsrp-intro");
+    const skipButton = document.getElementById("fsrp-skip-intro");
+    const timeElement = document.getElementById("fsrp-device-time");
+    const zoneElement = document.getElementById("fsrp-device-zone");
+
+    /*
+      INTRO SETTINGS
+
+      The intro currently shows once per browser tab.
+      To make it show after every refresh, delete this line:
+
+      const introAlreadyPlayed =
+        sessionStorage.getItem("fsrpIntroPlayed") === "true";
+    */
+
+    const introAlreadyPlayed =
+      sessionStorage.getItem("fsrpIntroPlayed") === "true";
+
+    function closeFSRPIntro() {
+      if (!intro) return;
+
+      intro.classList.add("intro-hidden");
+      document.body.style.overflow = "";
+
+      sessionStorage.setItem("fsrpIntroPlayed", "true");
+
+      setTimeout(function () {
+        intro.remove();
+      }, 900);
+    }
+
+    if (introAlreadyPlayed) {
+      intro.remove();
+    } else {
+      document.body.style.overflow = "hidden";
+
+      setTimeout(closeFSRPIntro, 3400);
+
+      if (skipButton) {
+        skipButton.addEventListener("click", closeFSRPIntro);
+      }
+    }
+
+    /*
+      LIVE DEVICE TIME
+
+      Uses the visitor's own device time and timezone.
+    */
+
+    function updateFSRPDeviceTime() {
+      const now = new Date();
+
+      if (timeElement) {
+        timeElement.textContent = now.toLocaleTimeString([], {
+          hour: "numeric",
+          minute: "2-digit",
+          second: "2-digit"
+        });
+      }
+
+      if (zoneElement) {
+        const timezone =
+          Intl.DateTimeFormat().resolvedOptions().timeZone ||
+          "Local Time";
+
+        const cleanTimezone = timezone
+          .split("/")
+          .pop()
+          .replaceAll("_", " ");
+
+        zoneElement.textContent = cleanTimezone;
+      }
+    }
+
+    updateFSRPDeviceTime();
+    setInterval(updateFSRPDeviceTime, 1000);
+  })();
+</script>
+
+
+
+
+  
 </body>
 </html>
