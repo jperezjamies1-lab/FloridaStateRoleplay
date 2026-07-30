@@ -2,6 +2,18 @@ name = "fsrp-roleplay-platform"
 compatibility_date = "2026-07-30"
 pages_build_output_dir = "."
 
+[[kv_namespaces]]
+binding = "SITE_SETTINGS"
+id = "d5253d8c54c54cb19f08b3bc3b61e90e"
+
+[[kv_namespaces]]
+binding = "CAD_STATE"
+id = "1914142e8c46481eb85fd65f706ff091"
+
+# Optional media storage
+# [[r2_buckets]]
+# binding = "MEDIA_BUCKET"
+# bucket_name = "fsrp-media"
 # Create KV namespaces, then replace the IDs below or bind them in the Cloudflare dashboard.
 # [[kv_namespaces]]
 # binding = "SITE_SETTINGS"
