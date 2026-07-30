@@ -1,0 +1,25 @@
+# Optional. Cloudflare Pages does NOT require this file -- both direct-upload
+# and Git integration deploys work without it, reading Pages Functions
+# straight out of /functions. This file only helps if you deploy via the
+# `wrangler pages` CLI or want to run `wrangler pages dev` locally.
+#
+# The KV namespace id below is a placeholder -- replace it with your real
+# namespace id (Workers & Pages -> KV -> your namespace -> copy the ID), or
+# just delete this file and configure the SITE_SETTINGS binding + secrets
+# entirely from the Cloudflare dashboard instead (Pages project -> Settings
+# -> Functions). Either approach works; this file is not required.
+
+name = "florida-state-roleplay"
+compatibility_date = "2025-01-01"
+pages_build_output_dir = "."
+
+[[kv_namespaces]]
+binding = "SITE_SETTINGS"
+id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+
+# Secrets (ADMIN_TOKEN, OPERATIONS_TOKEN, DISCORD_BOT_TOKEN, DISCORD_GUILD_ID,
+# YOUTUBE_API_KEY, YOUTUBE_CHANNEL_ID, ROBLOX_GROUP_ID) are NOT set here --
+# never put real secrets in this file if it's committed to git. Set them via:
+#   wrangler pages secret put ADMIN_TOKEN
+# or the Cloudflare dashboard (Pages project -> Settings -> Environment
+# variables -> add as "Secret", not "Plaintext"). See README-SETUP.md.
