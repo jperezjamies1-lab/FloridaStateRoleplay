@@ -1,0 +1,16 @@
+@media (max-width: 500px) {
+  .container { width: calc(100% - 22px); }
+  .site-notice { min-height: 30px; }
+  .notice-inner { font-size: .6rem; }
+  .notice-inner span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .brand-copy strong { font-size: .68rem; }
+  .section-copy, .page-hero p { font-size: .92rem; }
+  .btn { width: 100%; }
+  .hero-actions { display: grid; }
+  .command-center { padding: 18px; }
+  .command-heading { align-items: flex-start; flex-direction: column; }
+  .command-row { min-height: 54px; }
+  .bento-card { padding: 20px; }
+  .bento-card.media-card { min-height: 310px; }
+  .notification-panel { right: 14px; }
+}

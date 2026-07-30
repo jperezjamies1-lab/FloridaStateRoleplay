@@ -1,0 +1,9 @@
+{
+  "name": "fsrp-community-hub",
+  "version": "3.0.0",
+  "description": "Florida State Roleplay Community Hub V3 — modular Cloudflare Pages website",
+  "private": true,
+  "scripts": {
+    "test": "node test_site.mjs"
+  }
+}

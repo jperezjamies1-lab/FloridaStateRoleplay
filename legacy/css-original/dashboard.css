@@ -1,0 +1,321 @@
+/* ==========================================================================
+   Mission Control — the site's signature element.
+   Styled like a real CAD/dispatch console: segmented cells, hairline
+   dividers, monospace readouts, a status dot that actually pulses while
+   "live". Boldness is spent here; everything else stays quiet.
+   ========================================================================== */
+
+.console {
+  position: relative;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-panel);
+  overflow: hidden;
+}
+
+.console-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--hairline);
+}
+
+.console-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+
+.status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--ink-faint);
+  position: relative;
+}
+.status-dot.is-live {
+  background: var(--green);
+  box-shadow: 0 0 0 0 rgba(61, 220, 132, 0.6);
+  animation: pulse-dot 2.2s ease-out infinite;
+}
+.status-dot.is-offline {
+  background: var(--red);
+}
+@keyframes pulse-dot {
+  0% {
+    box-shadow: 0 0 0 0 rgba(61, 220, 132, 0.55);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(61, 220, 132, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(61, 220, 132, 0);
+  }
+}
+
+.console-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+}
+.console-cell {
+  padding: var(--space-5);
+  border-right: 1px solid var(--hairline);
+  border-top: 1px solid var(--hairline);
+}
+.console-cell:nth-child(-n + 5) {
+  border-top: none;
+}
+.console-cell:nth-child(5n) {
+  border-right: none;
+}
+
+.cell-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  display: block;
+  margin-bottom: var(--space-2);
+}
+.cell-value {
+  font-family: var(--font-mono);
+  font-size: 26px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.cell-value.is-muted {
+  font-size: 15px;
+  color: var(--ink-dim);
+  font-weight: 400;
+}
+.cell-value.accent-gold {
+  color: var(--gold-soft);
+}
+.cell-value.accent-green {
+  color: var(--green);
+}
+.cell-value.accent-red {
+  color: var(--red);
+}
+
+.console-departments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  background: var(--hairline);
+  border-top: 1px solid var(--hairline);
+}
+.dept-chip {
+  flex: 1;
+  min-width: 140px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--navy-800);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+.dept-chip .dept-name {
+  color: var(--ink);
+  font-weight: 600;
+}
+.dept-chip .dept-status {
+  margin-left: auto;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.dept-chip[data-status="active"] .dept-status {
+  color: var(--green);
+}
+.dept-chip[data-status="training"] .dept-status {
+  color: var(--amber);
+}
+.dept-chip[data-status="closed"] .dept-status {
+  color: var(--ink-faint);
+}
+
+.console-footer {
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--hairline);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-faint);
+  display: flex;
+  justify-content: space-between;
+}
+
+/* --- Stats row ------------------------------------------------------- */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+}
+.stat-card {
+  padding: var(--space-5);
+  border-radius: var(--radius-md);
+  transition: transform var(--duration) var(--ease), box-shadow var(--duration);
+  opacity: 0;
+  transform: translateY(16px);
+}
+.stat-card.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-soft);
+}
+.stat-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(212, 167, 44, 0.12);
+  color: var(--gold);
+  margin-bottom: var(--space-3);
+}
+.stat-number {
+  font-family: var(--font-mono);
+  font-size: 32px;
+  font-weight: 600;
+}
+.stat-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-top: var(--space-1);
+}
+.stat-desc {
+  font-size: 13px;
+  margin-top: var(--space-1);
+}
+
+/* --- Department cards -------------------------------------------------- */
+.dept-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: var(--space-4);
+}
+.dept-card {
+  padding: var(--space-5);
+  border-radius: var(--radius-md);
+  transition: transform var(--duration) var(--ease), border-color var(--duration);
+}
+.dept-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--hairline-strong);
+}
+.dept-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+.dept-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 15px;
+  background: var(--navy-700);
+  color: var(--gold-soft);
+}
+.dept-card h3 {
+  font-size: 16px;
+  margin: var(--space-2) 0 var(--space-1);
+}
+.dept-card p {
+  font-size: 13px;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.badge[data-status="active"] {
+  background: rgba(61, 220, 132, 0.14);
+  color: var(--green);
+}
+.badge[data-status="training"] {
+  background: rgba(224, 161, 61, 0.14);
+  color: var(--amber);
+}
+.badge[data-status="closed"] {
+  background: rgba(168, 178, 199, 0.1);
+  color: var(--ink-faint);
+}
+
+/* --- Activity feed: honest empty state, no fabricated events --------- */
+.activity-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--hairline);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+.activity-row {
+  background: var(--navy-800);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  gap: var(--space-3);
+  font-size: 13px;
+  align-items: center;
+}
+.activity-empty {
+  background: var(--navy-800);
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+  font-size: 13px;
+}
+
+@media (max-width: 900px) {
+  .console-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .console-cell:nth-child(-n + 5) {
+    border-top: 1px solid var(--hairline);
+  }
+  .console-cell:nth-child(-n + 2) {
+    border-top: none;
+  }
+  .console-cell:nth-child(5n) {
+    border-right: 1px solid var(--hairline);
+  }
+  .console-cell:nth-child(2n) {
+    border-right: none;
+  }
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 560px) {
+  .console-grid {
+    grid-template-columns: 1fr;
+  }
+  .console-cell {
+    border-right: none !important;
+  }
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
