@@ -339,177 +339,426 @@
   <script src="/js/staff.js" defer></script>
   <script src="/js/manager.js" defer></script>
   <script src="/js/app.js" defer></script>
-<!-- ======================================================
-     FSRP INTRO + LIVE DEVICE TIME
-     Paste this directly before </body>
-======================================================= -->
+<!-- =========================================================
+     FSRP CINEMATIC PALM INTRO + LIVE DEVICE CLOCK
+     Paste this entire block directly before </body>
+========================================================== -->
 
 <style>
-  /* ---------- LIVE DEVICE TIME ---------- */
-  #fsrp-device-clock {
-    position: fixed;
-    top: 88px;
-    right: 18px;
-    z-index: 9000;
-
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    padding: 10px 14px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 12px;
-
-    background: rgba(7, 11, 18, 0.88);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-
-    color: #ffffff;
-    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4);
+  :root {
+    --fsrp-intro-blue: #51bfff;
+    --fsrp-intro-dark-blue: #075a9c;
+    --fsrp-intro-gold: #ffd45e;
+    --fsrp-intro-green: #38d889;
   }
 
-  #fsrp-device-clock .clock-live-dot {
-    width: 8px;
-    height: 8px;
-    flex-shrink: 0;
+  /* =========================================================
+     INTRO OVERLAY
+  ========================================================== */
 
-    border-radius: 50%;
-    background: #38d889;
-    box-shadow: 0 0 14px rgba(56, 216, 137, 0.9);
-  }
-
-  #fsrp-device-clock .clock-information {
-    display: grid;
-    gap: 2px;
-  }
-
-  #fsrp-device-time {
-    font-size: 0.76rem;
-    font-weight: 900;
-    letter-spacing: 0.04em;
-    font-variant-numeric: tabular-nums;
-  }
-
-  #fsrp-device-zone {
-    max-width: 190px;
-    overflow: hidden;
-    color: #aab2bd;
-    font-size: 0.55rem;
-    font-weight: 700;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  /* ---------- INTRO SCREEN ---------- */
-  #fsrp-intro {
+  #fsrp-cinematic-intro {
     position: fixed;
     inset: 0;
-    z-index: 99999;
+    z-index: 999999;
 
     display: grid;
     place-items: center;
+    overflow: hidden;
 
     background:
       radial-gradient(
-        circle at center,
-        rgba(31, 98, 168, 0.22),
-        transparent 36%
+        circle at 50% 72%,
+        rgba(255, 160, 58, 0.28),
+        transparent 22%
       ),
-      linear-gradient(145deg, #020407, #07111d 52%, #020407);
+      radial-gradient(
+        circle at 50% 50%,
+        rgba(45, 137, 220, 0.22),
+        transparent 44%
+      ),
+      linear-gradient(
+        180deg,
+        #02050a 0%,
+        #06111f 46%,
+        #151023 72%,
+        #2c160d 100%
+      );
 
     opacity: 1;
     visibility: visible;
+
     transition:
-      opacity 0.85s ease,
-      visibility 0.85s ease;
+      opacity 0.65s ease,
+      visibility 0.65s ease;
   }
 
-  #fsrp-intro.intro-hidden {
+  #fsrp-cinematic-intro.fsrp-intro-finished {
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
   }
 
+  /* Background grid */
+
+  #fsrp-cinematic-intro::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background-image:
+      linear-gradient(
+        rgba(255, 255, 255, 0.025) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.025) 1px,
+        transparent 1px
+      );
+
+    background-size: 55px 55px;
+
+    mask-image: linear-gradient(
+      to bottom,
+      transparent,
+      black 42%,
+      black
+    );
+
+    pointer-events: none;
+  }
+
+  /* Sunset glow */
+
+  .fsrp-intro-sun {
+    position: absolute;
+    left: 50%;
+    bottom: 6%;
+    width: 310px;
+    height: 310px;
+
+    border-radius: 50%;
+
+    background:
+      radial-gradient(
+        circle,
+        rgba(255, 238, 163, 0.95) 0%,
+        rgba(255, 177, 73, 0.75) 28%,
+        rgba(255, 111, 52, 0.22) 58%,
+        transparent 73%
+      );
+
+    transform: translateX(-50%);
+
+    filter: blur(2px);
+
+    animation: fsrpSunPulse 3.5s ease-in-out infinite;
+  }
+
+  /* Florida horizon */
+
+  .fsrp-intro-horizon {
+    position: absolute;
+    left: -10%;
+    right: -10%;
+    bottom: -2%;
+    height: 28%;
+
+    background:
+      linear-gradient(
+        180deg,
+        rgba(6, 11, 17, 0.05),
+        rgba(1, 3, 6, 0.95)
+      );
+
+    clip-path: polygon(
+      0 48%,
+      8% 43%,
+      17% 53%,
+      27% 46%,
+      38% 56%,
+      50% 43%,
+      61% 53%,
+      72% 42%,
+      82% 54%,
+      91% 44%,
+      100% 50%,
+      100% 100%,
+      0 100%
+    );
+  }
+
+  /* Wind particles */
+
+  .fsrp-intro-wind {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .fsrp-wind-line {
+    position: absolute;
+    width: 140px;
+    height: 2px;
+
+    border-radius: 999px;
+
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(111, 204, 255, 0.42),
+      transparent
+    );
+
+    opacity: 0;
+
+    animation: fsrpWindMove 3.4s linear infinite;
+  }
+
+  .fsrp-wind-line:nth-child(1) {
+    top: 18%;
+    left: -18%;
+    animation-delay: 0.1s;
+  }
+
+  .fsrp-wind-line:nth-child(2) {
+    top: 31%;
+    left: -23%;
+    animation-delay: 1.15s;
+  }
+
+  .fsrp-wind-line:nth-child(3) {
+    top: 47%;
+    left: -16%;
+    animation-delay: 2.05s;
+  }
+
+  .fsrp-wind-line:nth-child(4) {
+    top: 63%;
+    left: -21%;
+    animation-delay: 0.65s;
+  }
+
+  .fsrp-wind-line:nth-child(5) {
+    top: 76%;
+    left: -25%;
+    animation-delay: 1.7s;
+  }
+
+  /* =========================================================
+     PALM TREES
+  ========================================================== */
+
+  .fsrp-palm-wrap {
+    position: absolute;
+    bottom: -18px;
+
+    width: min(370px, 31vw);
+    height: min(660px, 82vh);
+
+    z-index: 4;
+
+    pointer-events: none;
+  }
+
+  .fsrp-palm-wrap svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+
+    filter:
+      drop-shadow(0 20px 20px rgba(0, 0, 0, 0.65))
+      drop-shadow(0 0 25px rgba(46, 154, 227, 0.1));
+  }
+
+  .fsrp-palm-left {
+    left: -25px;
+
+    transform-origin: 18% 100%;
+
+    animation: fsrpPalmLeftSway 3.1s ease-in-out infinite;
+  }
+
+  .fsrp-palm-right {
+    right: -25px;
+
+    transform-origin: 82% 100%;
+
+    animation: fsrpPalmRightSway 3.1s ease-in-out infinite;
+  }
+
+  /* Palm tree fall animations */
+
+  #fsrp-cinematic-intro.fsrp-intro-closing
+    .fsrp-palm-left {
+    animation: fsrpPalmFallRight 1.3s
+      cubic-bezier(0.5, -0.05, 0.72, 0.34) forwards;
+  }
+
+  #fsrp-cinematic-intro.fsrp-intro-closing
+    .fsrp-palm-right {
+    animation: fsrpPalmFallLeft 1.3s
+      cubic-bezier(0.5, -0.05, 0.72, 0.34) forwards;
+  }
+
+  /* Small ground impact effect */
+
+  .fsrp-ground-impact {
+    position: absolute;
+    left: 50%;
+    bottom: 3%;
+
+    width: 70%;
+    height: 30px;
+
+    border-radius: 50%;
+
+    background: radial-gradient(
+      ellipse,
+      rgba(255, 186, 76, 0.2),
+      transparent 70%
+    );
+
+    opacity: 0;
+    transform: translateX(-50%) scaleX(0.2);
+  }
+
+  #fsrp-cinematic-intro.fsrp-intro-closing
+    .fsrp-ground-impact {
+    animation: fsrpGroundImpact 0.7s 0.82s ease forwards;
+  }
+
+  /* =========================================================
+     INTRO CONTENT
+  ========================================================== */
+
   .fsrp-intro-content {
-    width: min(540px, calc(100% - 36px));
+    position: relative;
+    z-index: 10;
+
+    width: min(690px, calc(100% - 36px));
+
     text-align: center;
+
+    transition:
+      opacity 0.55s ease,
+      transform 0.55s ease,
+      filter 0.55s ease;
+  }
+
+  #fsrp-cinematic-intro.fsrp-intro-closing
+    .fsrp-intro-content {
+    opacity: 0;
+    transform: translateY(-26px) scale(0.95);
+    filter: blur(8px);
   }
 
   .fsrp-intro-logo {
-    width: 118px;
-    height: 118px;
-    margin: 0 auto 24px;
+    width: 122px;
+    height: 122px;
+
+    margin: 0 auto 25px;
 
     display: grid;
     place-items: center;
 
-    border: 2px solid rgba(99, 190, 255, 0.55);
-    border-radius: 28px;
+    border: 1px solid rgba(126, 211, 255, 0.65);
+    border-radius: 30px;
 
-    background: linear-gradient(
-      145deg,
-      rgba(24, 79, 130, 0.9),
-      rgba(5, 13, 23, 0.96)
-    );
+    background:
+      linear-gradient(
+        145deg,
+        rgba(30, 111, 176, 0.93),
+        rgba(6, 19, 33, 0.98)
+      );
 
     color: #ffffff;
+
     font-size: 2rem;
     font-weight: 1000;
     letter-spacing: -0.08em;
 
     box-shadow:
-      0 0 60px rgba(52, 152, 255, 0.25),
-      inset 0 0 30px rgba(255, 255, 255, 0.05);
+      0 25px 70px rgba(0, 0, 0, 0.4),
+      0 0 55px rgba(57, 166, 255, 0.27),
+      inset 0 0 30px rgba(255, 255, 255, 0.06);
 
-    animation: fsrpLogoEnter 1.1s cubic-bezier(.22, 1, .36, 1);
+    animation: fsrpLogoArrival 1.1s
+      cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  .fsrp-intro-small {
-    margin-bottom: 10px;
-    color: #64caff;
+  .fsrp-intro-kicker {
+    margin-bottom: 11px;
+
+    color: var(--fsrp-intro-blue);
+
     font-size: 0.65rem;
     font-weight: 900;
-    letter-spacing: 0.22em;
+    letter-spacing: 0.23em;
     text-transform: uppercase;
+
+    animation: fsrpTextArrival 0.9s 0.15s both
+      cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .fsrp-intro-title {
     margin: 0;
+
     color: #ffffff;
-    font-size: clamp(2.3rem, 8vw, 5rem);
+
+    font-size: clamp(2.65rem, 8vw, 6rem);
     font-weight: 1000;
-    line-height: 0.92;
-    letter-spacing: -0.065em;
+    line-height: 0.88;
+    letter-spacing: -0.07em;
     text-transform: uppercase;
 
-    animation: fsrpTextEnter 1.1s 0.15s both
-      cubic-bezier(.22, 1, .36, 1);
+    animation: fsrpTextArrival 1s 0.25s both
+      cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .fsrp-intro-title span {
-    color: #63beff;
+    background: linear-gradient(
+      120deg,
+      #ffffff,
+      var(--fsrp-intro-blue),
+      #3d91df
+    );
+
+    -webkit-background-clip: text;
+    background-clip: text;
+
+    color: transparent;
   }
 
   .fsrp-intro-tagline {
-    margin: 18px 0 25px;
-    color: #9faaba;
-    font-size: 0.76rem;
+    margin: 19px 0 28px;
+
+    color: #aab7c7;
+
+    font-size: 0.75rem;
     font-weight: 800;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.17em;
     text-transform: uppercase;
 
-    animation: fsrpTextEnter 1.1s 0.3s both
-      cubic-bezier(.22, 1, .36, 1);
+    animation: fsrpTextArrival 1s 0.4s both
+      cubic-bezier(0.22, 1, 0.36, 1);
   }
 
+  /* Loader */
+
   .fsrp-intro-loader {
-    width: min(290px, 80%);
-    height: 4px;
+    width: min(330px, 78%);
+    height: 5px;
+
     margin: auto;
+
     overflow: hidden;
 
+    border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.09);
+
+    background: rgba(255, 255, 255, 0.06);
   }
 
   .fsrp-intro-loader span {
@@ -518,64 +767,305 @@
     height: 100%;
 
     border-radius: inherit;
+
     background: linear-gradient(
       90deg,
-      #0b6db8,
-      #64caff,
-      #ffffff
+      #075a9c,
+      #55c8ff,
+      #ffffff,
+      #ffd45e
     );
 
+    box-shadow: 0 0 18px rgba(85, 200, 255, 0.75);
+
     transform: translateX(-100%);
-    animation: fsrpLoading 2.6s 0.35s forwards ease;
+
+    animation: fsrpLoadingBar 4s 0.35s ease forwards;
   }
 
-  #fsrp-skip-intro {
-    margin-top: 22px;
-    padding: 8px 15px;
+  .fsrp-intro-status {
+    margin-top: 13px;
 
-    border: 1px solid rgba(255, 255, 255, 0.13);
-    border-radius: 999px;
+    color: #8391a3;
 
-    background: rgba(255, 255, 255, 0.04);
-    color: #9faaba;
-
-    font-size: 0.62rem;
-    font-weight: 800;
+    font-size: 0.61rem;
+    font-weight: 750;
     letter-spacing: 0.1em;
     text-transform: uppercase;
+  }
+
+  .fsrp-enter-button {
+    margin-top: 23px;
+    min-height: 43px;
+    padding: 0 18px;
+
+    border: 1px solid rgba(126, 211, 255, 0.26);
+    border-radius: 999px;
+
+    background: rgba(255, 255, 255, 0.045);
+    color: #c8d7e6;
+
+    font-size: 0.65rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+
     cursor: pointer;
+
+    backdrop-filter: blur(14px);
+
+    transition:
+      color 0.2s ease,
+      border-color 0.2s ease,
+      background 0.2s ease,
+      transform 0.2s ease;
   }
 
-  #fsrp-skip-intro:hover {
+  .fsrp-enter-button:hover {
     color: #ffffff;
-    border-color: rgba(99, 190, 255, 0.55);
+
+    border-color: rgba(126, 211, 255, 0.65);
+    background: rgba(65, 166, 235, 0.13);
+
+    transform: translateY(-2px);
   }
 
-  @keyframes fsrpLogoEnter {
+  /* =========================================================
+     LIVE DEVICE CLOCK
+  ========================================================== */
+
+  #fsrp-device-clock {
+    position: fixed;
+    top: 88px;
+    right: 18px;
+
+    z-index: 9000;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 10px 14px;
+
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 13px;
+
+    background: rgba(6, 10, 16, 0.88);
+
+    color: #ffffff;
+
+    box-shadow:
+      0 16px 45px rgba(0, 0, 0, 0.42),
+      inset 0 0 20px rgba(255, 255, 255, 0.025);
+
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+
+    opacity: 0;
+
+    transform: translateY(-15px) scale(0.94);
+
+    transition:
+      opacity 0.55s ease,
+      transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  #fsrp-device-clock.fsrp-clock-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .fsrp-clock-live-dot {
+    width: 8px;
+    height: 8px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    background: var(--fsrp-intro-green);
+
+    box-shadow: 0 0 14px rgba(56, 216, 137, 0.9);
+
+    animation: fsrpClockPulse 1.8s ease-in-out infinite;
+  }
+
+  .fsrp-clock-copy {
+    display: grid;
+    gap: 2px;
+  }
+
+  #fsrp-device-time {
+    font-size: 0.76rem;
+    font-weight: 950;
+    letter-spacing: 0.04em;
+
+    font-variant-numeric: tabular-nums;
+  }
+
+  #fsrp-device-date {
+    color: #aeb9c8;
+
+    font-size: 0.55rem;
+    font-weight: 700;
+
+    white-space: nowrap;
+  }
+
+  #fsrp-device-zone {
+    max-width: 190px;
+
+    overflow: hidden;
+
+    color: #748195;
+
+    font-size: 0.52rem;
+    font-weight: 700;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* =========================================================
+     ANIMATIONS
+  ========================================================== */
+
+  @keyframes fsrpSunPulse {
+    0%,
+    100% {
+      opacity: 0.7;
+      transform: translateX(-50%) scale(0.96);
+    }
+
+    50% {
+      opacity: 1;
+      transform: translateX(-50%) scale(1.06);
+    }
+  }
+
+  @keyframes fsrpWindMove {
+    0% {
+      opacity: 0;
+      transform: translateX(0) scaleX(0.45);
+    }
+
+    18% {
+      opacity: 0.7;
+    }
+
+    75% {
+      opacity: 0.3;
+    }
+
+    100% {
+      opacity: 0;
+      transform: translateX(145vw) scaleX(1.3);
+    }
+  }
+
+  @keyframes fsrpPalmLeftSway {
+    0%,
+    100% {
+      transform: rotate(-2deg) translateX(0);
+    }
+
+    50% {
+      transform: rotate(2.7deg) translateX(8px);
+    }
+  }
+
+  @keyframes fsrpPalmRightSway {
+    0%,
+    100% {
+      transform: rotate(2deg) translateX(0);
+    }
+
+    50% {
+      transform: rotate(-2.7deg) translateX(-8px);
+    }
+  }
+
+  @keyframes fsrpPalmFallRight {
+    0% {
+      transform: rotate(-2deg) translate(0, 0);
+    }
+
+    34% {
+      transform: rotate(8deg) translate(12px, 0);
+    }
+
+    100% {
+      transform: rotate(69deg) translate(115px, 110px);
+      opacity: 0.8;
+    }
+  }
+
+  @keyframes fsrpPalmFallLeft {
+    0% {
+      transform: rotate(2deg) translate(0, 0);
+    }
+
+    34% {
+      transform: rotate(-8deg) translate(-12px, 0);
+    }
+
+    100% {
+      transform: rotate(-69deg) translate(-115px, 110px);
+      opacity: 0.8;
+    }
+  }
+
+  @keyframes fsrpGroundImpact {
+    0% {
+      opacity: 0;
+      transform: translateX(-50%) scaleX(0.2);
+    }
+
+    45% {
+      opacity: 0.75;
+    }
+
+    100% {
+      opacity: 0;
+      transform: translateX(-50%) scaleX(1.4);
+    }
+  }
+
+  @keyframes fsrpLogoArrival {
     from {
       opacity: 0;
-      transform: translateY(35px) scale(0.78) rotate(-5deg);
+      transform:
+        translateY(40px)
+        scale(0.72)
+        rotate(-7deg);
+      filter: blur(12px);
     }
 
     to {
       opacity: 1;
-      transform: translateY(0) scale(1) rotate(0);
+      transform:
+        translateY(0)
+        scale(1)
+        rotate(0);
+      filter: blur(0);
     }
   }
 
-  @keyframes fsrpTextEnter {
+  @keyframes fsrpTextArrival {
     from {
       opacity: 0;
       transform: translateY(25px);
+      filter: blur(8px);
     }
 
     to {
       opacity: 1;
       transform: translateY(0);
+      filter: blur(0);
     }
   }
 
-  @keyframes fsrpLoading {
+  @keyframes fsrpLoadingBar {
     from {
       transform: translateX(-100%);
     }
@@ -585,42 +1075,405 @@
     }
   }
 
-  @media (max-width: 700px) {
+  @keyframes fsrpClockPulse {
+    0%,
+    100% {
+      opacity: 0.65;
+      transform: scale(0.88);
+    }
+
+    50% {
+      opacity: 1;
+      transform: scale(1.15);
+    }
+  }
+
+  /* =========================================================
+     MOBILE
+  ========================================================== */
+
+  @media (max-width: 760px) {
+    .fsrp-palm-wrap {
+      width: 235px;
+      height: 485px;
+    }
+
+    .fsrp-palm-left {
+      left: -94px;
+    }
+
+    .fsrp-palm-right {
+      right: -94px;
+    }
+
+    .fsrp-intro-logo {
+      width: 98px;
+      height: 98px;
+
+      border-radius: 24px;
+
+      font-size: 1.65rem;
+    }
+
+    .fsrp-intro-title {
+      font-size: clamp(2.5rem, 13vw, 4.25rem);
+    }
+
+    .fsrp-intro-tagline {
+      font-size: 0.62rem;
+      letter-spacing: 0.12em;
+    }
+
     #fsrp-device-clock {
       top: 76px;
       right: 10px;
+
       padding: 9px 11px;
     }
 
     #fsrp-device-zone {
       display: none;
     }
+  }
 
-    .fsrp-intro-logo {
-      width: 95px;
-      height: 95px;
-      border-radius: 23px;
-      font-size: 1.65rem;
+  @media (max-width: 430px) {
+    .fsrp-palm-wrap {
+      width: 205px;
+      height: 425px;
+    }
+
+    .fsrp-palm-left {
+      left: -105px;
+    }
+
+    .fsrp-palm-right {
+      right: -105px;
+    }
+
+    .fsrp-intro-kicker {
+      font-size: 0.56rem;
     }
   }
 
+  /* Accessibility */
+
   @media (prefers-reduced-motion: reduce) {
+    .fsrp-palm-left,
+    .fsrp-palm-right,
+    .fsrp-intro-sun,
+    .fsrp-wind-line,
+    .fsrp-clock-live-dot,
     .fsrp-intro-logo,
     .fsrp-intro-title,
     .fsrp-intro-tagline,
     .fsrp-intro-loader span {
       animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
     }
   }
 </style>
 
-<!-- Intro Screen -->
-<div id="fsrp-intro">
-  <div class="fsrp-intro-content">
-    <!-- Replace "FSRP" below with an image if needed -->
-    <div class="fsrp-intro-logo">FSRP</div>
+<!-- =========================================================
+     INTRO HTML
+========================================================== -->
 
-    <div class="fsrp-intro-small">Official ER:LC Community</div>
+<div id="fsrp-cinematic-intro">
+  <div class="fsrp-intro-sun"></div>
+  <div class="fsrp-intro-horizon"></div>
+
+  <div class="fsrp-intro-wind">
+    <span class="fsrp-wind-line"></span>
+    <span class="fsrp-wind-line"></span>
+    <span class="fsrp-wind-line"></span>
+    <span class="fsrp-wind-line"></span>
+    <span class="fsrp-wind-line"></span>
+  </div>
+
+  <!-- Left Palm Tree -->
+  <div class="fsrp-palm-wrap fsrp-palm-left">
+    <svg viewBox="0 0 330 650" aria-hidden="true">
+      <defs>
+        <linearGradient
+          id="fsrpPalmTrunkLeft"
+          x1="0"
+          y1="0"
+          x2="1"
+          y2="1"
+        >
+          <stop offset="0%" stop-color="#191715"></stop>
+          <stop offset="55%" stop-color="#090b0c"></stop>
+          <stop offset="100%" stop-color="#020304"></stop>
+        </linearGradient>
+      </defs>
+
+      <!-- Trunk -->
+      <path
+        d="
+          M129 648
+          C132 548 139 475 151 397
+          C162 323 166 248 160 177
+          C157 141 160 108 173 80
+          L202 88
+          C188 124 184 161 190 201
+          C200 281 194 359 184 433
+          C173 512 170 580 178 648
+          Z
+        "
+        fill="url(#fsrpPalmTrunkLeft)"
+      ></path>
+
+      <!-- Trunk details -->
+      <g
+        fill="none"
+        stroke="#44362c"
+        stroke-width="5"
+        opacity="0.52"
+      >
+        <path d="M142 570 Q160 581 177 568"></path>
+        <path d="M145 510 Q162 521 181 508"></path>
+        <path d="M150 446 Q168 458 187 443"></path>
+        <path d="M156 382 Q173 394 191 378"></path>
+        <path d="M160 318 Q178 330 193 315"></path>
+        <path d="M162 253 Q180 265 191 251"></path>
+      </g>
+
+      <!-- Palm leaves -->
+      <g fill="#07110d">
+        <path
+          d="
+            M182 102
+            C126 84 79 91 28 127
+            C80 117 125 124 169 143
+            Z
+          "
+        ></path>
+
+        <path
+          d="
+            M185 99
+            C128 49 76 33 19 41
+            C78 58 126 80 170 121
+            Z
+          "
+        ></path>
+
+        <path
+          d="
+            M189 97
+            C160 34 124 6 73 0
+            C116 28 145 62 174 115
+            Z
+          "
+        ></path>
+
+        <path
+          d="
+            M192 100
+            C199 39 225 4 272 0
+            C239 28 218 65 207 117
+            Z
+          "
+        ></path>
+
+        <path
+          d="
+            M196 103
+            C241 55 284 42 329 59
+            C284 67 247 86 210 126
+            Z
+          "
+        ></path>
+
+        <path
+          d="
+            M197 109
+            C256 93 294 105 327 139
+            C279 126 241 133 204 150
+            Z
+          "
+        ></path>
+
+        <path
+          d="
+            M191 105
+            C143 106 98 132 65 176
+            C110 149 150 139 190 139
+            Z
+          "
+        ></path>
+
+        <path
+          d="
+            M199 109
+            C242 123 273 153 290 199
+            C257 164 226 146 194 139
+            Z
+          "
+        ></path>
+      </g>
+
+      <!-- Palm center -->
+      <ellipse
+        cx="190"
+        cy="105"
+        rx="23"
+        ry="18"
+        fill="#080b09"
+      ></ellipse>
+    </svg>
+  </div>
+
+  <!-- Right Palm Tree -->
+  <div class="fsrp-palm-wrap fsrp-palm-right">
+    <svg viewBox="0 0 330 650" aria-hidden="true">
+      <g transform="translate(330 0) scale(-1 1)">
+        <defs>
+          <linearGradient
+            id="fsrpPalmTrunkRight"
+            x1="0"
+            y1="0"
+            x2="1"
+            y2="1"
+          >
+            <stop offset="0%" stop-color="#191715"></stop>
+            <stop offset="55%" stop-color="#090b0c"></stop>
+            <stop offset="100%" stop-color="#020304"></stop>
+          </linearGradient>
+        </defs>
+
+        <path
+          d="
+            M129 648
+            C132 548 139 475 151 397
+            C162 323 166 248 160 177
+            C157 141 160 108 173 80
+            L202 88
+            C188 124 184 161 190 201
+            C200 281 194 359 184 433
+            C173 512 170 580 178 648
+            Z
+          "
+          fill="url(#fsrpPalmTrunkRight)"
+        ></path>
+
+        <g
+          fill="none"
+          stroke="#44362c"
+          stroke-width="5"
+          opacity="0.52"
+        >
+          <path d="M142 570 Q160 581 177 568"></path>
+          <path d="M145 510 Q162 521 181 508"></path>
+          <path d="M150 446 Q168 458 187 443"></path>
+          <path d="M156 382 Q173 394 191 378"></path>
+          <path d="M160 318 Q178 330 193 315"></path>
+          <path d="M162 253 Q180 265 191 251"></path>
+        </g>
+
+        <g fill="#07110d">
+          <path
+            d="
+              M182 102
+              C126 84 79 91 28 127
+              C80 117 125 124 169 143
+              Z
+            "
+          ></path>
+
+          <path
+            d="
+              M185 99
+              C128 49 76 33 19 41
+              C78 58 126 80 170 121
+              Z
+            "
+          ></path>
+
+          <path
+            d="
+              M189 97
+              C160 34 124 6 73 0
+              C116 28 145 62 174 115
+              Z
+            "
+          ></path>
+
+          <path
+            d="
+              M192 100
+              C199 39 225 4 272 0
+              C239 28 218 65 207 117
+              Z
+            "
+          ></path>
+
+          <path
+            d="
+              M196 103
+              C241 55 284 42 329 59
+              C284 67 247 86 210 126
+              Z
+            "
+          ></path>
+
+          <path
+            d="
+              M197 109
+              C256 93 294 105 327 139
+              C279 126 241 133 204 150
+              Z
+            "
+          ></path>
+
+          <path
+            d="
+              M191 105
+              C143 106 98 132 65 176
+              C110 149 150 139 190 139
+              Z
+            "
+          ></path>
+
+          <path
+            d="
+              M199 109
+              C242 123 273 153 290 199
+              C257 164 226 146 194 139
+              Z
+            "
+          ></path>
+        </g>
+
+        <ellipse
+          cx="190"
+          cy="105"
+          rx="23"
+          ry="18"
+          fill="#080b09"
+        ></ellipse>
+      </g>
+    </svg>
+  </div>
+
+  <div class="fsrp-ground-impact"></div>
+
+  <div class="fsrp-intro-content">
+    <!-- Replace this div with your logo image when ready -->
+<img
+  class="fsrp-intro-logo"
+  src="YOUR-LOGO-FILE.png"
+  alt="Florida State Roleplay"
+>    <!-- Example logo replacement:
+    <img
+      class="fsrp-intro-logo"
+      src="your-logo.png"
+      alt="Florida State Roleplay"
+    >
+    -->
+
+    <div class="fsrp-intro-kicker">
+      Official ER:LC Community
+    </div>
 
     <h1 class="fsrp-intro-title">
       Florida State<br>
@@ -635,106 +1488,1360 @@
       <span></span>
     </div>
 
-    <button id="fsrp-skip-intro" type="button">
+    <div class="fsrp-intro-status" id="fsrp-intro-status">
+      Connecting to Florida State Roleplay
+    </div>
+
+    <button
+      class="fsrp-enter-button"
+      id="fsrp-enter-website"
+      type="button"
+    >
       Enter Website
     </button>
   </div>
 </div>
 
-<!-- Live Device Time -->
-<div id="fsrp-device-clock" title="Time from your device">
-  <span class="clock-live-dot"></span>
+<!-- =========================================================
+     LIVE DEVICE CLOCK
+========================================================== -->
 
-  <span class="clock-information">
+<div id="fsrp-device-clock" title="Time from your device">
+  <span class="fsrp-clock-live-dot"></span>
+
+  <span class="fsrp-clock-copy">
     <span id="fsrp-device-time">--:--:--</span>
+    <span id="fsrp-device-date">Loading date</span>
     <span id="fsrp-device-zone">Device Time</span>
   </span>
 </div>
 
+<!-- =========================================================
+     INTRO + CLOCK SCRIPT
+========================================================== -->
+
 <script>
   (function () {
-    const intro = document.getElementById("fsrp-intro");
-    const skipButton = document.getElementById("fsrp-skip-intro");
-    const timeElement = document.getElementById("fsrp-device-time");
-    const zoneElement = document.getElementById("fsrp-device-zone");
+    const intro =
+      document.getElementById("fsrp-cinematic-intro");
+
+    const enterButton =
+      document.getElementById("fsrp-enter-website");
+
+    const statusText =
+      document.getElementById("fsrp-intro-status");
+
+    const clock =
+      document.getElementById("fsrp-device-clock");
+
+    const timeElement =
+      document.getElementById("fsrp-device-time");
+
+    const dateElement =
+      document.getElementById("fsrp-device-date");
+
+    const zoneElement =
+      document.getElementById("fsrp-device-zone");
 
     /*
-      INTRO SETTINGS
+      Set this to false when you only want the intro
+      to show once per browser tab.
 
-      The intro currently shows once per browser tab.
-      To make it show after every refresh, delete this line:
-
-      const introAlreadyPlayed =
-        sessionStorage.getItem("fsrpIntroPlayed") === "true";
+      true  = intro appears after every refresh
+      false = intro appears once per browser tab
     */
 
-    const introAlreadyPlayed =
-      sessionStorage.getItem("fsrpIntroPlayed") === "true";
+    const SHOW_INTRO_EVERY_REFRESH = true;
+
+    const alreadyPlayed =
+      sessionStorage.getItem("fsrpCinematicIntroPlayed") ===
+      "true";
+
+    let introClosing = false;
+
+    function updateIntroStatus() {
+      if (!statusText) return;
+
+      setTimeout(function () {
+        statusText.textContent =
+          "Loading Live Command Center";
+      }, 900);
+
+      setTimeout(function () {
+        statusText.textContent =
+          "Preparing Florida Operations";
+      }, 1900);
+
+      setTimeout(function () {
+        statusText.textContent =
+          "Welcome to Florida State Roleplay";
+      }, 3000);
+    }
 
     function closeFSRPIntro() {
-      if (!intro) return;
+      if (!intro || introClosing) return;
 
-      intro.classList.add("intro-hidden");
-      document.body.style.overflow = "";
+      introClosing = true;
 
-      sessionStorage.setItem("fsrpIntroPlayed", "true");
+      intro.classList.add("fsrp-intro-closing");
+
+      if (statusText) {
+        statusText.textContent =
+          "Entering Florida State Roleplay";
+      }
+
+      /*
+        The palms fall first.
+        Then the entire intro fades away.
+      */
+
+      setTimeout(function () {
+        intro.classList.add("fsrp-intro-finished");
+
+        document.body.style.overflow = "";
+
+        if (clock) {
+          clock.classList.add("fsrp-clock-visible");
+        }
+
+        sessionStorage.setItem(
+          "fsrpCinematicIntroPlayed",
+          "true"
+        );
+      }, 1300);
 
       setTimeout(function () {
         intro.remove();
-      }, 900);
+      }, 2050);
     }
 
-    if (introAlreadyPlayed) {
-      intro.remove();
+    if (
+      !SHOW_INTRO_EVERY_REFRESH &&
+      alreadyPlayed
+    ) {
+      if (intro) {
+        intro.remove();
+      }
+
+      if (clock) {
+        clock.classList.add("fsrp-clock-visible");
+      }
     } else {
       document.body.style.overflow = "hidden";
 
-      setTimeout(closeFSRPIntro, 3400);
+      updateIntroStatus();
 
-      if (skipButton) {
-        skipButton.addEventListener("click", closeFSRPIntro);
+      /*
+        Automatic intro ending.
+        Increase 4600 for a longer intro.
+      */
+
+      setTimeout(closeFSRPIntro, 4600);
+
+      if (enterButton) {
+        enterButton.addEventListener(
+          "click",
+          closeFSRPIntro
+        );
       }
     }
 
     /*
       LIVE DEVICE TIME
 
-      Uses the visitor's own device time and timezone.
+      The clock uses each visitor's actual
+      device time, date, and timezone.
     */
 
-    function updateFSRPDeviceTime() {
+    function updateFSRPDeviceClock() {
       const now = new Date();
 
       if (timeElement) {
-        timeElement.textContent = now.toLocaleTimeString([], {
-          hour: "numeric",
-          minute: "2-digit",
-          second: "2-digit"
-        });
+        timeElement.textContent =
+          now.toLocaleTimeString([], {
+            hour: "numeric",
+            minute: "2-digit",
+            second: "2-digit"
+          });
+      }
+
+      if (dateElement) {
+        dateElement.textContent =
+          now.toLocaleDateString([], {
+            weekday: "short",
+            month: "short",
+            day: "numeric"
+          });
       }
 
       if (zoneElement) {
         const timezone =
-          Intl.DateTimeFormat().resolvedOptions().timeZone ||
-          "Local Time";
+          Intl.DateTimeFormat()
+            .resolvedOptions()
+            .timeZone || "Local Time";
 
-        const cleanTimezone = timezone
-          .split("/")
-          .pop()
-          .replaceAll("_", " ");
+        const cleanTimezone =
+          timezone
+            .split("/")
+            .pop()
+            .replaceAll("_", " ");
 
-        zoneElement.textContent = cleanTimezone;
+        zoneElement.textContent =
+          cleanTimezone;
       }
     }
 
-    updateFSRPDeviceTime();
-    setInterval(updateFSRPDeviceTime, 1000);
+    updateFSRPDeviceClock();
+
+    setInterval(
+      updateFSRPDeviceClock,
+      1000
+    );
   })();
 </script>
+  <!-- =========================================================
+     FSRP STAFF SPOTLIGHT + STAFF RECOGNITION
+     Paste directly before </body>
+========================================================== -->
 
+<style>
+  /* ===========================
+     STAFF SPOTLIGHT SECTION
+  ============================ */
 
+  #fsrp-staff-spotlight {
+    position: relative;
+    padding: 90px 20px;
+    overflow: hidden;
 
+    background:
+      radial-gradient(
+        circle at 15% 25%,
+        rgba(43, 137, 220, 0.16),
+        transparent 30%
+      ),
+      radial-gradient(
+        circle at 90% 75%,
+        rgba(255, 194, 78, 0.09),
+        transparent 28%
+      ),
+      linear-gradient(
+        180deg,
+        rgba(4, 8, 14, 0.98),
+        rgba(8, 15, 25, 0.98)
+      );
 
-  
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  #fsrp-staff-spotlight::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background-image:
+      linear-gradient(
+        rgba(255, 255, 255, 0.025) 1px,
+        transparent 1px
+      ),
+      linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0.025) 1px,
+        transparent 1px
+      );
+
+    background-size: 54px 54px;
+    pointer-events: none;
+  }
+
+  .fsrp-staff-shell {
+    position: relative;
+    z-index: 2;
+
+    width: min(1250px, 100%);
+    margin: auto;
+  }
+
+  .fsrp-staff-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 24px;
+
+    margin-bottom: 30px;
+  }
+
+  .fsrp-staff-kicker {
+    margin-bottom: 8px;
+
+    color: #64caff;
+
+    font-size: 0.65rem;
+    font-weight: 900;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+  }
+
+  .fsrp-staff-heading h2 {
+    margin: 0;
+
+    color: #ffffff;
+
+    font-size: clamp(2.6rem, 6vw, 5.5rem);
+    font-weight: 1000;
+    line-height: 0.9;
+    letter-spacing: -0.065em;
+    text-transform: uppercase;
+  }
+
+  .fsrp-staff-heading h2 span {
+    background: linear-gradient(
+      120deg,
+      #ffffff,
+      #64caff,
+      #257fc7
+    );
+
+    -webkit-background-clip: text;
+    background-clip: text;
+
+    color: transparent;
+  }
+
+  .fsrp-staff-heading-description {
+    max-width: 440px;
+    margin: 0;
+
+    color: #9daaba;
+
+    font-size: 0.86rem;
+    line-height: 1.7;
+  }
+
+  /* Main spotlight card */
+
+  .fsrp-staff-main-card {
+    display: grid;
+    grid-template-columns: 0.72fr 1.28fr;
+    gap: 20px;
+
+    padding: 16px;
+
+    border: 1px solid rgba(255, 255, 255, 0.11);
+    border-radius: 30px;
+
+    background: linear-gradient(
+      145deg,
+      rgba(20, 29, 42, 0.88),
+      rgba(5, 9, 15, 0.94)
+    );
+
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.42);
+
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .fsrp-staff-profile-side {
+    position: relative;
+
+    min-height: 420px;
+
+    display: grid;
+    place-items: center;
+
+    overflow: hidden;
+
+    border-radius: 23px;
+
+    background:
+      radial-gradient(
+        circle at center,
+        rgba(59, 161, 238, 0.28),
+        transparent 48%
+      ),
+      linear-gradient(
+        145deg,
+        #0a1928,
+        #07101a 60%,
+        #11151c
+      );
+  }
+
+  .fsrp-staff-profile-side::before {
+    content: "";
+
+    position: absolute;
+    width: 310px;
+    height: 310px;
+
+    border: 1px solid rgba(100, 202, 255, 0.15);
+    border-radius: 50%;
+
+    animation: fsrpStaffRing 8s linear infinite;
+  }
+
+  .fsrp-staff-profile-side::after {
+    content: "";
+
+    position: absolute;
+    width: 235px;
+    height: 235px;
+
+    border: 1px dashed rgba(255, 214, 100, 0.17);
+    border-radius: 50%;
+
+    animation: fsrpStaffRingReverse 10s linear infinite;
+  }
+
+  .fsrp-staff-avatar {
+    position: relative;
+    z-index: 3;
+
+    width: 180px;
+    height: 180px;
+
+    display: grid;
+    place-items: center;
+
+    overflow: hidden;
+
+    border: 5px solid rgba(255, 255, 255, 0.13);
+    border-radius: 45px;
+
+    background: linear-gradient(
+      145deg,
+      #287fbe,
+      #103d68
+    );
+
+    color: #ffffff;
+
+    font-size: 4rem;
+    font-weight: 1000;
+    letter-spacing: -0.08em;
+
+    box-shadow:
+      0 30px 70px rgba(0, 0, 0, 0.45),
+      0 0 50px rgba(59, 161, 238, 0.22);
+  }
+
+  .fsrp-staff-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .fsrp-staff-featured-badge {
+    position: absolute;
+    left: 20px;
+    bottom: 20px;
+    z-index: 4;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 9px 12px;
+
+    border: 1px solid rgba(255, 213, 84, 0.24);
+    border-radius: 999px;
+
+    background: rgba(255, 198, 63, 0.09);
+    color: #ffe18a;
+
+    font-size: 0.61rem;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .fsrp-staff-featured-badge i {
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+
+    background: #ffd35b;
+    box-shadow: 0 0 13px rgba(255, 211, 91, 0.85);
+  }
+
+  .fsrp-staff-information {
+    padding: 36px 30px;
+
+    display: grid;
+    align-content: center;
+  }
+
+  .fsrp-staff-tag {
+    width: max-content;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    padding: 7px 10px;
+
+    border: 1px solid rgba(100, 202, 255, 0.22);
+    border-radius: 999px;
+
+    background: rgba(48, 144, 211, 0.1);
+    color: #9fddff;
+
+    font-size: 0.61rem;
+    font-weight: 900;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+  }
+
+  #fsrp-spotlight-name {
+    margin: 17px 0 6px;
+
+    color: #ffffff;
+
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 1000;
+    line-height: 0.9;
+    letter-spacing: -0.06em;
+  }
+
+  .fsrp-staff-rank-line {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+
+    margin-bottom: 21px;
+
+    color: #64caff;
+
+    font-size: 0.8rem;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .fsrp-staff-rank-line span {
+    color: #677587;
+  }
+
+  #fsrp-spotlight-description {
+    max-width: 720px;
+    margin-bottom: 18px;
+
+    color: #bdc7d4;
+
+    font-size: 0.96rem;
+    line-height: 1.75;
+  }
+
+  .fsrp-staff-quote {
+    margin: 0 0 22px;
+    padding: 15px 17px;
+
+    border-left: 3px solid #64caff;
+    border-radius: 0 12px 12px 0;
+
+    background: rgba(255, 255, 255, 0.035);
+    color: #d9e2ed;
+
+    font-size: 0.82rem;
+    font-style: italic;
+    line-height: 1.6;
+  }
+
+  .fsrp-staff-achievements {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+
+    margin-bottom: 24px;
+  }
+
+  .fsrp-staff-achievement {
+    padding: 8px 11px;
+
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+
+    background: rgba(255, 255, 255, 0.035);
+    color: #bec8d5;
+
+    font-size: 0.63rem;
+    font-weight: 800;
+  }
+
+  .fsrp-staff-buttons {
+    display: flex;
+    gap: 9px;
+    flex-wrap: wrap;
+  }
+
+  .fsrp-staff-button {
+    min-height: 44px;
+    padding: 0 16px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+
+    background: rgba(255, 255, 255, 0.045);
+    color: #ffffff;
+
+    font-size: 0.67rem;
+    font-weight: 900;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    text-transform: uppercase;
+
+    transition:
+      transform 0.2s ease,
+      border-color 0.2s ease,
+      background 0.2s ease;
+  }
+
+  .fsrp-staff-button:hover {
+    transform: translateY(-2px);
+
+    border-color: rgba(100, 202, 255, 0.55);
+    background: rgba(52, 151, 220, 0.12);
+  }
+
+  .fsrp-staff-button-primary {
+    border: 0;
+
+    background: linear-gradient(
+      135deg,
+      #64caff,
+      #207fc6
+    );
+
+    color: #01111d;
+  }
+
+  /* Staff activity bar */
+
+  .fsrp-staff-activity {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+
+    margin-top: 15px;
+  }
+
+  .fsrp-staff-activity-card {
+    min-height: 100px;
+    padding: 17px;
+
+    display: grid;
+    align-content: center;
+    gap: 5px;
+
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 18px;
+
+    background: rgba(255, 255, 255, 0.032);
+  }
+
+  .fsrp-staff-activity-card strong {
+    color: #ffffff;
+
+    font-size: 1.45rem;
+    font-weight: 1000;
+    letter-spacing: -0.04em;
+  }
+
+  .fsrp-staff-activity-card span {
+    color: #8794a6;
+
+    font-size: 0.59rem;
+    font-weight: 850;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+
+  .fsrp-staff-live {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .fsrp-staff-live i {
+    width: 8px;
+    height: 8px;
+
+    border-radius: 50%;
+
+    background: #38d889;
+    box-shadow: 0 0 13px rgba(56, 216, 137, 0.8);
+  }
+
+  /* Recognition board */
+
+  .fsrp-recognition-heading {
+    margin: 55px 0 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+  }
+
+  .fsrp-recognition-heading h3 {
+    margin: 0;
+
+    color: #ffffff;
+
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-weight: 950;
+    letter-spacing: -0.04em;
+  }
+
+  .fsrp-recognition-heading span {
+    color: #7f8c9e;
+
+    font-size: 0.67rem;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .fsrp-recognition-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 13px;
+  }
+
+  .fsrp-recognition-card {
+    position: relative;
+    min-height: 190px;
+    padding: 22px;
+
+    overflow: hidden;
+
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 22px;
+
+    background: linear-gradient(
+      145deg,
+      rgba(17, 25, 36, 0.87),
+      rgba(5, 9, 15, 0.92)
+    );
+  }
+
+  .fsrp-recognition-card::after {
+    content: "";
+
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    right: -85px;
+    top: -85px;
+
+    border-radius: 50%;
+
+    background: #399fdd;
+    opacity: 0.08;
+    filter: blur(5px);
+  }
+
+  .fsrp-recognition-icon {
+    width: 44px;
+    height: 44px;
+
+    display: grid;
+    place-items: center;
+
+    margin-bottom: 18px;
+
+    border: 1px solid rgba(100, 202, 255, 0.18);
+    border-radius: 13px;
+
+    background: rgba(48, 144, 211, 0.1);
+
+    font-size: 1.25rem;
+  }
+
+  .fsrp-recognition-card h4 {
+    margin: 0 0 6px;
+
+    color: #ffffff;
+
+    font-size: 1.05rem;
+  }
+
+  .fsrp-recognition-name {
+    margin-bottom: 9px;
+
+    color: #64caff;
+
+    font-size: 0.72rem;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  .fsrp-recognition-card p {
+    margin: 0;
+
+    color: #8f9cad;
+
+    font-size: 0.74rem;
+    line-height: 1.6;
+  }
+
+  /* Last updated */
+
+  .fsrp-staff-last-updated {
+    margin-top: 20px;
+
+    color: #667487;
+
+    font-size: 0.59rem;
+    font-weight: 750;
+    text-align: right;
+    text-transform: uppercase;
+  }
+
+  @keyframes fsrpStaffRing {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes fsrpStaffRingReverse {
+    to {
+      transform: rotate(-360deg);
+    }
+  }
+
+  /* Responsive layout */
+
+  @media (max-width: 960px) {
+    .fsrp-staff-heading {
+      align-items: start;
+      flex-direction: column;
+    }
+
+    .fsrp-staff-main-card {
+      grid-template-columns: 1fr;
+    }
+
+    .fsrp-staff-profile-side {
+      min-height: 360px;
+    }
+
+    .fsrp-staff-activity {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .fsrp-recognition-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 620px) {
+    #fsrp-staff-spotlight {
+      padding: 70px 12px;
+    }
+
+    .fsrp-staff-main-card {
+      padding: 10px;
+      border-radius: 23px;
+    }
+
+    .fsrp-staff-profile-side {
+      min-height: 305px;
+      border-radius: 18px;
+    }
+
+    .fsrp-staff-avatar {
+      width: 140px;
+      height: 140px;
+
+      border-radius: 35px;
+
+      font-size: 3rem;
+    }
+
+    .fsrp-staff-information {
+      padding: 25px 13px;
+    }
+
+    .fsrp-staff-activity {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .fsrp-recognition-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .fsrp-recognition-heading {
+      align-items: start;
+      flex-direction: column;
+    }
+
+    .fsrp-staff-last-updated {
+      text-align: left;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fsrp-staff-profile-side::before,
+    .fsrp-staff-profile-side::after {
+      animation: none;
+    }
+  }
+</style>
+
+<!-- ===========================
+     STAFF SPOTLIGHT HTML
+============================ -->
+
+<section id="fsrp-staff-spotlight">
+  <div class="fsrp-staff-shell">
+    <div class="fsrp-staff-heading">
+      <div>
+        <div class="fsrp-staff-kicker">
+          Staff Recognition Program
+        </div>
+
+        <h2>
+          Staff <span>Spotlight.</span>
+        </h2>
+      </div>
+
+      <p class="fsrp-staff-heading-description">
+        Recognizing the staff members who show professionalism,
+        activity, leadership, and dedication to Florida State
+        Roleplay.
+      </p>
+    </div>
+
+    <article class="fsrp-staff-main-card">
+      <div class="fsrp-staff-profile-side">
+        <div
+          class="fsrp-staff-avatar"
+          id="fsrp-spotlight-avatar"
+        >
+          FS
+        </div>
+
+        <div class="fsrp-staff-featured-badge">
+          <i></i>
+          Featured Staff Member
+        </div>
+      </div>
+
+      <div class="fsrp-staff-information">
+        <span class="fsrp-staff-tag">
+          Staff Spotlight
+        </span>
+
+        <h3 id="fsrp-spotlight-name">
+          Staff Member
+        </h3>
+
+        <div class="fsrp-staff-rank-line">
+          <strong id="fsrp-spotlight-rank">
+            Management
+          </strong>
+
+          <span>•</span>
+
+          <strong id="fsrp-spotlight-department">
+            Staff Team
+          </strong>
+        </div>
+
+        <p id="fsrp-spotlight-description">
+          This staff member has shown excellent professionalism,
+          activity, and dedication while helping improve the
+          Florida State Roleplay community.
+        </p>
+
+        <blockquote
+          class="fsrp-staff-quote"
+          id="fsrp-spotlight-quote"
+        >
+          “Leadership is shown through consistency, respect,
+          and the way you support the community.”
+        </blockquote>
+
+        <div
+          class="fsrp-staff-achievements"
+          id="fsrp-staff-achievements"
+        ></div>
+
+        <div class="fsrp-staff-buttons">
+          <a
+            class="fsrp-staff-button fsrp-staff-button-primary"
+            id="fsrp-staff-roster-button"
+            href="#staff"
+          >
+            View Staff Roster
+          </a>
+
+          <a
+            class="fsrp-staff-button"
+            id="fsrp-staff-application-button"
+            href="#applications"
+          >
+            Apply for Staff
+          </a>
+
+          <a
+            class="fsrp-staff-button"
+            id="fsrp-staff-discord-button"
+            href="https://discord.gg/fosrp"
+            target="_blank"
+            rel="noopener"
+          >
+            Join Discord
+          </a>
+        </div>
+      </div>
+    </article>
+
+    <!-- Staff activity information -->
+
+    <div class="fsrp-staff-activity">
+      <div class="fsrp-staff-activity-card">
+        <strong class="fsrp-staff-live">
+          <i></i>
+          <span id="fsrp-staff-on-duty">0</span>
+        </strong>
+
+        <span>Staff On Duty</span>
+      </div>
+
+      <div class="fsrp-staff-activity-card">
+        <strong id="fsrp-staff-total">—</strong>
+        <span>Total Staff Members</span>
+      </div>
+
+      <div class="fsrp-staff-activity-card">
+        <strong id="fsrp-staff-applications">
+          Closed
+        </strong>
+
+        <span>Staff Applications</span>
+      </div>
+
+      <div class="fsrp-staff-activity-card">
+        <strong id="fsrp-next-training">
+          TBA
+        </strong>
+
+        <span>Next Staff Training</span>
+      </div>
+    </div>
+
+    <!-- New feature: Recognition board -->
+
+    <div class="fsrp-recognition-heading">
+      <h3>Staff Recognition Board</h3>
+
+      <span>
+        Updated by FSRP Leadership
+      </span>
+    </div>
+
+    <div
+      class="fsrp-recognition-grid"
+      id="fsrp-recognition-grid"
+    ></div>
+
+    <div
+      class="fsrp-staff-last-updated"
+      id="fsrp-staff-last-updated"
+    >
+      Last updated recently
+    </div>
+  </div>
+</section>
+
+<script>
+  (function () {
+    /*
+      ==========================================
+      EDIT STAFF SPOTLIGHT INFORMATION HERE
+      ==========================================
+
+      Leave avatarURL blank to use initials.
+    */
+
+    const staffSpotlightSettings = {
+      featuredStaff: {
+        name: "Staff Member",
+        initials: "FS",
+
+        avatarURL: "",
+
+        rank: "Management",
+        department: "FSRP Staff Team",
+
+        description:
+          "This staff member has shown excellent professionalism, activity, leadership, and dedication while helping improve the Florida State Roleplay community.",
+
+        quote:
+          "Leadership is shown through consistency, respect, and the way you support the community.",
+
+        achievements: [
+          "Professional Leadership",
+          "Highly Active",
+          "Community Support",
+          "Reliable Staff Member"
+        ]
+      },
+
+      staffInformation: {
+        staffOnDuty: 0,
+        totalStaff: 0,
+
+        applicationsStatus: "Closed",
+
+        nextTraining: "TBA"
+      },
+
+      links: {
+        staffRoster: "#staff",
+        staffApplication: "#applications",
+
+        discord:
+          "https://discord.gg/fosrp"
+      },
+
+      recognitionBoard: [
+        {
+          icon: "⬆",
+          title: "Recent Promotion",
+          name: "No Promotion Published",
+          description:
+            "Leadership can add the most recently promoted staff member here."
+        },
+
+        {
+          icon: "★",
+          title: "Most Active Staff",
+          name: "Awaiting Selection",
+          description:
+            "Recognizing consistent activity during sessions and community operations."
+        },
+
+        {
+          icon: "◆",
+          title: "Training Excellence",
+          name: "Awaiting Selection",
+          description:
+            "Recognizing a trainer or staff member who helped others improve."
+        }
+      ]
+    };
+
+    const settings = staffSpotlightSettings;
+    const featured = settings.featuredStaff;
+
+    function setText(id, value) {
+      const element = document.getElementById(id);
+
+      if (element) {
+        element.textContent = value;
+      }
+    }
+
+    setText(
+      "fsrp-spotlight-name",
+      featured.name
+    );
+
+    setText(
+      "fsrp-spotlight-rank",
+      featured.rank
+    );
+
+    setText(
+      "fsrp-spotlight-department",
+      featured.department
+    );
+
+    setText(
+      "fsrp-spotlight-description",
+      featured.description
+    );
+
+    setText(
+      "fsrp-spotlight-quote",
+      "“" + featured.quote + "”"
+    );
+
+    /*
+      Staff avatar or initials
+    */
+
+    const avatar =
+      document.getElementById(
+        "fsrp-spotlight-avatar"
+      );
+
+    if (avatar) {
+      if (featured.avatarURL) {
+        avatar.innerHTML =
+          '<img src="' +
+          featured.avatarURL +
+          '" alt="' +
+          featured.name +
+          '">';
+      } else {
+        avatar.textContent =
+          featured.initials || "FS";
+      }
+    }
+
+    /*
+      Achievement badges
+    */
+
+    const achievementsContainer =
+      document.getElementById(
+        "fsrp-staff-achievements"
+      );
+
+    if (achievementsContainer) {
+      achievementsContainer.innerHTML =
+        featured.achievements
+          .map(function (achievement) {
+            return (
+              '<span class="fsrp-staff-achievement">' +
+              achievement +
+              "</span>"
+            );
+          })
+          .join("");
+    }
+
+    /*
+      Staff activity information
+    */
+
+    setText(
+      "fsrp-staff-on-duty",
+      settings.staffInformation.staffOnDuty
+    );
+
+    setText(
+      "fsrp-staff-total",
+      settings.staffInformation.totalStaff
+    );
+
+    setText(
+      "fsrp-staff-applications",
+      settings.staffInformation
+        .applicationsStatus
+    );
+
+    setText(
+      "fsrp-next-training",
+      settings.staffInformation.nextTraining
+    );
+
+    /*
+      Quick-action links
+    */
+
+    const rosterButton =
+      document.getElementById(
+        "fsrp-staff-roster-button"
+      );
+
+    const applicationButton =
+      document.getElementById(
+        "fsrp-staff-application-button"
+      );
+
+    const discordButton =
+      document.getElementById(
+        "fsrp-staff-discord-button"
+      );
+
+    if (rosterButton) {
+      rosterButton.href =
+        settings.links.staffRoster;
+    }
+
+    if (applicationButton) {
+      applicationButton.href =
+        settings.links.staffApplication;
+    }
+
+    if (discordButton) {
+      discordButton.href =
+        settings.links.discord;
+    }
+
+    /*
+      Staff Recognition Board
+    */
+
+    const recognitionGrid =
+      document.getElementById(
+        "fsrp-recognition-grid"
+      );
+
+    if (recognitionGrid) {
+      recognitionGrid.innerHTML =
+        settings.recognitionBoard
+          .map(function (recognition) {
+            return `
+              <article class="fsrp-recognition-card">
+                <div class="fsrp-recognition-icon">
+                  ${recognition.icon}
+                </div>
+
+                <h4>${recognition.title}</h4>
+
+                <div class="fsrp-recognition-name">
+                  ${recognition.name}
+                </div>
+
+                <p>
+                  ${recognition.description}
+                </p>
+              </article>
+            `;
+          })
+          .join("");
+    }
+
+    /*
+      Automatic last-updated time
+      Uses the visitor's own device time.
+    */
+
+    const updatedElement =
+      document.getElementById(
+        "fsrp-staff-last-updated"
+      );
+
+    if (updatedElement) {
+      const now = new Date();
+
+      updatedElement.textContent =
+        "Viewed " +
+        now.toLocaleDateString([], {
+          month: "long",
+          day: "numeric",
+          year: "numeric"
+        }) +
+        " at " +
+        now.toLocaleTimeString([], {
+          hour: "numeric",
+          minute: "2-digit"
+        });
+    }
+  })();
+</script>
 </body>
 </html>
