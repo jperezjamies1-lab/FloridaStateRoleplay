@@ -1,0 +1,28 @@
+# V3 Enhanced 3.5.1 Changelog
+
+- Rebuilt directly from the user-provided V3 full backup
+- Preserved the original V3 FSRP logo byte-for-byte
+- Preserved the working `SITE_SETTINGS` KV namespace
+- Restored the full V3 rules, marketplace, gallery, platform, FAQ, support, announcement, and timeline content
+- Added automatic migration for the original V3 Cloudflare `live` storage format
+- Added automatic migration for earlier incomplete enhanced settings
+- Added cinematic intro and separate loader
+- Added image/video intro media
+- Added live device time
+- Added five-word left-to-right ticker
+- Added three-second announcement takeover
+- Added Staff Spotlight and Recognition Board
+- Added Streamer Live Dashboard
+- Added FBI/FHP/FFW/Staff CAD
+- Added dispatch, units, calls, records, reports, citations, warrants, BOLOs, radio, bodycam, and dashcam
+- Added glassmorphism throughout the website
+- Added maintenance waiting music and permanent bypass controls
+- Added LWKTIMMY 1-of-1 easter egg
+- Added one-minute Party Mode
+- Removed FD from department and whitelist systems
+- Kept CIV public and explicitly not whitelisted
+- Made `CAD_STATE` unnecessary by reusing `SITE_SETTINGS`
+- Made `AUTH_SECRET` and `CAD_TOKEN_SECRET` optional secure fallbacks
+- Added maintenance safety migration 3
+- Added cache-busting version 3.5.1 and no-cache HTML headers
+- Added complete Manager editing for restored marketplace, support, system, staff, department, rule, gallery, and visibility fields

@@ -1,29 +1,49 @@
 # Emergency Maintenance Reset
 
-The website now ignores old maintenance settings unless both of these values are explicitly enabled in the current Manager:
+This build automatically disables stale maintenance settings from previous safety versions.
 
-- `maintenance.enabled = true`
-- `maintenance.publicLockConfirmed = true`
+## Immediate public bypass
 
-Old Cloudflare KV content does not contain the new confirmation value, so it can no longer trap the public website.
+Add this to the website address:
 
-## Immediate bypass
+```text
+?maintenance=off
+```
 
-Open either of these URLs:
+Example:
 
-- `https://YOUR-DOMAIN/#manager`
-- `https://YOUR-DOMAIN/?maintenance=off`
+```text
+https://your-domain.pages.dev/?maintenance=off
+```
 
-The maintenance screen also includes a **Continue to Website** button.
+## Manager bypass
 
-## Turn maintenance off permanently
+Open:
 
-1. Open Manager.
-2. Go to **Theme & Sound**.
-3. Set **Maintenance mode** to **Off**.
-4. Set **Confirm public lock** to **No — keep website open**.
-5. Select **Publish to Cloud**.
+```text
+https://your-domain.pages.dev/#manager
+```
 
-## Cloudflare cache
+Then set:
 
-After deploying this fixed package, create a new deployment and force-refresh the page with `Command + Shift + R`.
+```text
+Maintenance Mode: Off
+Confirm Public Lock: No — keep website open
+```
+
+Publish to Cloud.
+
+## Built-in escape
+
+The maintenance screen includes **Continue to Website**. Pressing it stores a bypass for the current browser tab and immediately restores scrolling.
+
+## Why the old screen cannot lock this build
+
+Maintenance only appears when:
+
+1. `maintenance.enabled` is true
+2. `maintenance.publicLockConfirmed` is true
+3. `maintenance.safetyVersion` is at least 3
+4. The visitor has not selected a bypass
+
+Old settings with safety version 1 or 2 are automatically reset to off.

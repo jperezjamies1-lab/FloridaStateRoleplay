@@ -63,19 +63,21 @@ function cleanItem(item = {}) {
 }
 
 export async function onRequestPost({ request, env }) {
-  if (!env.CAD_TOKEN_SECRET) return json({ error: "CAD_TOKEN_SECRET is not configured." }, 503);
-  if (!env.CAD_STATE) return json({ error: "Cloudflare KV binding CAD_STATE is missing. Add it in the Pages project Bindings settings." }, 503);
+  const tokenSecret = env.CAD_TOKEN_SECRET || env.AUTH_SECRET || env.ADMIN_TOKEN || env.OPERATIONS_TOKEN;
+  const cadStore = env.CAD_STATE || env.SITE_SETTINGS;
+  if (!tokenSecret) return json({ error: "Add ADMIN_TOKEN, OPERATIONS_TOKEN, AUTH_SECRET, or CAD_TOKEN_SECRET to enable secure CAD sessions." }, 503);
+  if (!cadStore) return json({ error: "SITE_SETTINGS KV is missing. The CAD can reuse the existing website KV automatically." }, 503);
   const data = await body(request);
 
   if (data.action === "login") {
     const match = agencyFor(data.code, env);
     if (!match) return json({ error: "Invalid CAD access code." }, 401);
-    return json({ ...match, token: await issue(match.role, match.agency, env.CAD_TOKEN_SECRET), apiVersion: 2 });
+    return json({ ...match, token: await issue(match.role, match.agency, tokenSecret), apiVersion: 2 });
   }
 
-  const user = await verify(data.token, env.CAD_TOKEN_SECRET);
+  const user = await verify(data.token, tokenSecret);
   if (!user) return json({ error: "CAD session expired or invalid." }, 401);
-  const state = await env.CAD_STATE.get("state", "json") || structuredClone(EMPTY_STATE);
+  const state = await cadStore.get("fsrp_cad_state_v1", "json") || structuredClone(EMPTY_STATE);
   for (const key of Object.keys(EMPTY_STATE)) if (!Array.isArray(state[key])) state[key] = [];
 
   if (data.action === "state") {
@@ -98,6 +100,6 @@ export async function onRequestPost({ request, env }) {
     return json({ error: "Unknown CAD action." }, 400);
   }
 
-  await env.CAD_STATE.put("state", JSON.stringify(state));
+  await cadStore.put("fsrp_cad_state_v1", JSON.stringify(state));
   return json({ ok: true, state, apiVersion: 2 });
 }

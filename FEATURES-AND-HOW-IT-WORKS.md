@@ -1,89 +1,135 @@
-# FSRP Website V4 — Features
+# FSRP V3 Enhanced — Features and Operation
 
-## Website experience
+## Foundation preserved
 
-- Original FSRP PNG logo preserved everywhere
-- Cinematic Florida palm-tree intro
-- Separate animated loading stage
-- Optional intro image or video URL
-- Live device time and timezone
-- Glassmorphism across panels, navigation, Manager, Staff, CAD, and modals
-- Responsive phone, tablet, and desktop layouts
+This version uses the uploaded V3 full backup as its base. It preserves the original FSRP logo, original V3 repository structure, legacy backup, existing `SITE_SETTINGS` namespace, routes, Manager concept, and Cloudflare Pages deployment method.
 
-## Update ticker
+## Cinematic intro
 
-- Moves automatically from left to right
-- Managed through Website Manager
-- Each message is automatically limited to five words
-- Disabled messages are skipped
-- Hover pauses it on desktop
+The opening sequence is a real intro followed by a separate loader:
 
-## Announcement takeover
+1. Florida night/sunset scene appears.
+2. Palm trees move.
+3. Left palm falls right and right palm falls left.
+4. The loader stage appears.
+5. The public website opens.
+6. The live device clock continues updating.
 
-- Displays a large centered Admin announcement
-- Closes automatically after three seconds
-- Visitors can close it with the X
-- The announcement ID is remembered locally and does not reappear after reload
-- Change the ID to publish a new takeover
+Manager controls:
 
-## Maintenance and failure recovery
+- Enable/disable intro
+- Show every refresh or once per tab
+- Animated background only
+- Image URL
+- MP4/WEBM video URL
+- Local image/video preview
 
-- Maintenance mode starts disabled
-- Discord remains accessible during maintenance
-- Manager Access can bypass the maintenance screen for the current tab
-- Original generated waiting music or a custom audio URL
-- Retry panel appears when cloud settings cannot load or the device is offline
-- The public site remains available using local/default content
+## Moving five-word ticker
+
+The ticker moves automatically from left to right. Every entry is automatically trimmed to a maximum of five words.
+
+Manager path:
+
+```text
+Manager → Intro, Ticker & Takeover
+```
+
+## Three-second announcement takeover
+
+A large announcement appears in the middle of the screen after the intro. It closes after three seconds or when the visitor presses X. The announcement ID is saved on the visitor's device, so the same ID does not appear again after reloading. Change the ID to publish a new takeover.
+
+## Staff Spotlight
+
+The Staff page includes:
+
+- Featured staff member
+- Name, initials/avatar, rank, team, and recognition reason
+- Achievement tags
+- Staff Recognition Board
+- Recent Promotion
+- Most Active Staff
+- Training Excellence
+
+The Staff and Manager code is kept in external JavaScript/CSS files so source code cannot display as page text.
 
 ## Streamer Live Dashboard
 
-- Row of official YouTube, Twitch, and TikTok creator cards
-- LIVE cards glow, animate, and link directly to the stream
-- YouTube and Twitch can update from official server-side APIs
-- Live-title keywords verify that the broadcast is about FSRP / ER:LC
-- TikTok uses a Manager live switch unless TikTok approves a LIVE embed integration
-- API secrets stay inside Cloudflare and never appear in browser JavaScript
+Official creator cards support:
 
-## Staff systems
+- YouTube
+- Twitch
+- TikTok
+- Creator name
+- Platform
+- Avatar
+- Stream title
+- LIVE glow and badge
+- Watch Live button
 
-- Staff Spotlight
-- Staff Recognition Board
-- Rank filters
-- Optional Discord presence bridge
-- No fake online/offline information
+YouTube and Twitch can check official APIs after their Cloudflare secrets are added. TikTok can be marked live from Manager.
 
-## Integrated CAD
+## Roleplay CAD
 
-Authorized agencies: FBI, FHP, FFW, Staff Team.
+Authorized agencies:
 
-Included tools:
+- FBI
+- FHP
+- FFW
+- Staff Team
 
-- Live dispatch feed
-- Five-second shared-state refresh
-- Active unit board and statuses
-- 911 roleplay calls
-- Person, username, and plate records
-- Incident reports
+Systems:
+
+- Secure department codes
+- Signed eight-hour CAD sessions
+- Dispatch log
+- Unit board and callsigns
+- Unit status updates
+- 911 calls
+- Person and plate records
+- Reports
 - Citations
 - Warrants and BOLOs
-- Radio text log and push-to-talk effects
 - Panic button
-- Bodycam and dashcam previews
-- Local browser recordings
-- Signed eight-hour CAD sessions
-- Server-side access codes
-- Input sanitizing and entry limits
+- Radio channels
+- Shared text radio traffic
+- Push-to-talk effects
+- Bodycam preview and local recording
+- Dashcam preview and local recording
+
+Camera use always requires browser permission. Recordings stay on the user's device and are not uploaded automatically.
+
+The CAD automatically reuses `SITE_SETTINGS`. It does not require a separate `CAD_STATE` binding.
+
+## Maintenance and waiting music
+
+Maintenance includes:
+
+- Glassmorphism card
+- Animated background lights
+- Original generated ambient waiting music
+- Optional custom music URL
+- Volume control
+- Discord button
+- Manager button
+- Continue to Website button
+- URL bypass
+
+Maintenance requires a double confirmation and safety version 3.
+
+## Glassmorphism
+
+Glass effects are applied to navigation, cards, Staff Spotlight, Streamer Dashboard, Manager, CAD, maintenance, service notices, and overlays.
 
 ## Easter eggs
 
-- Click an FSRP logo twice: **LWKTIMMY Role · 1 of 1**
-- Click an FSRP logo four times: one-minute Party Mode with original synth audio, lights, and confetti
+### LWKTIMMY Role · 1 of 1
 
-## Security improvements
+Click an FSRP logo twice within about 1.2 seconds.
 
-- Admin uploads require a verified Admin session
-- Operations can publish Server Status only
-- No fallback `change-me` signing secret
-- Local blob/data media is blocked from cloud publishing
-- Shared CAD entries are cleaned and length-limited server-side
-- Secrets are never stored in GitHub or public JavaScript
+### Party Mode
+
+Click an FSRP logo four times. Party Mode runs for one minute with animated lighting, confetti, countdown, and original browser-generated music.
+
+## Cache protection
+
+All CSS and JavaScript references use version `3.5.1`. HTML is served with no-cache headers. This prevents older maintenance CSS or scripts from remaining stuck after a deployment.

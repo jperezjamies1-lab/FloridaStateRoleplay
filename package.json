@@ -1,7 +1,7 @@
 {
-  "name": "fsrp-roleplay-platform",
-  "version": "4.0.0",
-  "description": "Florida State Roleplay V4 glassmorphism website, live streamer dashboard, Manager, and integrated CAD",
+  "name": "fsrp-v3-enhanced-roleplay-platform",
+  "version": "3.5.1",
+  "description": "Florida State Roleplay V3 enhanced community hub with intro, ticker, Staff Spotlight, streamer dashboard, and roleplay CAD",
   "private": true,
   "scripts": {
     "test": "node test_site.mjs"

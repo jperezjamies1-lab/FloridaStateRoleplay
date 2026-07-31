@@ -87,7 +87,10 @@ check("embedded local media is blocked from KV publishing", fs.readFileSync("js/
 const configJs = fs.readFileSync("js/config.js", "utf8");
 const featuresJs = fs.readFileSync("js/features.js", "utf8");
 const cadApiJs = fs.readFileSync("functions/api/cad.js", "utf8");
-check("dashboard-managed bindings are unlocked", !fs.existsSync(path.join(root, "wrangler.toml")) && fs.existsSync(path.join(root, "wrangler.example.toml")));
+const wrangler = fs.readFileSync(path.join(root, "wrangler.toml"), "utf8");
+check("working V3 Wrangler binding is preserved", wrangler.includes('binding = "SITE_SETTINGS"') && wrangler.includes('d5253d8c54c54cb19f08b3bc3b61e90e'));
+check("CAD reuses SITE_SETTINGS without requiring CAD_STATE", cadApiJs.includes("env.CAD_STATE || env.SITE_SETTINGS") && cadApiJs.includes('fsrp_cad_state_v1'));
+check("Manager session secret has a safe fallback", fs.readFileSync("functions/api/auth.js", "utf8").includes("env.AUTH_SECRET || env.ADMIN_TOKEN || env.OPERATIONS_TOKEN"));
 check("original PNG logo is preserved and generic SVG is removed", fs.existsSync(path.join(root, "assets/brand/fsrp-logo.png")) && !fs.existsSync(path.join(root, "assets/brand/fsrp-logo.svg")));
 check("Streamer Live Dashboard and API are integrated", html.includes('id="streamer-live-grid"') && fs.existsSync(path.join(root, "js/streamers.js")) && fs.existsSync(path.join(root, "functions/api/streamers.js")));
 check("maintenance waiting music is integrated", html.includes("data-waiting-music") && featuresJs.includes("startWaitingMusic") && configJs.includes('"musicEnabled": true'));
@@ -96,8 +99,11 @@ check("maintenance mode defaults off", /"maintenance"\s*:\s*\{[\s\S]*?"enabled"\
 check("maintenance requires explicit public lock confirmation", fs.readFileSync("js/app.js", "utf8").includes("publicLockConfirmed === true") && configJs.includes('"publicLockConfirmed": false'));
 check("stale maintenance KV is automatically neutralized", fs.readFileSync("js/store.js", "utf8").includes("sanitizeMaintenance") && fs.readFileSync("functions/api/settings.js", "utf8").includes("safetyVersion"));
 check("maintenance has a public escape button and URL bypass", html.includes("Continue to Website") && fs.readFileSync("js/app.js", "utf8").includes('get("maintenance") === "off"'));
-check("CAD verifies its KV binding before issuing login", cadApiJs.indexOf("if (!env.CAD_STATE)") !== -1 && cadApiJs.indexOf("if (!env.CAD_STATE)") < cadApiJs.indexOf("issue(match.role"));
+check("CAD verifies storage before issuing login", cadApiJs.includes("const cadStore = env.CAD_STATE || env.SITE_SETTINGS") && cadApiJs.indexOf("if (!cadStore)") < cadApiJs.indexOf("issue(match.role"));
 check("CAD refreshes safely without setInterval", fs.readFileSync("js/cad.js", "utf8").includes("setTimeout") && !fs.readFileSync("js/cad.js", "utf8").includes("setInterval"));
+
+check("maintenance safety migration is version 3", configJs.includes('"safetyVersion": 3') && fs.readFileSync("js/store.js", "utf8").includes("safetyVersion) >= 3") && fs.readFileSync("functions/api/settings.js", "utf8").includes("safetyVersion) < 3"));
+check("CIV remains public and not whitelisted", configJs.includes('"name": "CIV"') && configJs.includes("CIV is not a whitelisted department"));
 
 for (const cssFile of fs.readdirSync(path.join(root, "css")).filter((file) => file.endsWith(".css"))) {
   const css = fs.readFileSync(path.join(root, "css", cssFile), "utf8");
@@ -107,6 +113,6 @@ for (const cssFile of fs.readdirSync(path.join(root, "css")).filter((file) => fi
 }
 
 const passed = results.filter((r) => r.pass).length;
-console.log(`\n${"=".repeat(72)}\nFSRP V4 STATIC TESTS: ${passed}/${results.length} passed\n${"=".repeat(72)}`);
+console.log(`\n${"=".repeat(72)}\nFSRP V3 ENHANCED STATIC TESTS: ${passed}/${results.length} passed\n${"=".repeat(72)}`);
 for (const result of results) console.log(`${result.pass ? "✅" : "❌"} ${result.name}${result.detail ? ` — ${result.detail}` : ""}`);
 if (results.some((r) => !r.pass)) process.exit(1);

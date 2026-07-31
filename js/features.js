@@ -155,7 +155,7 @@
     logoClickTimer = window.setTimeout(() => {
       if (logoClicks === 2) $("#lwktimmy-easter").hidden = false;
       logoClicks = 0;
-    }, 650);
+    }, 1200);
   }
 
   function makeConfetti() {
@@ -317,7 +317,9 @@
       sessionStorage.setItem("fsrpMaintenanceBypass", "1");
       const maintenance = $("#maintenance-screen");
       if (maintenance) maintenance.hidden = true;
+      document.body.classList.remove("is-locked", "fsrp-screen-locked");
       stopWaitingMusic();
+      document.dispatchEvent(new CustomEvent("fsrp:maintenance", { detail: { visible: false } }));
     }
   });
 

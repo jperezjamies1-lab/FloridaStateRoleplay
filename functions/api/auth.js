@@ -20,7 +20,8 @@ async function sign(value, secret) {
 }
 
 export async function onRequestPost({ request, env }) {
-  if (!env.AUTH_SECRET) return json({ error: "AUTH_SECRET is not configured." }, 503);
+  const sessionSecret = env.AUTH_SECRET || env.ADMIN_TOKEN || env.OPERATIONS_TOKEN;
+  if (!sessionSecret) return json({ error: "ADMIN_TOKEN or OPERATIONS_TOKEN is not configured." }, 503);
   const { passcode } = await body(request);
   let role = "";
   if (env.ADMIN_TOKEN && timingSafeEqual(String(passcode || ""), env.ADMIN_TOKEN)) role = "admin";
@@ -28,6 +29,6 @@ export async function onRequestPost({ request, env }) {
   else return json({ error: "Invalid manager passcode." }, 401);
 
   const payload = toBase64Url(encoder.encode(JSON.stringify({ role, exp: Date.now() + 8 * 60 * 60 * 1000 })));
-  const signature = await sign(payload, env.AUTH_SECRET);
+  const signature = await sign(payload, sessionSecret);
   return json({ ok: true, role, token: `${payload}.${signature}` });
 }

@@ -1,17 +1,17 @@
-name = "fsrp-roleplay-platform"
-compatibility_date = "2026-07-30"
+# Florida State Roleplay Cloudflare Pages configuration
+# Kept from the working V3 backup.
+name = "florida-state-roleplay"
+compatibility_date = "2025-01-01"
 pages_build_output_dir = "."
 
-# Create KV namespaces, then replace the IDs below or bind them in the Cloudflare dashboard.
-# [[kv_namespaces]]
-# binding = "SITE_SETTINGS"
-# id = "YOUR_SETTINGS_KV_ID"
-#
-# [[kv_namespaces]]
-# binding = "CAD_STATE"
-# id = "YOUR_CAD_KV_ID"
+[[kv_namespaces]]
+binding = "SITE_SETTINGS"
+id = "d5253d8c54c54cb19f08b3bc3b61e90e"
 
-# Optional R2 binding for uploaded images, videos, and audio.
+# The integrated CAD automatically stores its data under a separate key in
+# SITE_SETTINGS. A separate CAD_STATE binding is optional, not required.
+
+# Optional R2 media storage. Uncomment only after creating the bucket.
 # [[r2_buckets]]
 # binding = "MEDIA_BUCKET"
 # bucket_name = "fsrp-media"

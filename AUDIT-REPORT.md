@@ -1,88 +1,97 @@
-# Florida State Roleplay V4 — Final Audit Report
+# Florida State Roleplay V3 Enhanced 3.5.1 — Final Audit
 
-## Result
+## Final result
 
-- Static and integration checks: **172 / 172 passed**
-- JavaScript syntax: all browser and Cloudflare Function files passed
-- HTML duplicate IDs: none detected
-- Local CSS, JavaScript, and image references: all present
-- CSS brace balance: all stylesheets passed
-- Client repeating `setInterval` loops: none
-- Original FSRP PNG logo: preserved at `assets/brand/fsrp-logo.png`
-- Generic replacement shield: removed
-- Active `wrangler.toml`: removed so Cloudflare dashboard bindings can be managed normally
-- Example config retained as `wrangler.example.toml`
+- **145/145 repository and integration tests passed** through `npm test`.
+- **Original V3 cloud-state migration passed.**
+- **Earlier enhanced/broken-state migration passed.**
+- **No duplicate HTML IDs.**
+- **No missing local CSS, JavaScript, image, or route references.**
+- **All JavaScript and Cloudflare Function files passed syntax checking.**
+- **Every CSS file has balanced braces.**
+- **Original FSRP logo is byte-for-byte preserved.**
 
-## Problems repaired
+## Foundation verification
 
-- Maintenance overlay no longer appears when maintenance is disabled.
-- Cloud content loads without holding the opening loader on screen.
-- Cloud failure shows a recoverable service notice instead of blocking the website.
-- Admin and Operations publishing permissions are separated server-side.
-- Operations can publish server status only.
-- Local preview media is blocked from being accidentally saved into KV.
-- CAD refuses login when its signing secret or `CAD_STATE` binding is missing.
-- CAD shared records are cleaned and length-limited before storage.
-- CAD boards refresh every five seconds while visible and pause in background tabs.
-- Staff presence polling pauses in background tabs.
-- Staff source code is no longer rendered as website text.
-- Duplicate maintenance controls in Manager were removed.
+This build was created from:
 
-## Features integrated
+```text
+FloridaStateRoleplayWebsite-V3-FULL-BACKUP(2)(1).zip
+```
 
-- Site-wide glassmorphism cards, panels, navigation, Manager, CAD, maintenance and recovery screens.
-- Left-to-right roleplay ticker with a five-word maximum per message.
-- Manager editor for ticker messages.
-- Original generated waiting music for maintenance and service-recovery screens.
-- Optional custom waiting-music URL and volume controls.
-- Streamer Live Dashboard for official YouTube, Twitch and TikTok creators.
-- Automatic YouTube live checks with caching.
-- Automatic Twitch live checks using Helix and an app access token.
-- Manager-controlled TikTok live status, with support for TikTok's approved LIVE embed workflow.
-- Live-title keyword matching for FSRP / Florida State Roleplay / ER:LC.
-- Three-second announcement takeover with per-announcement dismiss memory.
-- Cinematic intro with image/video support and separate loader stage.
-- Live device clock.
-- Staff Spotlight and Staff Recognition Board.
-- LWKTIMMY 1-of-1 double-click logo easter egg.
-- One-minute four-click party mode with original generated music and effects.
-- API-ready FBI, FHP, FFW and Staff Team CAD.
-- Dispatch, units, calls, records, reports, citations, warrants, BOLO/radio functions, bodycam and dashcam local recording.
+Preserved:
 
-## Cloudflare resources required
+- Original FSRP logo
+- Original V3 Cloudflare Pages structure
+- Existing `SITE_SETTINGS` KV namespace ID
+- Full V3 department content
+- Seven staff rank groups
+- Eight rule categories
+- Three marketplace cards
+- Three gallery items
+- Six platform systems
+- Three onboarding steps
+- Six support paths
+- Original announcements and timeline
+- Legacy original-index backup
 
-KV bindings:
+## Compatibility repair
 
-- `SITE_SETTINGS`
-- `CAD_STATE`
+The website now understands both Cloudflare storage formats used by earlier builds:
 
-Encrypted secrets:
+1. Direct KV keys:
+   - `fsrp_v3_content`
+   - `fsrp_v3_status`
+2. Original V3 `live` object containing those values as strings
 
-- `ADMIN_TOKEN`
-- `OPERATIONS_TOKEN`
-- `AUTH_SECRET`
-- `CAD_TOKEN_SECRET`
-- `CAD_FBI_CODE`
-- `CAD_FHP_CODE`
-- `CAD_FFW_CODE`
-- `CAD_STAFF_CODE`
+Publishing writes both formats for backward compatibility. Browser storage using either `fsrpPreviewStateV3` or the original `fsrp_v3_content` key is also migrated.
 
-Optional integrations:
+Old V3 content is upgraded to schema version 4 without losing the full website foundation. Earlier incomplete enhanced settings are repaired so missing rules, marketplace, gallery, systems, FAQs, and support sections return automatically.
 
-- `YOUTUBE_API_KEY`
-- `TWITCH_CLIENT_ID`
-- `TWITCH_CLIENT_SECRET`
-- `PRESENCE_SYNC_TOKEN`
-- R2 binding `MEDIA_BUCKET`
+## Maintenance safety
 
-## Important behavior
+- Maintenance defaults to off.
+- Stale safety versions are neutralized.
+- Public lock requires explicit confirmation.
+- `Continue to Website` remains available.
+- `?maintenance=off` bypass is supported.
+- `#manager` bypass is supported.
+- Waiting music can be started only after visitor interaction.
 
-- Waiting music starts after the visitor presses **Play Waiting Music**. Browsers may require a user interaction before audio can start.
-- YouTube cards update automatically after a valid API key and channel IDs are configured.
-- Twitch cards update automatically after valid Twitch application credentials and usernames are configured.
-- TikTok status is controlled from Manager unless FSRP obtains access to TikTok's approved LIVE embed system.
-- Camera recordings stay on the member's device and are not automatically uploaded.
+## CAD verification
 
-## Browser smoke-test note
+- FBI, FHP, FFW, and Staff Team access only
+- Department codes stay in Cloudflare secrets
+- CAD sessions are signed server-side
+- CAD reuses `SITE_SETTINGS` under `fsrp_cad_state_v1`
+- Separate `CAD_STATE` binding is not required
+- Dispatch, units, calls, records, reports, citations, warrants/BOLOs, radio, panic, bodycam, and dashcam modules are present
 
-A real Chromium smoke test was attempted in the build environment, but local page navigation was blocked by the environment administrator. The complete static, reference, syntax, permission, storage and integration suite passed instead.
+## Content counts in the final defaults
+
+- Departments: 5
+- Rank groups: 7
+- Staff records: 1 starter record
+- Announcements: 2
+- Timeline records: 2
+- Marketplace cards: 3
+- Rule categories: 8
+- Gallery items: 3
+- Platform systems: 6
+- Join steps: 3
+- FAQs: 8
+- Support paths: 6
+- Ticker messages: 5
+- Streamer cards: 3
+
+## Logo verification
+
+Original and final logo SHA-256:
+
+```text
+a1a968a0e7b9dbb18211fe777eb566d59992fbd4ed4a5555be46544eb6c7fe94
+```
+
+## Browser-test limitation
+
+A local Chromium navigation attempt was blocked by this execution environment's administrator policy. The exact package was instead checked through static structure validation, syntax checks, local-reference checks, state-migration execution tests, configuration tests, and ZIP re-extraction tests.

@@ -29,7 +29,7 @@
       const status = item.live ? "LIVE" : item.checking ? "CHECKING" : "OFFLINE";
       const title = item.liveTitle || (item.live ? "Playing Florida State Roleplay" : "Waiting for the next FSRP stream");
       return `<article class="streamer-card glass-card ${item.live ? "is-live" : ""}">
-        <div class="streamer-card-top"><img src="${escape(item.avatarUrl || "/assets/brand/fsrp-logo.png")}" alt=""><span class="stream-platform">${escape(platformLabel(item.platform))}</span><span class="stream-status">${status}</span></div>
+        <div class="streamer-card-top"><img src="${escape(item.avatarUrl || "/assets/brand/fsrp-logo.png?v=3.5.1")}" alt=""><span class="stream-platform">${escape(platformLabel(item.platform))}</span><span class="stream-status">${status}</span></div>
         <h3>${escape(item.name)}</h3><p>${escape(title)}</p>
         <a class="btn ${item.live ? "btn-primary" : "btn-ghost"} btn-small" href="${escape(item.liveUrl || item.url || "#")}" target="_blank" rel="noopener">${item.live ? "Watch Live" : "View Channel"}</a>
       </article>`;

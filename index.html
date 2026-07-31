@@ -9,28 +9,28 @@
   <meta property="og:description" content="Honor. Service. Integrity. Explore the official Florida State Roleplay community hub.">
   <meta property="og:image" content="/assets/brand/social-preview.png">
   <title>Florida State Roleplay — Official Community Hub</title>
-  <link rel="icon" href="/assets/brand/fsrp-logo.png">
-  <link rel="stylesheet" href="/css/base.css">
-  <link rel="stylesheet" href="/css/navigation.css">
-  <link rel="stylesheet" href="/css/hero.css">
-  <link rel="stylesheet" href="/css/pages.css">
-  <link rel="stylesheet" href="/css/dashboard.css">
-  <link rel="stylesheet" href="/css/staff.css">
-  <link rel="stylesheet" href="/css/search.css">
-  <link rel="stylesheet" href="/css/notifications.css">
-  <link rel="stylesheet" href="/css/manager.css">
-  <link rel="stylesheet" href="/css/animations.css">
-  <link rel="stylesheet" href="/css/mobile.css">
-  <link rel="stylesheet" href="/css/features.css">
-  <link rel="stylesheet" href="/css/cad.css">
-  <link rel="stylesheet" href="/css/streamers.css">
+  <link rel="icon" href="/assets/brand/fsrp-logo.png?v=3.5.1">
+  <link rel="stylesheet" href="/css/base.css?v=3.5.1">
+  <link rel="stylesheet" href="/css/navigation.css?v=3.5.1">
+  <link rel="stylesheet" href="/css/hero.css?v=3.5.1">
+  <link rel="stylesheet" href="/css/pages.css?v=3.5.1">
+  <link rel="stylesheet" href="/css/dashboard.css?v=3.5.1">
+  <link rel="stylesheet" href="/css/staff.css?v=3.5.1">
+  <link rel="stylesheet" href="/css/search.css?v=3.5.1">
+  <link rel="stylesheet" href="/css/notifications.css?v=3.5.1">
+  <link rel="stylesheet" href="/css/manager.css?v=3.5.1">
+  <link rel="stylesheet" href="/css/animations.css?v=3.5.1">
+  <link rel="stylesheet" href="/css/mobile.css?v=3.5.1">
+  <link rel="stylesheet" href="/css/features.css?v=3.5.1">
+  <link rel="stylesheet" href="/css/cad.css?v=3.5.1">
+  <link rel="stylesheet" href="/css/streamers.css?v=3.5.1">
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to content</a>
 
   <div class="app-loading" id="app-loader" aria-live="polite">
     <div>
-      <img class="loading-mark" src="/assets/brand/fsrp-logo.png" alt="Florida State Roleplay" data-logo-easter>
+      <img class="loading-mark" src="/assets/brand/fsrp-logo.png?v=3.5.1" alt="Florida State Roleplay" data-logo-easter>
       <div class="loading-line" aria-hidden="true"></div>
     </div>
   </div>
@@ -51,7 +51,7 @@
   <header class="site-header">
     <div class="container header-inner">
       <a class="brand" href="#home" data-route="home" aria-label="Florida State Roleplay home">
-        <img src="/assets/brand/fsrp-logo.png" alt="FSRP logo" data-logo-easter>
+        <img src="/assets/brand/fsrp-logo.png?v=3.5.1" alt="FSRP logo" data-logo-easter>
         <span class="brand-copy"><strong>Florida State<br>Roleplay</strong><span>Official Community Hub</span></span>
       </a>
 
@@ -380,7 +380,7 @@
             <section class="manager-section" data-manager-panel="experience"><article class="panel manager-card"><h2>Intro media, live ticker, and announcement takeover</h2><p class="section-copy">Use a direct MP4/WEBM video URL or image URL. A local file can be previewed in this browser; use Asset Library for permanent cloud media.</p><div class="field-grid"><div class="field"><label>Intro enabled</label><select data-bind="experience.introEnabled"><option value="true">Enabled</option><option value="false">Disabled</option></select></div><div class="field"><label>Intro media type</label><select data-bind="experience.introMediaType"><option value="image">Image / PNG</option><option value="video">Video</option><option value="none">Animated background only</option></select></div><div class="field"><label>Intro media URL</label><input data-bind="experience.introMediaUrl" placeholder="https://...mp4 or /api/media?key=..."></div><div class="field"><label>Show intro every refresh</label><select data-bind="experience.introEveryRefresh"><option value="true">Every refresh</option><option value="false">Once per tab</option></select></div></div><div class="field" style="margin-top:14px"><label>Preview local video or image</label><input id="intro-local-file" type="file" accept="image/*,video/mp4,video/webm"></div></article><article class="panel manager-card"><h2>Moving update ticker</h2><p class="section-copy">Each message is automatically limited to five words and moves continuously from left to right.</p><div class="editor-list" id="ticker-editor"></div><button class="btn btn-secondary btn-small" data-add-item="ticker">Add ticker message</button></article><article class="panel manager-card"><h2>Three-second announcement takeover</h2><div class="field-grid"><div class="field"><label>Enabled</label><select data-bind="takeover.enabled"><option value="true">Enabled</option><option value="false">Disabled</option></select></div><div class="field"><label>Announcement ID</label><input data-bind="takeover.id" placeholder="Change this ID to show a new announcement"></div><div class="field"><label>Title</label><input data-bind="takeover.title"></div><div class="field"><label>Button label</label><input data-bind="takeover.buttonLabel"></div><div class="field"><label>Button URL</label><input data-bind="takeover.buttonUrl"></div></div><div class="field" style="margin-top:14px"><label>Message</label><textarea data-bind="takeover.message"></textarea></div><p class="muted">Each visitor sees an announcement ID once. Closing it or waiting three seconds saves that ID on their device, so it will not reappear after reload.</p></article><article class="panel manager-card"><h2>Staff Spotlight</h2><div class="field-grid"><div class="field"><label>Name</label><input data-bind="spotlight.name"></div><div class="field"><label>Initials</label><input data-bind="spotlight.initials"></div><div class="field"><label>Avatar URL</label><input data-bind="spotlight.avatarUrl"></div><div class="field"><label>Rank</label><input data-bind="spotlight.rank"></div><div class="field"><label>Team</label><input data-bind="spotlight.team"></div></div><div class="field" style="margin-top:14px"><label>Recognition reason</label><textarea data-bind="spotlight.reason"></textarea></div></article></section>
 
             <section class="manager-section" data-manager-panel="streamers"><article class="panel manager-card"><h2>Streamer Live Dashboard</h2><p class="section-copy">Add official creators. YouTube uses a channel ID, Twitch uses a username, and TikTok currently uses the Manager live switch because TikTok does not provide a general public live-status API. Live titles must match one of your FSRP keywords.</p><div class="field"><label>FSRP live-title keywords</label><input id="streamer-keywords" placeholder="FSRP, Florida State Roleplay, ER:LC"></div><div class="editor-list" id="streamer-editor" style="margin-top:16px"></div><button class="btn btn-secondary btn-small" data-add-item="streamers">Add official streamer</button></article></section>
-            <section class="manager-section" data-manager-panel="cad-settings"><article class="panel manager-card"><h2>CAD public settings</h2><p class="section-copy">Access codes are not entered here. Set them as Cloudflare secrets named CAD_FBI_CODE, CAD_FHP_CODE, CAD_FFW_CODE, CAD_STAFF_CODE, and CAD_TOKEN_SECRET.</p><div class="field-grid"><div class="field"><label>CAD enabled</label><select data-bind="cad.enabled"><option value="true">Enabled</option><option value="false">Disabled</option></select></div><div class="field"><label>Default radio channel</label><input data-bind="cad.defaultChannel"></div><div class="field"><label>Server code</label><input data-bind="status.code"></div><div class="field"><label>Priority status</label><input data-bind="status.priority"></div></div></article></section>
+            <section class="manager-section" data-manager-panel="cad-settings"><article class="panel manager-card"><h2>CAD public settings</h2><p class="section-copy">Access codes are not entered here. Set them as Cloudflare secrets named CAD_FBI_CODE, CAD_FHP_CODE, CAD_FFW_CODE, and CAD_STAFF_CODE. CAD_TOKEN_SECRET is optional because the CAD can reuse the Manager signing secret.</p><div class="field-grid"><div class="field"><label>CAD enabled</label><select data-bind="cad.enabled"><option value="true">Enabled</option><option value="false">Disabled</option></select></div><div class="field"><label>Default radio channel</label><input data-bind="cad.defaultChannel"></div><div class="field"><label>Server code</label><input data-bind="status.code"></div><div class="field"><label>Priority status</label><input data-bind="status.priority"></div></div></article></section>
             <section class="manager-section" data-manager-panel="backup"><article class="panel manager-card"><h2>Backup, restore, and publishing</h2><p class="section-copy">Export the complete editable website state before major changes. Import restores a selected JSON backup into preview, then you can publish it.</p><div class="manager-actions"><button class="btn btn-secondary" id="export-btn">Export JSON Backup</button><label class="btn btn-ghost" for="import-file">Import JSON Backup</label><input id="import-file" type="file" accept="application/json" hidden><button class="btn btn-danger" id="reset-preview-btn">Reset Preview to Defaults</button></div></article></section>
             <div class="save-bar"><span class="save-state" id="save-state">Preview is up to date.</span><div class="manager-actions" style="margin:0"><button class="btn btn-ghost btn-small" id="preview-refresh-btn">Refresh Preview</button><button class="btn btn-primary btn-small" id="publish-btn">Publish to Cloud</button></div></div>
           </div>
@@ -391,7 +391,7 @@
 
   <footer class="site-footer">
     <div class="container footer-grid">
-      <div class="footer-brand"><img src="/assets/brand/fsrp-logo.png" alt="" data-logo-easter><p>Florida State Roleplay is an independent fan-operated ER:LC community focused on organized sessions, professional departments, and quality roleplay.</p></div>
+      <div class="footer-brand"><img src="/assets/brand/fsrp-logo.png?v=3.5.1" alt="" data-logo-easter><p>Florida State Roleplay is an independent fan-operated ER:LC community focused on organized sessions, professional departments, and quality roleplay.</p></div>
       <div class="footer-col"><h3>Community</h3><a href="#community" data-route="community">Community Hub</a><a href="#dashboard" data-route="dashboard">Server Status</a><a href="#staff" data-route="staff">Chain of Command</a><a href="#cad" data-route="cad">Roleplay CAD</a></div>
       <div class="footer-col"><h3>Explore</h3><a href="#departments" data-route="departments">Departments</a><a href="#platform" data-route="platform">Community Platform</a><a href="#rules" data-route="rules">Rules</a><a href="#marketplace" data-route="marketplace">Marketplace</a></div>
       <div class="footer-col"><h3>Official Links</h3><a data-link="discord" href="https://discord.gg/dNRXwCsS9Z" target="_blank" rel="noopener">Discord</a><a data-link="roblox" href="https://www.roblox.com/communities/219522276" target="_blank" rel="noopener">Roblox Group</a><a data-link="youtube" href="https://www.youtube.com/channel/UCapQbvZpNgdIwbFh09WNKOw" target="_blank" rel="noopener">YouTube</a><a data-link="instagram" href="https://www.instagram.com/floridastateroleplay23/" target="_blank" rel="noopener">Instagram</a></div>
@@ -420,11 +420,11 @@
   <aside class="maintenance-screen" id="maintenance-screen" hidden aria-live="polite">
     <div class="maintenance-aurora" aria-hidden="true"></div>
     <div class="maintenance-card glass-card">
-      <img src="/assets/brand/fsrp-logo.png" alt="Florida State Roleplay logo" data-logo-easter>
+      <img src="/assets/brand/fsrp-logo.png?v=3.5.1" alt="Florida State Roleplay logo" data-logo-easter>
       <span class="eyebrow">Website maintenance</span>
       <h2 id="maintenance-title">Community Hub maintenance</h2>
       <p id="maintenance-message">Florida State Roleplay is applying an official website update.</p>
-      <div class="maintenance-status"><i></i><span>FSRP systems are being prepared</span></div>
+      <div class="maintenance-status"><i></i><span>FSRP systems are being prepared</span></div><small>You will never be trapped here. Continue to Website always opens the public hub.</small>
       <div class="hero-actions"><button class="btn btn-primary" type="button" data-maintenance-bypass>Continue to Website</button><a class="btn btn-secondary" data-link="discord" href="https://discord.gg/dNRXwCsS9Z" target="_blank" rel="noopener">Open Discord</a><button class="btn btn-secondary" type="button" data-waiting-music>Play Waiting Music</button><a class="btn btn-ghost" href="#manager" data-route="manager" data-maintenance-bypass>Manager Access</a></div>
       <small>Browsers require one click before sound can begin.</small>
     </div>
@@ -462,27 +462,27 @@
     <div class="intro-sun"></div>
     <div class="intro-palm intro-palm-left" aria-hidden="true"><span class="palm-trunk"></span><span class="palm-leaves">✦</span></div>
     <div class="intro-palm intro-palm-right" aria-hidden="true"><span class="palm-trunk"></span><span class="palm-leaves">✦</span></div>
-    <div class="intro-stage" id="intro-stage"><img src="/assets/brand/fsrp-logo.png" alt="FSRP" data-logo-easter><span class="eyebrow">Emergency Response: Liberty County</span><h1>Florida State<br><span>Roleplay</span></h1><p>Honor · Service · Integrity</p><button class="btn btn-primary" id="intro-enter">Enter Florida State Roleplay</button></div>
-    <div class="intro-loader-stage" id="intro-loader-stage"><img src="/assets/brand/fsrp-logo.png" alt="FSRP"><h2>Connecting to the FSRP Command Center</h2><p id="intro-loader-message">Preparing roleplay systems</p><div class="intro-progress"><span id="intro-progress-bar"></span></div><strong id="intro-progress-number">0%</strong></div>
+    <div class="intro-stage" id="intro-stage"><img src="/assets/brand/fsrp-logo.png?v=3.5.1" alt="FSRP" data-logo-easter><span class="eyebrow">Emergency Response: Liberty County</span><h1>Florida State<br><span>Roleplay</span></h1><p>Honor · Service · Integrity</p><button class="btn btn-primary" id="intro-enter">Enter Florida State Roleplay</button></div>
+    <div class="intro-loader-stage" id="intro-loader-stage"><img src="/assets/brand/fsrp-logo.png?v=3.5.1" alt="FSRP"><h2>Connecting to the FSRP Command Center</h2><p id="intro-loader-message">Preparing roleplay systems</p><div class="intro-progress"><span id="intro-progress-bar"></span></div><strong id="intro-progress-number">0%</strong></div>
   </section>
 
   <div class="device-clock" id="device-clock"><i></i><span><strong id="device-time">--:--:--</strong><small id="device-date">Device time</small></span></div>
 
   <div class="toast-stack" aria-live="polite"><div class="toast" id="toast"></div></div>
 
-  <script src="/js/config.js" defer></script>
-  <script src="/js/store.js" defer></script>
-  <script src="/js/router.js" defer></script>
-  <script src="/js/sound.js" defer></script>
-  <script src="/js/search.js" defer></script>
-  <script src="/js/notifications.js" defer></script>
-  <script src="/js/dashboard.js" defer></script>
-  <script src="/js/staff.js" defer></script>
-  <script src="/js/manager.js" defer></script>
-  <script src="/js/app.js" defer></script>
-  <script src="/js/features.js" defer></script>
-  <script src="/js/cad.js" defer></script>
-  <script src="/js/streamers.js" defer></script>
+  <script src="/js/config.js?v=3.5.1" defer></script>
+  <script src="/js/store.js?v=3.5.1" defer></script>
+  <script src="/js/router.js?v=3.5.1" defer></script>
+  <script src="/js/sound.js?v=3.5.1" defer></script>
+  <script src="/js/search.js?v=3.5.1" defer></script>
+  <script src="/js/notifications.js?v=3.5.1" defer></script>
+  <script src="/js/dashboard.js?v=3.5.1" defer></script>
+  <script src="/js/staff.js?v=3.5.1" defer></script>
+  <script src="/js/manager.js?v=3.5.1" defer></script>
+  <script src="/js/app.js?v=3.5.1" defer></script>
+  <script src="/js/features.js?v=3.5.1" defer></script>
+  <script src="/js/cad.js?v=3.5.1" defer></script>
+  <script src="/js/streamers.js?v=3.5.1" defer></script>
 
 </body>
 </html>

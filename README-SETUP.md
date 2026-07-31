@@ -1,88 +1,136 @@
-# Florida State Roleplay Website V4 — Setup
+# Florida State Roleplay V3 Enhanced — Setup Guide
 
-## Upload
+## 1. Upload the package
 
-Upload every file and folder in this package directly to the root of the GitHub `main` branch. `index.html`, `functions`, `css`, `js`, and `assets` must all be at repository root.
+Extract the ZIP. Upload every file and folder inside it directly to the root of the GitHub repository. Do not upload the ZIP itself and do not place the files inside an extra folder.
 
-## Cloudflare Pages build settings
+The root should visibly contain:
 
-- Framework preset: **None**
-- Production branch: **main**
-- Build command: `exit 0`
-- Build output directory: `.`
-- Root directory: leave blank
+- `index.html`
+- `wrangler.toml`
+- `_headers`
+- `_routes.json`
+- `assets/`
+- `css/`
+- `js/`
+- `functions/`
 
-## Why there is no `wrangler.toml`
+## 2. Cloudflare Pages settings
 
-This package intentionally uses Cloudflare Dashboard-managed bindings. That fixes the message saying bindings are managed through `wrangler.toml`. Add resources in **Workers & Pages → your Pages project → Settings → Bindings**.
+Use:
 
-An optional `wrangler.example.toml` is included for advanced config-as-code use. Do not rename it until real namespace IDs replace every placeholder.
-
-## Required KV bindings
-
-Create two Workers KV namespaces, then connect them to the Pages project:
-
-| Binding variable | Purpose |
-|---|---|
-| `SITE_SETTINGS` | Manager content, server status, and presence snapshots |
-| `CAD_STATE` | CAD calls, units, reports, records, radio, citations, and warrants |
-
-Redeploy after adding bindings.
-
-## Required encrypted secrets
-
-Add these in **Settings → Variables and Secrets**, with **Encrypt** enabled:
-
-- `ADMIN_TOKEN` — Website Administrator passcode
-- `OPERATIONS_TOKEN` — Operations-only status passcode
-- `AUTH_SECRET` — random 64-character signing secret
-- `CAD_TOKEN_SECRET` — a different random signing secret
-- `CAD_FBI_CODE` — FBI CAD login code
-- `CAD_FHP_CODE` — FHP CAD login code
-- `CAD_FFW_CODE` — FFW CAD login code
-- `CAD_STAFF_CODE` — Staff Team CAD login code
-
-Generate signing secrets on macOS with:
-
-```bash
-openssl rand -hex 32
+```text
+Production branch: main
+Framework preset: None
+Build command: exit 0
+Build output directory: .
+Root directory: blank
 ```
 
-Run it twice and use different results.
+The included `wrangler.toml` preserves the working V3 KV namespace:
 
-## Optional media uploads
+```text
+SITE_SETTINGS → d5253d8c54c54cb19f08b3bc3b61e90e
+```
 
-Create an R2 bucket and bind it as `MEDIA_BUCKET`. Without R2, direct URLs and local previews still work, but local `blob:` previews cannot be published to KV.
+The CAD stores its data under `fsrp_cad_state_v1` inside that same namespace. A separate `CAD_STATE` binding is optional and is not required.
 
-## Optional live streamer APIs
+## 3. Variables and encrypted secrets
 
-### YouTube
+Open the Cloudflare Pages project and add encrypted secrets.
 
-Add `YOUTUBE_API_KEY`. In Website Manager, add each creator's YouTube Channel ID. The dashboard checks for a current live broadcast and only lights up when the title or description matches one of the FSRP keywords.
+### Website Manager
 
-### Twitch
+```text
+ADMIN_TOKEN
+OPERATIONS_TOKEN
+```
 
-Create a Twitch developer application and add:
+`ADMIN_TOKEN` unlocks the complete Website Manager. `OPERATIONS_TOKEN` only allows operational status publishing.
 
-- `TWITCH_CLIENT_ID`
-- `TWITCH_CLIENT_SECRET`
+Optional:
 
-Enter each creator's Twitch username in Website Manager.
+```text
+AUTH_SECRET
+```
 
-### TikTok
+When `AUTH_SECRET` is missing, this build signs Manager sessions using the existing Admin/Operations secret. A separate random `AUTH_SECRET` is still recommended.
 
-TikTok creators are controlled with the Manager **Manual Live** switch. The official TikTok LIVE embed requires separate TikTok approval and an approved website domain, so the package does not scrape TikTok or use an unofficial detector.
+### Roleplay CAD
 
-## Waiting music
+```text
+CAD_FBI_CODE
+CAD_FHP_CODE
+CAD_FFW_CODE
+CAD_STAFF_CODE
+```
 
-The maintenance and service-recovery screens include original browser-generated ambient music. Visitors must press **Play Waiting Music** once because browsers block unrequested audio. You may also provide your own direct MP3, WAV, or OGG URL in Manager.
+These are the private department login codes members type into the CAD.
 
-## Manager roles
+Optional:
 
-- **Admin:** can publish the complete website and upload to R2.
-- **Operations:** can publish only Server Status.
-- **Local Preview:** saves changes only in that browser.
+```text
+CAD_TOKEN_SECRET
+```
 
-## CAD notes
+When `CAD_TOKEN_SECRET` is missing, the CAD securely falls back to `AUTH_SECRET`, `ADMIN_TOKEN`, or `OPERATIONS_TOKEN` for session signing.
 
-The CAD is for FBI, FHP, FFW, and Staff Team. CIV and Fire Department are not whitelisted CAD agencies. Bodycam and dashcam require HTTPS and browser permission. Recordings download locally and are not uploaded automatically.
+### Streamer Live Dashboard
+
+YouTube automatic LIVE detection:
+
+```text
+YOUTUBE_API_KEY
+```
+
+Twitch automatic LIVE detection:
+
+```text
+TWITCH_CLIENT_ID
+TWITCH_CLIENT_SECRET
+```
+
+TikTok uses the Manager's Manual Live switch unless an approved TikTok integration is connected.
+
+### Optional staff presence sync
+
+```text
+PRESENCE_SYNC_TOKEN
+```
+
+## 4. Maintenance mode
+
+Maintenance starts disabled. It only blocks the public website when both settings are true:
+
+```text
+Maintenance Mode: On
+Confirm Public Lock: Yes
+```
+
+The safety version is `3`. Any old cloud or browser setting with an earlier safety version is automatically changed to maintenance off.
+
+Emergency access:
+
+```text
+https://YOUR-DOMAIN/?maintenance=off
+https://YOUR-DOMAIN/#manager
+```
+
+The maintenance screen also has a permanent **Continue to Website** button.
+
+## 5. First deployment check
+
+After Cloudflare finishes:
+
+1. Open the site in an incognito/private window.
+2. Confirm the cinematic intro appears.
+3. Confirm the intro finishes and the home page opens.
+4. Confirm the moving ticker appears.
+5. Open Staff and verify no code appears as text.
+6. Open Roleplay CAD and confirm the login panel appears.
+7. Open `#manager` and test Local Preview Mode.
+8. Sign in using the Admin token and publish one harmless change.
+
+## 6. Do not publish secrets
+
+Never place real tokens or department codes in GitHub, `index.html`, JavaScript, screenshots, or public documents.

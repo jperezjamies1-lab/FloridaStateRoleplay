@@ -47,8 +47,8 @@
     const recognition = document.getElementById("recognition-board");
     if (recognition) recognition.innerHTML = (site.recognition || []).map((item) => `<article class="recognition-card"><span class="eyebrow">Recognition</span><h3>${escape(item.title)}</h3><strong>${escape(item.name)}</strong><p>${escape(item.description)}</p></article>`).join("");
     const strip = document.getElementById("rank-strip");
-    if (strip) strip.innerHTML = `<button class="rank-filter ${rank === "all" ? "is-active" : ""}" data-rank="all">All Staff</button>` + (site.ranks || []).map((item) => `<button class="rank-filter ${rank === item.id ? "is-active" : ""}" data-rank="${escape(item.id)}">${escape(item.name)}</button>`).join("");
-    const members = (site.staff || []).filter((member) => rank === "all" || member.rank === rank);
+    if (strip) strip.innerHTML = `<button class="rank-filter ${rank === "all" ? "is-active" : ""}" data-rank="all">All Staff</button>` + (site.ranks || []).slice().sort((a, b) => Number(a.order || 999) - Number(b.order || 999)).map((item) => `<button class="rank-filter ${rank === item.id ? "is-active" : ""}" data-rank="${escape(item.id)}">${escape(item.name)}</button>`).join("");
+    const members = (site.staff || []).filter((member) => member.published !== false && (rank === "all" || member.rank === rank)).sort((a, b) => Number(a.customOrder || 999) - Number(b.customOrder || 999));
     const grid = document.getElementById("staff-grid");
     if (grid) grid.innerHTML = members.map((member) => `<article class="staff-card"><div class="staff-card-head"><div class="staff-avatar">${member.avatarUrl ? `<img src="${escape(member.avatarUrl)}" alt="">` : escape(member.initials || "FS")}</div><div><h3>${escape(member.name)}</h3><span class="badge">${escape((site.ranks || []).find((item) => item.id === member.rank)?.name || member.rank)}</span></div></div><p>${escape(member.title || "")}</p><small>${escape(statusFor(member))}</small></article>`).join("") || '<p class="muted">No published staff members in this rank.</p>';
     const badge = document.getElementById("staff-count-badge");

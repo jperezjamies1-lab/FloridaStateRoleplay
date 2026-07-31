@@ -77,7 +77,16 @@ export async function onRequestGet({ request, env }) {
   if (cached) return cached;
 
   let content = null;
-  if (env.SITE_SETTINGS) content = await env.SITE_SETTINGS.get(CONTENT_KEY, "json");
+  if (env.SITE_SETTINGS) {
+    content = await env.SITE_SETTINGS.get(CONTENT_KEY, "json");
+    if (!content) {
+      const legacy = await env.SITE_SETTINGS.get("live", "json");
+      const raw = legacy?.[CONTENT_KEY];
+      if (raw) {
+        try { content = typeof raw === "string" ? JSON.parse(raw) : raw; } catch { content = null; }
+      }
+    }
+  }
   const streamers = (content?.streamers || []).filter((item) => item.enabled !== false).slice(0, 24);
   const keywords = (content?.streamerKeywords || ["FSRP", "Florida State Roleplay", "ER:LC"]).filter(Boolean).slice(0, 12);
   const twitchMap = await twitchStatuses(streamers.filter((item) => item.platform === "twitch"), env, keywords);

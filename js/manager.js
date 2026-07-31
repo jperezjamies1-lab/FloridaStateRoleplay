@@ -12,20 +12,20 @@
   const escape = (value) => window.FSRP_UTILS?.escapeHTML?.(value) || String(value ?? "");
 
   const schemas = {
-    announcements: ["title", "body", "date", "category"],
-    events: ["title", "description", "date"],
-    timeline: ["date", "title", "description"],
-    gallery: ["title", "type", "url"],
-    departments: ["name", "short", "category", "description", "status"],
-    ranks: ["id", "name"],
-    staff: ["name", "rank", "title", "initials", "discordUserId", "status"],
+    announcements: ["title", "body", "date", "category", "featured", "published"],
+    events: ["title", "description", "date", "published"],
+    timeline: ["date", "title", "description", "published"],
+    gallery: ["title", "type", "url", "category", "featured", "published"],
+    departments: ["name", "short", "category", "description", "requirements", "status", "image", "link", "published"],
+    ranks: ["id", "name", "order"],
+    staff: ["name", "rank", "title", "department", "initials", "avatarUrl", "discordUserId", "callsign", "bio", "status", "published"],
     recognition: ["title", "name", "description"],
-    systems: ["title", "description"],
-    joinSteps: ["title", "description"],
-    faqs: ["question", "answer"],
-    rules: ["title", "items"],
-    marketplace: ["title", "description", "url"],
-    support: ["title", "description", "url"],
+    systems: ["icon", "title", "description", "published"],
+    joinSteps: ["number", "title", "description", "published"],
+    faqs: ["question", "answer", "published"],
+    rules: ["number", "title", "items", "published"],
+    marketplace: ["tag", "name", "description", "benefits", "buttonLabel", "buttonUrl", "featured", "published"],
+    support: ["icon", "title", "description", "label", "url", "published"],
     ticker: ["text", "enabled"],
     streamers: ["id", "name", "platform", "channelId", "username", "url", "avatarUrl", "enabled", "manualLive", "manualTitle"],
   };
@@ -146,14 +146,14 @@
     let value = item[field];
     if (Array.isArray(value)) value = value.join("\n");
     const label = field.replace(/([A-Z])/g, " $1").replace(/^./, (letter) => letter.toUpperCase());
-    if (typeof value === "boolean" || ["enabled", "manualLive"].includes(field)) {
+    if (typeof value === "boolean" || ["enabled", "manualLive", "published", "featured"].includes(field)) {
       const checked = value === true;
       return `<div class="field"><label>${escape(label)}</label><select data-edit-item="${key}" data-index="${index}" data-field="${field}"><option value="true" ${checked ? "selected" : ""}>Enabled / Live</option><option value="false" ${!checked ? "selected" : ""}>Disabled / Offline</option></select></div>`;
     }
     if (field === "platform") {
       return `<div class="field"><label>Platform</label><select data-edit-item="${key}" data-index="${index}" data-field="platform"><option value="youtube" ${value === "youtube" ? "selected" : ""}>YouTube</option><option value="twitch" ${value === "twitch" ? "selected" : ""}>Twitch</option><option value="tiktok" ${value === "tiktok" ? "selected" : ""}>TikTok</option></select></div>`;
     }
-    const textarea = ["description", "body", "answer", "items"].includes(field);
+    const textarea = ["description", "body", "answer", "items", "benefits", "bio", "requirements"].includes(field);
     const counter = key === "ticker" && field === "text" ? '<small class="ticker-word-hint">Maximum five words</small>' : "";
     return `<div class="field"><label>${escape(label)}</label>${textarea ? `<textarea data-edit-item="${key}" data-index="${index}" data-field="${field}">${escape(value ?? "")}</textarea>` : `<input data-edit-item="${key}" data-index="${index}" data-field="${field}" value="${escape(value ?? "")}" ${key === "ticker" && field === "text" ? 'data-five-word-input maxlength="80"' : ""}>`}${counter}</div>`;
   }
@@ -178,7 +178,7 @@
     const field = element.dataset.field;
     let value = element.value;
     if (value === "true" || value === "false") value = value === "true";
-    if (field === "items") value = String(value).split("\n").map((item) => item.trim()).filter(Boolean);
+    if (["items", "benefits"].includes(field)) value = String(value).split("\n").map((item) => item.trim()).filter(Boolean);
     if (key === "ticker" && field === "text") {
       const normalized = normalizeTicker(value);
       if (normalized !== value.trim()) toast("Ticker messages are limited to five words.");
@@ -197,7 +197,7 @@
       const current = clone(FSRP_STORE.get());
       if (role === "admin") {
         current.maintenance ??= {};
-        current.maintenance.safetyVersion = 2;
+        current.maintenance.safetyVersion = 3;
         if (current.maintenance.enabled === true && current.maintenance.publicLockConfirmed !== true) {
           return toast("Confirm the public maintenance lock before publishing, or turn maintenance off.");
         }
@@ -277,7 +277,7 @@
       if (key === "streamers") {
         blank.id = `streamer-${Date.now()}`;
         blank.platform = "youtube";
-        blank.avatarUrl = "/assets/brand/fsrp-logo.png";
+        blank.avatarUrl = "/assets/brand/fsrp-logo.png?v=3.5.1";
         blank.enabled = true;
       }
       next[key].push(blank);

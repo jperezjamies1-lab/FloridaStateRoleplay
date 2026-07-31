@@ -5,3 +5,5 @@
 .roleplay-ticker{background:rgba(3,10,17,.74);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
 .ticker-track{animation-name:tickerMoveLeftToRight;will-change:transform}
 @keyframes tickerMoveLeftToRight{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+
+[hidden]{display:none!important}

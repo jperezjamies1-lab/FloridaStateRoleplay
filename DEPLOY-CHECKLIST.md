@@ -1,20 +1,26 @@
-# FSRP V4 Deployment Checklist
+# FSRP V3 Enhanced Deployment Checklist
 
-- [ ] All package contents uploaded directly to GitHub repository root
+- [ ] Extract the final ZIP
+- [ ] Replace all current repository files
+- [ ] Upload files directly to repository root
+- [ ] Confirm `index.html` is at root
+- [ ] Confirm `wrangler.toml` is at root
+- [ ] Confirm `assets/brand/fsrp-logo.png` exists
+- [ ] Confirm `css/features.css`, `css/cad.css`, and `css/streamers.css` exist
+- [ ] Confirm `js/features.js`, `js/cad.js`, and `js/streamers.js` exist
+- [ ] Confirm `functions/api/cad.js` and `functions/api/streamers.js` exist
 - [ ] Production branch is `main`
-- [ ] Framework preset is None
+- [ ] Framework preset is `None`
 - [ ] Build command is `exit 0`
 - [ ] Build output directory is `.`
 - [ ] Root directory is blank
-- [ ] Active `wrangler.toml` is absent unless real IDs were added intentionally
-- [ ] KV binding `SITE_SETTINGS` connected
-- [ ] KV binding `CAD_STATE` connected
-- [ ] `ADMIN_TOKEN`, `OPERATIONS_TOKEN`, and `AUTH_SECRET` added as encrypted secrets
-- [ ] `CAD_TOKEN_SECRET` and four department CAD codes added as encrypted secrets
-- [ ] Optional `MEDIA_BUCKET` R2 binding connected
-- [ ] Optional YouTube/Twitch API secrets added
-- [ ] New Cloudflare deployment completed after bindings/secrets were saved
-- [ ] Browser force-refreshed with Command + Shift + R
-- [ ] Manager login tested
-- [ ] CAD login tested
-- [ ] Maintenance mode confirmed Off unless intentionally enabled
+- [ ] Add `ADMIN_TOKEN`
+- [ ] Add `OPERATIONS_TOKEN`
+- [ ] Add the four CAD department codes
+- [ ] Optionally add `AUTH_SECRET`
+- [ ] Optionally add `CAD_TOKEN_SECRET`
+- [ ] Optionally add YouTube/Twitch API secrets
+- [ ] Wait for a new Cloudflare deployment
+- [ ] Open an incognito/private window
+- [ ] Confirm maintenance is not visible
+- [ ] Test intro, ticker, Staff, CAD, Manager, and Discord links
