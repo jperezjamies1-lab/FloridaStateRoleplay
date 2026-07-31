@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#02060b">
+  <title>FSRP Live Dispatch Bridge</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        colors: { fsrp: { 950:'#02060b', 900:'#06111c', 800:'#0a1c2b', cyan:'#39bdf8', gold:'#f5c45b', green:'#3fe08f', red:'#ff5d6c' } },
+        boxShadow: { glass:'0 24px 80px rgba(0,0,0,.45)' }
+      }}
+    };
+  </script>
+  <style>
+    html{background:#02060b;color-scheme:dark}body{min-height:100vh;background:radial-gradient(circle at 18% 0%,rgba(30,145,210,.18),transparent 30%),radial-gradient(circle at 90% 20%,rgba(60,220,150,.09),transparent 24%),#02060b}.glass{background:linear-gradient(145deg,rgba(11,28,42,.86),rgba(5,12,20,.9));border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(20px)}.dot{width:.55rem;height:.55rem;border-radius:999px;display:inline-block}.scrollbar::-webkit-scrollbar{width:8px}.scrollbar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.14);border-radius:999px}.log-enter{animation:logIn .24s ease-out}@keyframes logIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:none}}.pulse-tx{animation:tx 1s infinite}@keyframes tx{50%{box-shadow:0 0 0 10px rgba(255,93,108,0)}}
+  </style>
+</head>
+<body class="text-slate-100 antialiased">
+  <div id="login-layer" class="fixed inset-0 z-50 grid place-items-center bg-black/80 p-5 backdrop-blur-xl">
+    <form id="login-form" class="glass w-full max-w-md rounded-3xl p-7 shadow-glass">
+      <div class="mb-6 flex items-center gap-3">
+        <div class="grid h-12 w-12 place-items-center rounded-2xl bg-sky-400/15 text-xl font-black text-sky-300">FS</div>
+        <div><p class="text-xs font-bold uppercase tracking-[.2em] text-sky-300">Florida State Roleplay</p><h1 class="text-2xl font-black">Dispatch Bridge</h1></div>
+      </div>
+      <label class="mb-2 block text-sm font-semibold text-slate-300" for="token">Dispatcher access token</label>
+      <input id="token" type="password" autocomplete="current-password" class="w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-3 outline-none ring-sky-400/40 focus:ring" placeholder="Enter DASHBOARD_TOKEN" required>
+      <p id="login-error" class="mt-3 min-h-5 text-sm text-red-300"></p>
+      <button class="mt-3 w-full rounded-2xl bg-sky-400 px-4 py-3 font-black text-slate-950 transition hover:bg-sky-300">Open Live Dispatch</button>
+    </form>
+  </div>
+
+  <main class="mx-auto max-w-[1550px] p-3 md:p-6">
+    <header class="glass mb-4 flex flex-col gap-4 rounded-3xl p-5 shadow-glass lg:flex-row lg:items-center lg:justify-between">
+      <div class="flex items-center gap-4">
+        <div class="grid h-14 w-14 place-items-center rounded-2xl border border-sky-300/20 bg-sky-400/10 font-black text-sky-300">FSRP</div>
+        <div><p class="text-xs font-bold uppercase tracking-[.2em] text-sky-300">ER:LC External Operations</p><h1 class="text-2xl font-black md:text-3xl">Live Dispatch & Message Console</h1><p class="text-sm text-slate-400">Signed webhooks · API polling · Socket.IO updates</p></div>
+      </div>
+      <div class="grid grid-cols-2 gap-2 sm:grid-cols-4">
+        <div class="rounded-2xl border border-white/10 bg-black/20 px-4 py-3"><span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Bridge</span><div class="mt-1 flex items-center gap-2 font-bold"><i id="bridge-dot" class="dot bg-slate-500"></i><span id="bridge-state">Idle</span></div></div>
+        <div class="rounded-2xl border border-white/10 bg-black/20 px-4 py-3"><span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">ER:LC API</span><div class="mt-1 flex items-center gap-2 font-bold"><i id="api-dot" class="dot bg-slate-500"></i><span id="api-state">Waiting</span></div></div>
+        <div class="rounded-2xl border border-white/10 bg-black/20 px-4 py-3"><span class="text-[10px] font-bold uppercase tracking-widest text-slate-500">Voice</span><div class="mt-1 flex items-center gap-2 font-bold"><i id="voice-dot" class="dot bg-slate-500"></i><span id="voice-state">Idle</span></div></div>
+        <button id="logout" class="rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-bold hover:bg-white/10">Lock Panel</button>
+      </div>
+    </header>
+
+    <section class="mb-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+      <article class="glass rounded-2xl p-4"><p class="text-xs font-bold uppercase tracking-widest text-slate-500">Server</p><strong id="server-name" class="mt-2 block truncate text-lg">Waiting for API</strong></article>
+      <article class="glass rounded-2xl p-4"><p class="text-xs font-bold uppercase tracking-widest text-slate-500">Players</p><strong id="players" class="mt-2 block text-2xl">—</strong></article>
+      <article class="glass rounded-2xl p-4"><p class="text-xs font-bold uppercase tracking-widest text-slate-500">Queue</p><strong id="queue" class="mt-2 block text-2xl">—</strong></article>
+      <article class="glass rounded-2xl p-4"><p class="text-xs font-bold uppercase tracking-widest text-slate-500">Join Key</p><strong id="join-key" class="mt-2 block text-lg">—</strong></article>
+      <article class="glass rounded-2xl p-4"><p class="text-xs font-bold uppercase tracking-widest text-slate-500">Last Sync</p><strong id="last-sync" class="mt-2 block text-lg">Never</strong></article>
+    </section>
+
+    <div class="grid gap-4 xl:grid-cols-[1.35fr_.65fr]">
+      <section class="glass overflow-hidden rounded-3xl shadow-glass">
+        <div class="flex flex-col gap-3 border-b border-white/10 p-4 md:flex-row md:items-center md:justify-between">
+          <div><p class="text-xs font-bold uppercase tracking-[.18em] text-sky-300">Real-Time Feed</p><h2 class="text-xl font-black">ER:LC activity stream</h2></div>
+          <div class="flex flex-wrap gap-2" id="filters">
+            <button data-filter="all" class="filter rounded-full bg-sky-400 px-3 py-1.5 text-xs font-black text-slate-950">All</button>
+            <button data-filter="channel-command" class="filter rounded-full border border-white/10 px-3 py-1.5 text-xs font-bold">Channel</button>
+            <button data-filter="command" class="filter rounded-full border border-white/10 px-3 py-1.5 text-xs font-bold">Commands</button>
+            <button data-filter="player-join" class="filter rounded-full border border-white/10 px-3 py-1.5 text-xs font-bold">Players</button>
+            <button data-filter="911-call" class="filter rounded-full border border-white/10 px-3 py-1.5 text-xs font-bold">911</button>
+          </div>
+        </div>
+        <div id="log-list" class="scrollbar h-[620px] space-y-2 overflow-y-auto p-3 md:p-4"></div>
+      </section>
+
+      <aside class="space-y-4">
+        <section class="glass rounded-3xl p-5 shadow-glass">
+          <div class="mb-4"><p class="text-xs font-bold uppercase tracking-[.18em] text-sky-300">Direct to Game</p><h2 class="text-xl font-black">Broadcast console</h2><p class="mt-1 text-sm text-slate-400">Only global header and message commands are allowed.</p></div>
+          <form id="message-form" class="space-y-3">
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" data-mode=":h" class="mode rounded-2xl bg-sky-400 px-3 py-3 font-black text-slate-950">:h Header</button>
+              <button type="button" data-mode=":m" class="mode rounded-2xl border border-white/10 bg-white/5 px-3 py-3 font-black">:m Message</button>
+            </div>
+            <textarea id="message" rows="5" maxlength="180" class="w-full resize-none rounded-2xl border border-white/10 bg-black/30 p-4 outline-none ring-sky-400/40 focus:ring" placeholder="Type the in-game dispatch message…"></textarea>
+            <div class="flex items-center justify-between text-xs text-slate-500"><span>ER:LC limits command requests. The server enforces a cooldown.</span><span id="count">0/180</span></div>
+            <button id="send" class="w-full rounded-2xl bg-emerald-400 px-4 py-3 font-black text-slate-950 transition hover:bg-emerald-300">Send to ER:LC</button>
+          </form>
+          <p id="send-state" class="mt-3 min-h-5 text-sm text-slate-400"></p>
+        </section>
+
+        <section class="glass rounded-3xl p-5 shadow-glass">
+          <div class="mb-4 flex items-start justify-between gap-3"><div><p class="text-xs font-bold uppercase tracking-[.18em] text-amber-300">Voice to Text</p><h2 class="text-xl font-black">Dispatcher microphone</h2></div><i id="mic-light" class="dot mt-2 bg-slate-500"></i></div>
+          <button id="voice" class="w-full rounded-2xl border border-amber-300/30 bg-amber-300/10 px-4 py-4 font-black text-amber-200 hover:bg-amber-300/15">Start Voice Dictation</button>
+          <label class="mt-3 flex items-center gap-2 text-sm text-slate-300"><input id="auto-send" type="checkbox" class="h-4 w-4 rounded" checked> Automatically send final voice text</label>
+          <p id="voice-help" class="mt-3 text-sm text-slate-500">Uses the browser Web Speech API. Chrome-based browsers provide the widest support.</p>
+        </section>
+
+        <section class="glass rounded-3xl p-5 shadow-glass">
+          <div class="mb-3 flex items-center justify-between"><div><p class="text-xs font-bold uppercase tracking-[.18em] text-sky-300">Live Roster</p><h2 class="text-xl font-black">Units in server</h2></div><span id="roster-count" class="rounded-full bg-white/5 px-3 py-1 text-xs font-bold">0</span></div>
+          <div id="roster" class="scrollbar max-h-64 space-y-2 overflow-y-auto"></div>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    (() => {
+      const $ = (s) => document.querySelector(s);
+      const $$ = (s) => [...document.querySelectorAll(s)];
+      let token = sessionStorage.getItem('fsrp_dispatch_token') || '';
+      let socket = null;
+      let logs = [];
+      let filter = 'all';
+      let mode = ':h';
+      let recognition = null;
+      let listening = false;
+
+      const escapeHtml = (value) => String(value ?? '').replace(/[&<>'"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+      const time = (value) => new Date(Number(value || Date.now())).toLocaleTimeString([], {hour:'numeric',minute:'2-digit',second:'2-digit'});
+      const severity = { info:'border-sky-400/20 bg-sky-400/5', success:'border-emerald-400/20 bg-emerald-400/5', warning:'border-amber-300/20 bg-amber-300/5', danger:'border-red-400/30 bg-red-400/10' };
+      const labels = { 'player-join':'PLAYER', 'player-leave':'PLAYER', 'channel-command':'CHANNEL', command:'COMMAND', '911-call':'911', 'mod-call':'MOD CALL', 'dispatch-message':'DISPATCH', webhook:'WEBHOOK' };
+
+      function setDot(id, active, color = 'bg-emerald-400') {
+        const node = $(id); if (!node) return;
+        node.className = `dot ${active ? color : 'bg-slate-500'}`;
+      }
+
+      function renderLogs() {
+        const visible = logs.filter((item) => filter === 'all' || item.type === filter || (filter === 'player-join' && ['player-join','player-leave'].includes(item.type)));
+        $('#log-list').innerHTML = visible.map((item) => `
+          <article class="log-enter rounded-2xl border p-4 ${severity[item.severity] || severity.info}">
+            <div class="flex items-start justify-between gap-3"><div class="flex flex-wrap items-center gap-2"><span class="rounded-full bg-black/25 px-2 py-1 text-[10px] font-black tracking-widest">${escapeHtml(labels[item.type] || item.type.toUpperCase())}</span><strong>${escapeHtml(item.title)}</strong>${item.player ? `<span class="text-xs text-sky-300">${escapeHtml(item.player)}</span>` : ''}</div><time class="whitespace-nowrap text-xs text-slate-500">${time(item.timestamp)}</time></div>
+            <p class="mt-2 break-words text-sm leading-6 text-slate-300">${escapeHtml(item.message)}</p>
+            <div class="mt-2 text-[10px] font-bold uppercase tracking-widest text-slate-600">${escapeHtml(item.source)}</div>
+          </article>`).join('') || '<div class="grid h-full place-items-center text-center text-slate-500"><div><p class="font-bold">No matching activity</p><p class="text-sm">Waiting for ER:LC webhooks or API logs.</p></div></div>';
+      }
+
+      function updateStatus(status = {}) {
+        $('#server-name').textContent = status.serverName || 'ER:LC Server';
+        $('#players').textContent = `${status.currentPlayers ?? 0} / ${status.maxPlayers ?? 0}`;
+        $('#queue').textContent = status.queue ?? 0;
+        $('#join-key').textContent = status.joinKey || 'Hidden';
+        $('#last-sync').textContent = status.lastUpdate ? time(status.lastUpdate) : 'Never';
+        $('#api-state').textContent = status.connected ? 'Connected' : 'Offline';
+        setDot('#api-dot', status.connected, 'bg-emerald-400');
+        const players = Array.isArray(status.players) ? status.players : [];
+        $('#roster-count').textContent = String(players.length);
+        $('#roster').innerHTML = players.map((player) => `<div class="rounded-2xl border border-white/10 bg-black/20 p-3"><div class="flex items-center justify-between gap-2"><strong>${escapeHtml(player.callsign || 'CIV')} · ${escapeHtml(player.name)}</strong><span class="text-[10px] font-bold uppercase text-sky-300">${escapeHtml(player.team)}</span></div><p class="mt-1 text-xs text-slate-500">${escapeHtml(player.location || player.permission || 'Location unavailable')}</p></div>`).join('') || '<p class="text-sm text-slate-500">No players reported.</p>';
+      }
+
+      async function testToken(value) {
+        const response = await fetch('/api/bootstrap', { headers: { Authorization: `Bearer ${value}` } });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) throw new Error(data.error || 'Unable to sign in.');
+        return data;
+      }
+
+      function connect() {
+        if (socket) socket.disconnect();
+        socket = io({ auth: { token } });
+        socket.on('connect', () => { $('#bridge-state').textContent = 'Live'; setDot('#bridge-dot', true, 'bg-emerald-400'); });
+        socket.on('disconnect', () => { $('#bridge-state').textContent = 'Reconnecting'; setDot('#bridge-dot', false); });
+        socket.on('connect_error', (error) => { $('#bridge-state').textContent = 'Locked'; setDot('#bridge-dot', false); $('#send-state').textContent = error.message; });
+        socket.on('bootstrap', (data) => { logs = data.logs || []; updateStatus(data.status); renderLogs(); });
+        socket.on('log:new', (item) => { if (!logs.some((log) => log.id === item.id)) logs.unshift(item); logs = logs.slice(0,300); renderLogs(); });
+        socket.on('server:status', updateStatus);
+      }
+
+      async function unlock(value) {
+        const data = await testToken(value);
+        token = value;
+        sessionStorage.setItem('fsrp_dispatch_token', token);
+        $('#login-layer').classList.add('hidden');
+        logs = data.logs || [];
+        updateStatus(data.status);
+        renderLogs();
+        connect();
+      }
+
+      $('#login-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        $('#login-error').textContent = '';
+        try { await unlock($('#token').value.trim()); }
+        catch (error) { $('#login-error').textContent = error.message; }
+      });
+
+      $('#logout').addEventListener('click', () => { sessionStorage.removeItem('fsrp_dispatch_token'); location.reload(); });
+      $$('.filter').forEach((button) => button.addEventListener('click', () => {
+        filter = button.dataset.filter;
+        $$('.filter').forEach((item) => item.className = 'filter rounded-full border border-white/10 px-3 py-1.5 text-xs font-bold');
+        button.className = 'filter rounded-full bg-sky-400 px-3 py-1.5 text-xs font-black text-slate-950';
+        renderLogs();
+      }));
+      $$('.mode').forEach((button) => button.addEventListener('click', () => {
+        mode = button.dataset.mode;
+        $$('.mode').forEach((item) => item.className = 'mode rounded-2xl border border-white/10 bg-white/5 px-3 py-3 font-black');
+        button.className = 'mode rounded-2xl bg-sky-400 px-3 py-3 font-black text-slate-950';
+      }));
+      $('#message').addEventListener('input', () => { $('#count').textContent = `${$('#message').value.length}/180`; });
+
+      async function sendMessage() {
+        const message = $('#message').value.trim();
+        if (!message) return;
+        $('#send').disabled = true;
+        $('#send-state').textContent = 'Transmitting to ER:LC…';
+        setDot('#voice-dot', true, 'bg-red-400');
+        $('#voice-state').textContent = 'Transmitting';
+        try {
+          const response = await fetch('/api/send', { method:'POST', headers:{'content-type':'application/json',Authorization:`Bearer ${token}`}, body:JSON.stringify({mode,message}) });
+          const data = await response.json().catch(() => ({}));
+          if (!response.ok) throw new Error(data.error || 'Transmission failed.');
+          $('#message').value = ''; $('#count').textContent = '0/180';
+          $('#send-state').textContent = 'Message delivered to the ER:LC server.';
+        } catch (error) { $('#send-state').textContent = error.message; }
+        finally { $('#send').disabled = false; setDot('#voice-dot', false); $('#voice-state').textContent = 'Idle'; }
+      }
+      $('#message-form').addEventListener('submit', (event) => { event.preventDefault(); sendMessage(); });
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'en-US'; recognition.interimResults = true; recognition.continuous = false;
+        recognition.onstart = () => { listening = true; $('#voice').textContent = 'Stop Voice Dictation'; $('#voice-state').textContent = 'Listening'; $('#mic-light').className = 'dot bg-red-400 pulse-tx'; setDot('#voice-dot', true, 'bg-red-400'); };
+        recognition.onresult = (event) => {
+          let text = '';
+          for (let index = event.resultIndex; index < event.results.length; index++) text += event.results[index][0].transcript;
+          $('#message').value = text.trim().slice(0,180); $('#count').textContent = `${$('#message').value.length}/180`;
+          const last = event.results[event.results.length - 1];
+          if (last?.isFinal && $('#auto-send').checked) sendMessage();
+        };
+        recognition.onerror = (event) => { $('#voice-help').textContent = `Voice error: ${event.error}`; };
+        recognition.onend = () => { listening = false; $('#voice').textContent = 'Start Voice Dictation'; $('#voice-state').textContent = 'Idle'; $('#mic-light').className = 'dot bg-slate-500'; setDot('#voice-dot', false); };
+        $('#voice').addEventListener('click', () => { if (listening) recognition.stop(); else recognition.start(); });
+      } else {
+        $('#voice').disabled = true; $('#voice').textContent = 'Voice Recognition Unsupported'; $('#voice-help').textContent = 'Use Chrome or another browser that supports the Web Speech API.';
+      }
+
+      if (token) unlock(token).catch(() => { sessionStorage.removeItem('fsrp_dispatch_token'); });
+    })();
+  </script>
+</body>
+</html>

@@ -1,10 +1,15 @@
 {
-  "name": "fsrp-v3-enhanced-roleplay-platform",
-  "version": "4.2.0",
-  "description": "Florida State Roleplay operations platform with CAD, live radio, Staff Operations, Watchdog, forms, applications, verification, automation, analytics, and Discord integration",
+  "name": "fsrp-erlc-dispatch-bridge",
+  "version": "1.0.0",
   "private": true,
-  "scripts": {
-    "test": "node test_site.mjs && node test_staff_ops.mjs && node test_command_suite.mjs && node test_community_suite.mjs"
-  },
-  "type": "module"
+  "description": "Live ER:LC dispatch dashboard using Express, Socket.IO, signed ER:LC webhooks, and the official ER:LC API.",
+  "main": "server.js",
+  "scripts": { "start": "node server.js", "check": "node --check server.js" },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^8.1.0",
+    "socket.io": "^4.8.1"
+  }
 }
