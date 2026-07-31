@@ -1,0 +1,21 @@
+# OPTIONAL CONFIG-AS-CODE TEMPLATE
+# The upload-ready website intentionally does NOT include an active wrangler.toml,
+# so Cloudflare Dashboard bindings remain editable.
+# Only rename this file to wrangler.toml after replacing every placeholder ID.
+
+name = "fsrp-roleplay-platform"
+compatibility_date = "2026-07-30"
+pages_build_output_dir = "."
+
+[[kv_namespaces]]
+binding = "SITE_SETTINGS"
+id = "PASTE_SITE_SETTINGS_KV_ID"
+
+[[kv_namespaces]]
+binding = "CAD_STATE"
+id = "PASTE_CAD_STATE_KV_ID"
+
+# Optional permanent uploads
+# [[r2_buckets]]
+# binding = "MEDIA_BUCKET"
+# bucket_name = "fsrp-media"

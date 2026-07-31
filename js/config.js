@@ -41,7 +41,7 @@ window.FSRP_DEFAULTS = {
       "enabled": true
     },
     {
-      "text": "Florida State Roleplay Website Updated",
+      "text": "FSRP Website Updated",
       "enabled": true
     },
     {
@@ -288,7 +288,11 @@ window.FSRP_DEFAULTS = {
   "maintenance": {
     "enabled": false,
     "title": "Community Hub maintenance",
-    "message": "Florida State Roleplay is applying an official website update."
+    "message": "Florida State Roleplay is applying an official website update.",
+    "musicEnabled": true,
+    "musicUrl": "",
+    "musicVolume": 0.15,
+    "showDiscordButton": true
   },
   "theme": {
     "cyan": "#63cfff",
@@ -308,5 +312,48 @@ window.FSRP_DEFAULTS = {
     "description": "Leadership can feature the best roleplay scene, departments involved, and participating members here.",
     "imageUrl": "",
     "date": "Awaiting selection"
-  }
+  },
+  "streamerKeywords": [
+    "FSRP",
+    "Florida State Roleplay",
+    "ER:LC"
+  ],
+  "streamers": [
+    {
+      "id": "fsrp-youtube",
+      "name": "FSRP YouTube",
+      "platform": "youtube",
+      "channelId": "UCapQbvZpNgdIwbFh09WNKOw",
+      "username": "",
+      "url": "https://www.youtube.com/channel/UCapQbvZpNgdIwbFh09WNKOw",
+      "avatarUrl": "/assets/brand/fsrp-logo.png",
+      "enabled": true,
+      "manualLive": false,
+      "manualTitle": ""
+    },
+    {
+      "id": "fsrp-tiktok",
+      "name": "FSRP TikTok",
+      "platform": "tiktok",
+      "channelId": "",
+      "username": "floridastateroleplayprc",
+      "url": "https://www.tiktok.com/@floridastateroleplayprc",
+      "avatarUrl": "/assets/brand/fsrp-logo.png",
+      "enabled": true,
+      "manualLive": false,
+      "manualTitle": ""
+    },
+    {
+      "id": "fsrp-twitch",
+      "name": "FSRP Twitch",
+      "platform": "twitch",
+      "channelId": "",
+      "username": "",
+      "url": "https://www.twitch.tv/",
+      "avatarUrl": "/assets/brand/fsrp-logo.png",
+      "enabled": false,
+      "manualLive": false,
+      "manualTitle": ""
+    }
+  ]
 };

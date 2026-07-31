@@ -1,0 +1,22 @@
+.streamer-live-section{position:relative;overflow:hidden;background:radial-gradient(circle at 12% 20%,rgba(99,207,255,.12),transparent 28%),radial-gradient(circle at 90% 70%,rgba(255,212,103,.08),transparent 25%)}
+.streamer-live-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.streamer-card{position:relative;min-height:245px;padding:22px;display:flex;flex-direction:column;align-items:flex-start;overflow:hidden;transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}
+.streamer-card:before{content:"";position:absolute;width:180px;height:180px;right:-95px;top:-100px;border-radius:50%;background:var(--cyan);opacity:.07;filter:blur(9px)}
+.streamer-card:hover{transform:translateY(-6px);border-color:rgba(99,207,255,.35)}
+.streamer-card.is-live{border-color:rgba(255,63,91,.58);box-shadow:0 0 0 1px rgba(255,63,91,.18),0 25px 75px rgba(255,43,78,.18),var(--shadow)}
+.streamer-card.is-live:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.08),transparent 65%);transform:translateX(-120%);animation:streamLiveSweep 2.8s ease-in-out infinite}
+.streamer-card-top{width:100%;display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.streamer-card-top img{width:54px;height:54px;border-radius:16px;object-fit:contain;background:rgba(255,255,255,.06);border:1px solid var(--line);padding:6px}
+.stream-platform{color:#a9b7c8;font-size:.62rem;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
+.stream-status{margin-left:auto;padding:7px 10px;border:1px solid var(--line);border-radius:999px;color:#8e9bad;background:rgba(255,255,255,.035);font-size:.58rem;font-weight:1000;letter-spacing:.12em}
+.streamer-card.is-live .stream-status{color:#fff;border-color:rgba(255,79,104,.5);background:linear-gradient(135deg,#ff355b,#bd1737);box-shadow:0 0 18px rgba(255,53,91,.4);animation:streamLivePulse 1.7s ease-in-out infinite}
+.streamer-card h3{margin:0 0 8px;font-size:1.45rem;letter-spacing:-.035em}
+.streamer-card p{min-height:50px;margin:0 0 20px;color:var(--muted);line-height:1.55}
+.streamer-card .btn{margin-top:auto}
+.streamer-api-note{margin:18px 0 0;color:#718096;font-size:.66rem;line-height:1.6}
+.streamer-empty{grid-column:1/-1;padding:28px}
+@keyframes streamLivePulse{50%{transform:scale(1.05);box-shadow:0 0 28px rgba(255,53,91,.65)}}
+@keyframes streamLiveSweep{50%,100%{transform:translateX(140%)}}
+@media(max-width:920px){.streamer-live-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:620px){.streamer-live-grid{grid-template-columns:1fr}.streamer-card{min-height:220px}}
+@media(prefers-reduced-motion:reduce){.streamer-card.is-live:after,.streamer-card.is-live .stream-status{animation:none}}

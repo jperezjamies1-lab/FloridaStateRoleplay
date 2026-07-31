@@ -1,5 +1,63 @@
+import { json, body, bearer } from "../lib/http.js";
 
-import{json,body,bearer}from'../lib/http.js';
-async function verify(token,secret){try{const[p,s]=token.split('.');if(!p||!s)return false;const key=await crypto.subtle.importKey('raw',new TextEncoder().encode(secret),{name:'HMAC',hash:'SHA-256'},false,['verify']);const raw=s.replaceAll('-','+').replaceAll('_','/');const bytes=Uint8Array.from(atob(raw+'='.repeat((4-raw.length%4)%4)),c=>c.charCodeAt(0));const ok=await crypto.subtle.verify('HMAC',key,bytes,new TextEncoder().encode(p));if(!ok)return false;return JSON.parse(atob(p)).exp>Date.now()}catch{return false}}
-export async function onRequestGet({env}){let settings=null;if(env.SITE_SETTINGS)settings=await env.SITE_SETTINGS.get('website-settings','json');return json({settings})}
-export async function onRequestPut({request,env}){if(!await verify(bearer(request),env.AUTH_SECRET||env.ADMIN_TOKEN||'change-me'))return json({error:'Unauthorized.'},401);if(!env.SITE_SETTINGS)return json({error:'Cloudflare KV binding SITE_SETTINGS is missing.'},503);const data=await body(request);await env.SITE_SETTINGS.put('website-settings',JSON.stringify(data.settings||{}));return json({ok:true})}
+const encoder = new TextEncoder();
+const decoder = new TextDecoder();
+const CONTENT_KEY = "fsrp_v3_content";
+const STATUS_KEY = "fsrp_v3_status";
+
+function fromBase64Url(value) {
+  const normalized = value.replaceAll("-", "+").replaceAll("_", "/");
+  return Uint8Array.from(atob(normalized + "=".repeat((4 - (normalized.length % 4)) % 4)), (c) => c.charCodeAt(0));
+}
+
+async function verifyToken(token, secret) {
+  try {
+    const [payload, signature] = String(token || "").split(".");
+    if (!payload || !signature || !secret) return null;
+    const key = await crypto.subtle.importKey(
+      "raw",
+      encoder.encode(secret),
+      { name: "HMAC", hash: "SHA-256" },
+      false,
+      ["verify"]
+    );
+    const valid = await crypto.subtle.verify("HMAC", key, fromBase64Url(signature), encoder.encode(payload));
+    if (!valid) return null;
+    const data = JSON.parse(decoder.decode(fromBase64Url(payload)));
+    return data.exp > Date.now() ? data : null;
+  } catch {
+    return null;
+  }
+}
+
+export async function onRequestGet({ env }) {
+  if (!env.SITE_SETTINGS) return json({ content: null, status: null, configured: false });
+  const [content, status] = await Promise.all([
+    env.SITE_SETTINGS.get(CONTENT_KEY, "json"),
+    env.SITE_SETTINGS.get(STATUS_KEY, "json"),
+  ]);
+  return json({ content, status, configured: true });
+}
+
+export async function onRequestPut({ request, env }) {
+  if (!env.AUTH_SECRET) return json({ error: "AUTH_SECRET is not configured." }, 503);
+  const user = await verifyToken(bearer(request), env.AUTH_SECRET);
+  if (!user) return json({ error: "Unauthorized or expired Manager session." }, 401);
+  if (!env.SITE_SETTINGS) return json({ error: "Cloudflare KV binding SITE_SETTINGS is missing." }, 503);
+
+  const data = await body(request);
+  if (user.role === "operations") {
+    if (!data.status || typeof data.status !== "object") {
+      return json({ error: "Operations may publish server status only." }, 403);
+    }
+    await env.SITE_SETTINGS.put(STATUS_KEY, JSON.stringify(data.status));
+    return json({ ok: true, scope: "status" });
+  }
+
+  if (user.role !== "admin") return json({ error: "Admin access required." }, 403);
+  const content = data.content || data.settings;
+  if (!content || typeof content !== "object") return json({ error: "Missing website content." }, 400);
+  await env.SITE_SETTINGS.put(CONTENT_KEY, JSON.stringify(content));
+  if (content.status) await env.SITE_SETTINGS.put(STATUS_KEY, JSON.stringify(content.status));
+  return json({ ok: true, scope: "full" });
+}

@@ -1,1 +1,3 @@
-Upload every file and folder from this ZIP to the ROOT of your GitHub repository. Do not upload only index.html. Read README-SETUP.md before configuring Cloudflare.
+UPLOAD EVERY FILE AND FOLDER FROM THIS PACKAGE DIRECTLY TO THE ROOT OF YOUR GITHUB REPOSITORY.
+Do not upload the ZIP itself. Do not put the contents inside an extra folder.
+Read README-FIRST.txt before deploying.

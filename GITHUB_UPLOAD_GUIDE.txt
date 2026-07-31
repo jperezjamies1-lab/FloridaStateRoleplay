@@ -1,37 +1,22 @@
-FLORIDA STATE ROLEPLAY — GITHUB UPDATE GUIDE
+GITHUB UPLOAD GUIDE
 
-WHAT THIS ZIP CONTAINS
-- A GitHub-ready static website.
-- Official Discord, Roblox, YouTube, TikTok, and Instagram links.
-- Hidden Manager navigation for unauthorized visitors.
-- No private Manager content inside the public HTML.
-- Theme and welcome choices saved in the visitor's browser.
-- A .gitignore file and a simple 404 fallback.
+1. Extract the ZIP.
+2. Open your GitHub repository and select branch main.
+3. Delete old website files that are being replaced.
+4. Choose Add file → Upload files.
+5. Upload every extracted file/folder directly to repository root.
+6. Commit the upload.
+7. Wait for Cloudflare Pages to deploy.
+8. Force refresh the website with Command + Shift + R.
 
-IMPORTANT SECURITY NOTE
-GitHub Pages and Cloudflare Pages publish browser files publicly. Never put bot tokens, passwords, Discord client secrets, private API keys, or database passwords inside index.html or the js/ folder. Real Manager tools require a backend permission check.
+The repository root must contain:
+index.html
+assets/
+css/
+js/
+functions/
+_headers
+_routes.json
+package.json
 
-HOW TO REPLACE THE OLD GITHUB WEBSITE
-1. Download and unzip the finished ZIP.
-2. Open the folder named fsrp_site.
-3. Open your existing GitHub repository.
-4. Click Add file, then Upload files.
-5. Remove the old website files first, or replace files with the same names.
-6. Drag EVERYTHING INSIDE fsrp_site into GitHub, including:
-   index.html
-   404.html
-   .gitignore
-   css folder
-   js folder
-   README.md
-7. Commit the upload to the same branch your Pages deployment uses, normally main.
-8. Wait for GitHub Pages or Cloudflare Pages to deploy the new commit.
-9. Hard refresh the website with Command+Shift+R on Mac.
-
-SAFER METHOD FOR A BIG REPLACEMENT
-- On GitHub, upload the new files with the same paths and names.
-- Delete files that belonged only to the old version.
-- Do not upload the outer fsrp_site folder as an extra layer. index.html must be at the repository root.
-
-CLOUDFLARE PAGES
-If Cloudflare Pages is connected to the GitHub repository, it should redeploy automatically after the commit. The build command should be blank and the output directory should be / or left blank for this static project.
+Do not place everything inside another FloridaStateRoleplay-main folder.

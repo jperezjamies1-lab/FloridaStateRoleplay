@@ -1,20 +1,17 @@
-FLORIDA STATE ROLEPLAY — READY TO UPLOAD
+FLORIDA STATE ROLEPLAY — COMPLETE WEBSITE V4
 
-This package keeps the current website design, intro, palm animations, sections, and Discord link. Founder wording has been changed to Admin/Leadership.
+1. Extract this ZIP.
+2. Upload every file and folder INSIDE it directly to the root of your GitHub repository.
+3. Do not upload the ZIP itself into the repository.
+4. Cloudflare Pages settings:
+   Production branch: main
+   Framework preset: None
+   Build command: exit 0
+   Build output directory: .
+   Root directory: blank
+5. Add the Cloudflare bindings and secrets listed in README-SETUP.md.
+6. Redeploy, then force refresh with Command + Shift + R.
 
-FAST UPDATE (same method you already used)
-1. Open Cloudflare > Workers & Pages > floridastateroleplay.
-2. Open Deployments.
-3. Choose Create deployment / Upload new version.
-4. Upload this ZIP.
-5. Wait for Success, then refresh the website with Ctrl+Shift+R (or Cmd+Shift+R on Mac).
-
-IMPORTANT
-- The website and panel interface work immediately.
-- Browser-saved panel changes work on the device where they are edited.
-- Shared changes for every visitor require the included Pages Function plus a SITE_SETTINGS KV binding and ADMIN_TOKEN secret.
-
-FILES
-- index.html
-- functions/api/settings.js
-- _headers
+IMPORTANT:
+There is intentionally no active wrangler.toml. This keeps Cloudflare Dashboard
+Bindings editable, including CAD_STATE. An optional wrangler.example.toml is included.

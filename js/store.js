@@ -1,9 +1,113 @@
+(function () {
+  const CONTENT_KEY = "fsrp_v3_content";
+  const PREVIEW_KEY = "fsrpPreviewStateV3";
+  const clone = (value) => JSON.parse(JSON.stringify(value));
 
-(function(){
-  const clone=v=>JSON.parse(JSON.stringify(v));
-  const merge=(a,b)=>{if(Array.isArray(a)||Array.isArray(b))return b===undefined?clone(a):clone(b);if(a&&typeof a==='object'&&b&&typeof b==='object'){const o={...a};Object.keys(b).forEach(k=>o[k]=k in a?merge(a[k],b[k]):clone(b[k]));return o}return b===undefined?a:b};
-  let state=merge(window.FSRP_DEFAULTS,JSON.parse(localStorage.getItem('fsrpPreviewState')||'{}'));
-  const listeners=[];
-  const api={get:()=>state,set(next,{persist=true}={}){state=merge(window.FSRP_DEFAULTS,next||{});if(persist)localStorage.setItem('fsrpPreviewState',JSON.stringify(state));listeners.forEach(fn=>fn(state));document.dispatchEvent(new CustomEvent('fsrp:state',{detail:state}));},patch(path,value){const parts=path.split('.');const next=clone(state);let cur=next;parts.slice(0,-1).forEach(k=>cur=cur[k]??(cur[k]={}));cur[parts.at(-1)]=value;api.set(next);},subscribe(fn){listeners.push(fn);return()=>listeners.splice(listeners.indexOf(fn),1)},async loadCloud(){try{const r=await fetch('/api/settings',{headers:{Accept:'application/json'}});if(!r.ok)return;const data=await r.json();if(data&&data.settings)api.set(merge(state,data.settings),{persist:false})}catch{}},reset(){localStorage.removeItem('fsrpPreviewState');api.set(clone(window.FSRP_DEFAULTS),{persist:false})}};
-  window.FSRP_STORE=api;
+  function merge(base, incoming) {
+    if (Array.isArray(base) || Array.isArray(incoming)) {
+      return incoming === undefined ? clone(base) : clone(incoming);
+    }
+    if (base && typeof base === "object" && incoming && typeof incoming === "object") {
+      const output = { ...base };
+      for (const key of Object.keys(incoming)) {
+        output[key] = key in base ? merge(base[key], incoming[key]) : clone(incoming[key]);
+      }
+      return output;
+    }
+    return incoming === undefined ? base : incoming;
+  }
+
+  function containsDataUrl(value) {
+    if (typeof value === "string") {
+      return /^(data:|blob:)/i.test(value.trim());
+    }
+    if (Array.isArray(value)) return value.some(containsDataUrl);
+    if (value && typeof value === "object") return Object.values(value).some(containsDataUrl);
+    return false;
+  }
+
+  function validatePublishable(value) {
+    if (containsDataUrl(value)) {
+      throw new Error("Embedded local preview media cannot be published to KV. Upload it to R2 and use the permanent URL.");
+    }
+    return true;
+  }
+
+  function loadPreview() {
+    try {
+      return JSON.parse(localStorage.getItem(PREVIEW_KEY) || "{}");
+    } catch {
+      return {};
+    }
+  }
+
+  let state = merge(window.FSRP_DEFAULTS, loadPreview());
+  const listeners = new Set();
+
+  const api = {
+    contentKey: CONTENT_KEY,
+    get: () => state,
+    clone: () => clone(state),
+    validatePublishable,
+    set(next, { persist = true } = {}) {
+      state = merge(window.FSRP_DEFAULTS, next || {});
+      if (persist) localStorage.setItem(PREVIEW_KEY, JSON.stringify(state));
+      for (const listener of listeners) listener(state);
+      document.dispatchEvent(new CustomEvent("fsrp:state", { detail: state }));
+    },
+    patch(path, value) {
+      const parts = path.split(".");
+      const next = clone(state);
+      let cursor = next;
+      for (const key of parts.slice(0, -1)) cursor = cursor[key] ?? (cursor[key] = {});
+      cursor[parts.at(-1)] = value;
+      api.set(next);
+    },
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
+    },
+    async loadCloud() {
+      try {
+        const response = await fetch("/api/settings", {
+          headers: { Accept: "application/json" },
+          cache: "no-store",
+        });
+        if (!response.ok) throw new Error(`Settings API returned ${response.status}`);
+        const data = await response.json();
+        const cloudContent = data.content || data.settings || null;
+        const cloudStatus = data.status || null;
+        if (cloudContent || cloudStatus) {
+          const next = merge(state, cloudContent || {});
+          if (cloudStatus) next.status = merge(next.status || {}, cloudStatus);
+          api.set(next, { persist: false });
+        }
+        document.dispatchEvent(new CustomEvent("fsrp:cloud", { detail: { ok: true } }));
+        return { ok: true };
+      } catch (error) {
+        document.dispatchEvent(new CustomEvent("fsrp:cloud", { detail: { ok: false, error } }));
+        return { ok: false, error };
+      }
+    },
+    reset() {
+      localStorage.removeItem(PREVIEW_KEY);
+      localStorage.removeItem("fsrpPreviewState");
+      api.set(clone(window.FSRP_DEFAULTS), { persist: false });
+    },
+  };
+
+  window.FSRP_STORE = api;
+  window.FSRP_UTILS = {
+    clone,
+    merge,
+    containsDataUrl,
+    escapeHTML(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    },
+  };
 })();

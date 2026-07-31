@@ -12,17 +12,21 @@ const requiredIds = [
   "page-staff", "page-marketplace", "page-rules", "page-support", "page-manager",
   "search-trigger", "notif-trigger", "notification-panel", "mobile-drawer",
   "hero-title", "staff-grid", "rank-strip", "manager-app", "asset-file",
-  "export-btn", "publish-btn", "app-loader"
+  "export-btn", "publish-btn", "app-loader", "streamer-live-grid", "maintenance-screen",
+  "service-degraded", "cad-radio-log", "ticker-track"
 ];
 
 const requiredFiles = [
   "css/base.css", "css/navigation.css", "css/hero.css", "css/pages.css",
   "css/dashboard.css", "css/staff.css", "css/search.css", "css/notifications.css",
-  "css/manager.css", "css/animations.css", "css/mobile.css",
+  "css/manager.css", "css/animations.css", "css/mobile.css", "css/features.css",
+  "css/cad.css", "css/streamers.css",
   "js/config.js", "js/store.js", "js/router.js", "js/sound.js", "js/search.js",
   "js/notifications.js", "js/dashboard.js", "js/staff.js", "js/manager.js", "js/app.js",
+  "js/features.js", "js/cad.js", "js/streamers.js",
   "functions/api/auth.js", "functions/api/counts.js", "functions/api/settings.js",
-  "functions/api/media.js", "functions/api/presence.js", "functions/lib/util.js",
+  "functions/api/media.js", "functions/api/presence.js", "functions/api/cad.js",
+  "functions/api/streamers.js", "functions/lib/util.js",
   "assets/brand/fsrp-logo.png", "assets/brand/social-preview.png",
   "assets/brand/fhp.png", "assets/brand/ocso.png", "assets/brand/ffw.png",
   "assets/brand/fbi.png", "assets/brand/civ.png"
@@ -43,7 +47,7 @@ check("Manager includes R2 asset upload", html.includes("id=\"asset-upload-btn\"
 check("Manager includes JSON backup and restore", html.includes("id=\"export-btn\"") && html.includes("id=\"import-file\""));
 check("Manager includes rank editing", html.includes("id=\"rank-editor\"") && html.includes("data-add-item=\"ranks\""));
 check("Manager includes timeline, marketplace, and support editing", html.includes("id=\"timeline-editor\"") && html.includes("id=\"marketplace-editor\"") && html.includes("id=\"support-editor\""));
-check("V3 preserves platform systems, onboarding, and FAQ content", html.includes("id=\"systems-grid\"") && html.includes("id=\"join-steps\"") && html.includes("id=\"faq-list\""));
+check("V4 preserves platform systems, onboarding, and FAQ content", html.includes("id=\"systems-grid\"") && html.includes("id=\"join-steps\"") && html.includes("id=\"faq-list\""));
 check("Community Hub includes editable media gallery", html.includes("id=\"media-gallery\"") && html.includes("id=\"gallery-editor\""));
 check("Staff copy promises honest unavailable state", html.includes("Status Unavailable"));
 check("No external font stylesheet blocks first paint", !/fonts\.googleapis\.com/i.test(html));
@@ -75,9 +79,22 @@ check("client has no repeating setInterval loops", !/\bsetInterval\s*\(/.test(al
 check("staff presence polling pauses and uses the safe API", allClientJs.includes("/api/presence") && allClientJs.includes("visibilitychange"));
 check("presence endpoint requires a sync token for writes", fs.readFileSync("functions/api/presence.js", "utf8").includes("PRESENCE_SYNC_TOKEN") && fs.readFileSync("functions/api/presence.js", "utf8").includes("x-presence-token"));
 check("loader hides before cloud hydration finishes", /setTimeout\(\(\) => document\.getElementById\("app-loader"\).*140\)/s.test(fs.readFileSync("js/app.js", "utf8")));
-check("cloud settings use V3 content key", fs.readFileSync("js/store.js", "utf8").includes("fsrp_v3_content"));
+check("cloud settings use V4-compatible content key", fs.readFileSync("js/store.js", "utf8").includes("fsrp_v3_content"));
 check("Operations can publish only the V3 status key", fs.readFileSync("functions/api/settings.js", "utf8").includes("fsrp_v3_status"));
 check("embedded local media is blocked from KV publishing", fs.readFileSync("js/store.js", "utf8").includes("containsDataUrl") && fs.readFileSync("js/store.js", "utf8").includes("Embedded local preview media cannot be published to KV"));
+
+
+const configJs = fs.readFileSync("js/config.js", "utf8");
+const featuresJs = fs.readFileSync("js/features.js", "utf8");
+const cadApiJs = fs.readFileSync("functions/api/cad.js", "utf8");
+check("dashboard-managed bindings are unlocked", !fs.existsSync(path.join(root, "wrangler.toml")) && fs.existsSync(path.join(root, "wrangler.example.toml")));
+check("original PNG logo is preserved and generic SVG is removed", fs.existsSync(path.join(root, "assets/brand/fsrp-logo.png")) && !fs.existsSync(path.join(root, "assets/brand/fsrp-logo.svg")));
+check("Streamer Live Dashboard and API are integrated", html.includes('id="streamer-live-grid"') && fs.existsSync(path.join(root, "js/streamers.js")) && fs.existsSync(path.join(root, "functions/api/streamers.js")));
+check("maintenance waiting music is integrated", html.includes("data-waiting-music") && featuresJs.includes("startWaitingMusic") && configJs.includes('"musicEnabled": true'));
+check("ticker enforces five words and moves left to right", featuresJs.includes("slice(0, 5)") && fs.readFileSync("css/features.css", "utf8").includes("tickerMoveLeftToRight"));
+check("maintenance mode defaults off", /"maintenance"\s*:\s*\{[\s\S]*?"enabled"\s*:\s*false/.test(configJs));
+check("CAD verifies its KV binding before issuing login", cadApiJs.indexOf("if (!env.CAD_STATE)") !== -1 && cadApiJs.indexOf("if (!env.CAD_STATE)") < cadApiJs.indexOf("issue(match.role"));
+check("CAD refreshes safely without setInterval", fs.readFileSync("js/cad.js", "utf8").includes("setTimeout") && !fs.readFileSync("js/cad.js", "utf8").includes("setInterval"));
 
 for (const cssFile of fs.readdirSync(path.join(root, "css")).filter((file) => file.endsWith(".css"))) {
   const css = fs.readFileSync(path.join(root, "css", cssFile), "utf8");
@@ -87,6 +104,6 @@ for (const cssFile of fs.readdirSync(path.join(root, "css")).filter((file) => fi
 }
 
 const passed = results.filter((r) => r.pass).length;
-console.log(`\n${"=".repeat(72)}\nFSRP V3 STATIC TESTS: ${passed}/${results.length} passed\n${"=".repeat(72)}`);
+console.log(`\n${"=".repeat(72)}\nFSRP V4 STATIC TESTS: ${passed}/${results.length} passed\n${"=".repeat(72)}`);
 for (const result of results) console.log(`${result.pass ? "✅" : "❌"} ${result.name}${result.detail ? ` — ${result.detail}` : ""}`);
 if (results.some((r) => !r.pass)) process.exit(1);

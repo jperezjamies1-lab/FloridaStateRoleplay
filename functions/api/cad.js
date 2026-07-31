@@ -1,13 +1,103 @@
-import{json,body,timingSafeEqual}from'../lib/http.js';
-const empty={dispatch:[],units:[],calls:[],records:[],reports:[],citations:[],warrants:[],radio:[]};
-const te=new TextEncoder(),td=new TextDecoder();
-function bytesToB64Url(bytes){let s='';for(const b of bytes)s+=String.fromCharCode(b);return btoa(s).replaceAll('+','-').replaceAll('/','_').replaceAll('=','')}
-function b64UrlToBytes(s){s=s.replaceAll('-','+').replaceAll('_','/');s+='='.repeat((4-s.length%4)%4);return Uint8Array.from(atob(s),c=>c.charCodeAt(0))}
-const encText=s=>bytesToB64Url(te.encode(s));const decText=s=>td.decode(b64UrlToBytes(s));
-async function importKey(secret,usage){return crypto.subtle.importKey('raw',te.encode(secret),{name:'HMAC',hash:'SHA-256'},false,[usage])}
-async function sign(value,secret){const sig=await crypto.subtle.sign('HMAC',await importKey(secret,'sign'),te.encode(value));return bytesToB64Url(new Uint8Array(sig))}
-async function check(value,signature,secret){return crypto.subtle.verify('HMAC',await importKey(secret,'verify'),b64UrlToBytes(signature),te.encode(value))}
-async function issue(role,agency,secret){const p=encText(JSON.stringify({role,agency,exp:Date.now()+1000*60*60*8}));return p+'.'+await sign(p,secret)}
-async function verify(token,secret){try{const[p,s]=String(token||'').split('.');if(!p||!s||!await check(p,s,secret))return null;const d=JSON.parse(decText(p));return d.exp>Date.now()?d:null}catch{return null}}
-function agencyFor(code,env){const pairs=[['fbi','FBI',env.CAD_FBI_CODE],['fhp','FHP',env.CAD_FHP_CODE],['ffw','FFW',env.CAD_FFW_CODE],['staff','Staff Team',env.CAD_STAFF_CODE]];for(const[x,a,c]of pairs)if(c&&timingSafeEqual(code,c))return{role:x,agency:a};return null}
-export async function onRequestPost({request,env}){const data=await body(request),secret=env.CAD_TOKEN_SECRET||env.ADMIN_TOKEN;if(!secret)return json({error:'CAD_TOKEN_SECRET is not configured.'},503);if(data.action==='login'){const match=agencyFor(data.code,env);if(!match)return json({error:'Invalid CAD access code.'},401);return json({...match,token:await issue(match.role,match.agency,secret)})}const user=await verify(data.token,secret);if(!user)return json({error:'CAD session expired or invalid.'},401);if(!env.CAD_STATE)return json({error:'Cloudflare KV binding CAD_STATE is missing.'},503);let state=await env.CAD_STATE.get('state','json')||structuredClone(empty);if(data.action==='state')return json({state,user});if(data.action==='append'){const allowed=['dispatch','units','calls','records','reports','citations','warrants','radio'];if(!allowed.includes(data.collection))return json({error:'Invalid CAD collection.'},400);state[data.collection]??=[];state[data.collection].unshift({...data.item,agency:user.agency,role:user.role});state[data.collection]=state[data.collection].slice(0,500)}else if(data.action==='unit'){state.units??=[];const item={...data.item,agency:user.agency,role:user.role};const i=state.units.findIndex(x=>x.callsign===item.callsign);i<0?state.units.unshift(item):state.units[i]=item}else return json({error:'Unknown CAD action.'},400);await env.CAD_STATE.put('state',JSON.stringify(state));return json({ok:true,state})}
+import { json, body, timingSafeEqual } from "../lib/http.js";
+
+const EMPTY_STATE = { dispatch: [], units: [], calls: [], records: [], reports: [], citations: [], warrants: [], radio: [] };
+const COLLECTIONS = new Set(["dispatch", "calls", "records", "reports", "citations", "warrants", "radio"]);
+const encoder = new TextEncoder();
+const decoder = new TextDecoder();
+
+function bytesToBase64Url(bytes) {
+  let value = "";
+  for (const byte of bytes) value += String.fromCharCode(byte);
+  return btoa(value).replaceAll("+", "-").replaceAll("/", "_").replaceAll("=", "");
+}
+function base64UrlToBytes(value) {
+  const normalized = String(value).replaceAll("-", "+").replaceAll("_", "/");
+  return Uint8Array.from(atob(normalized + "=".repeat((4 - normalized.length % 4) % 4)), (character) => character.charCodeAt(0));
+}
+async function importKey(secret, usage) {
+  return crypto.subtle.importKey("raw", encoder.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, [usage]);
+}
+async function sign(value, secret) {
+  return bytesToBase64Url(new Uint8Array(await crypto.subtle.sign("HMAC", await importKey(secret, "sign"), encoder.encode(value))));
+}
+async function issue(role, agency, secret) {
+  const payload = bytesToBase64Url(encoder.encode(JSON.stringify({ role, agency, exp: Date.now() + 8 * 60 * 60 * 1000 })));
+  return `${payload}.${await sign(payload, secret)}`;
+}
+async function verify(token, secret) {
+  try {
+    const [payload, signature] = String(token || "").split(".");
+    if (!payload || !signature) return null;
+    const valid = await crypto.subtle.verify("HMAC", await importKey(secret, "verify"), base64UrlToBytes(signature), encoder.encode(payload));
+    if (!valid) return null;
+    const data = JSON.parse(decoder.decode(base64UrlToBytes(payload)));
+    return data.exp > Date.now() ? data : null;
+  } catch {
+    return null;
+  }
+}
+function agencyFor(code, env) {
+  const pairs = [
+    ["fbi", "FBI", env.CAD_FBI_CODE],
+    ["fhp", "FHP", env.CAD_FHP_CODE],
+    ["ffw", "FFW", env.CAD_FFW_CODE],
+    ["staff", "Staff Team", env.CAD_STAFF_CODE],
+  ];
+  for (const [role, agency, secret] of pairs) {
+    if (secret && timingSafeEqual(String(code || ""), secret)) return { role, agency };
+  }
+  return null;
+}
+function cleanString(value, max = 500) {
+  return String(value ?? "").replace(/[\u0000-\u001f\u007f]/g, " ").trim().slice(0, max);
+}
+function cleanItem(item = {}) {
+  const output = {};
+  for (const [key, value] of Object.entries(item)) {
+    if (typeof value === "string") output[key] = cleanString(value, key === "body" || key === "details" || key === "notes" ? 4000 : 500);
+    else if (typeof value === "number" || typeof value === "boolean") output[key] = value;
+  }
+  output.id = cleanString(output.id || crypto.randomUUID(), 80);
+  output.updatedAt = Date.now();
+  return output;
+}
+
+export async function onRequestPost({ request, env }) {
+  if (!env.CAD_TOKEN_SECRET) return json({ error: "CAD_TOKEN_SECRET is not configured." }, 503);
+  if (!env.CAD_STATE) return json({ error: "Cloudflare KV binding CAD_STATE is missing. Add it in the Pages project Bindings settings." }, 503);
+  const data = await body(request);
+
+  if (data.action === "login") {
+    const match = agencyFor(data.code, env);
+    if (!match) return json({ error: "Invalid CAD access code." }, 401);
+    return json({ ...match, token: await issue(match.role, match.agency, env.CAD_TOKEN_SECRET), apiVersion: 2 });
+  }
+
+  const user = await verify(data.token, env.CAD_TOKEN_SECRET);
+  if (!user) return json({ error: "CAD session expired or invalid." }, 401);
+  const state = await env.CAD_STATE.get("state", "json") || structuredClone(EMPTY_STATE);
+  for (const key of Object.keys(EMPTY_STATE)) if (!Array.isArray(state[key])) state[key] = [];
+
+  if (data.action === "state") {
+    state.units = state.units.filter((unit) => !unit.updatedAt || Date.now() - unit.updatedAt < 8 * 60 * 60 * 1000);
+    return json({ state, user, apiVersion: 2 });
+  }
+
+  if (data.action === "append") {
+    if (!COLLECTIONS.has(data.collection)) return json({ error: "Invalid CAD collection." }, 400);
+    const item = { ...cleanItem(data.item), agency: user.agency, role: user.role };
+    state[data.collection].unshift(item);
+    state[data.collection] = state[data.collection].slice(0, 500);
+  } else if (data.action === "unit") {
+    const item = { ...cleanItem(data.item), agency: user.agency, role: user.role };
+    if (!item.callsign) return json({ error: "A callsign is required." }, 400);
+    const index = state.units.findIndex((unit) => String(unit.callsign).toLowerCase() === String(item.callsign).toLowerCase());
+    if (index < 0) state.units.unshift(item); else state.units[index] = item;
+    state.units = state.units.slice(0, 250);
+  } else {
+    return json({ error: "Unknown CAD action." }, 400);
+  }
+
+  await env.CAD_STATE.put("state", JSON.stringify(state));
+  return json({ ok: true, state, apiVersion: 2 });
+}

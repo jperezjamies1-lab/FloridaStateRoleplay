@@ -1,7 +1,7 @@
 {
-  "name": "fsrp-community-hub",
-  "version": "3.0.0",
-  "description": "Florida State Roleplay Community Hub V3 — modular Cloudflare Pages website",
+  "name": "fsrp-roleplay-platform",
+  "version": "4.0.0",
+  "description": "Florida State Roleplay V4 glassmorphism website, live streamer dashboard, Manager, and integrated CAD",
   "private": true,
   "scripts": {
     "test": "node test_site.mjs"
