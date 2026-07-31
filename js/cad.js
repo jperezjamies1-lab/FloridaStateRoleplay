@@ -303,6 +303,7 @@
       erlcLive = { ready: false, error: error.message };
     }
     renderErlcLive();
+    document.dispatchEvent(new CustomEvent("fsrp:erlc-live", { detail: erlcLive }));
   }
 
   function scheduleErlc() {
@@ -589,6 +590,15 @@
     if (pttActive || !token) return;
     const callsign = currentCallsign();
     if (!callsign) return window.alert("Enter and update your callsign before using PTT.");
+
+    if (window.FSRP_LIVE_RADIO?.isConnected?.()) {
+      const granted = await window.FSRP_LIVE_RADIO.requestPTT();
+      if (!granted) {
+        $("#cad-radio-state").textContent = "CHANNEL BUSY";
+        return;
+      }
+    }
+
     pttActive = true;
     $("#cad-radio-ptt")?.classList.add("transmitting");
     $("#cad-radio-state").textContent = "TRANSMITTING";
@@ -601,6 +611,7 @@
   async function stopPTT() {
     if (!pttActive) return;
     pttActive = false;
+    window.FSRP_LIVE_RADIO?.releasePTT?.();
     $("#cad-radio-ptt")?.classList.remove("transmitting");
     $("#cad-radio-state").textContent = "STANDBY";
     tone(520, 0.09, 0.07);
@@ -761,6 +772,7 @@
   }
 
   async function logout() {
+    window.FSRP_LIVE_RADIO?.disconnect?.();
     clearTimeout(refreshTimer);
     clearTimeout(presenceTimer);
     clearTimeout(erlcTimer);
@@ -885,8 +897,8 @@
       if (target.id === "cad-radio-scan") { radioScanning = !radioScanning; target.textContent = radioScanning ? "Scan On" : "Scan Off"; await updatePresence(); renderRadio(); }
       if (target.id === "cad-radio-mute") { radioMuted = !radioMuted; target.textContent = radioMuted ? "Mute On" : "Mute Off"; await updatePresence(); }
       if (target.id === "cad-radio-tone") alertTone();
-      if (target.id === "cad-panic-btn") await panic(true);
-      if (target.id === "cad-clear-my-panic") await panic(false);
+      if (target.id === "cad-panic-btn") { await panic(true); window.FSRP_LIVE_RADIO?.panic?.(true); }
+      if (target.id === "cad-clear-my-panic") { await panic(false); window.FSRP_LIVE_RADIO?.panic?.(false); }
       if (target.id === "bodycam-start") await camera("bodycam");
       if (target.id === "bodycam-record") record("bodycam");
       if (target.id === "bodycam-stop") stopCamera("bodycam");
@@ -906,6 +918,7 @@
     localStorage.setItem(`fsrpCadChannel:${agency}`, currentChannel);
     localRadioHidden = false;
     await updatePresence();
+    await window.FSRP_LIVE_RADIO?.changeChannel?.(currentChannel);
     renderRadio();
   });
   $("#cad-unit-callsign")?.addEventListener("input", updateCameraOverlays);
@@ -946,6 +959,7 @@
   });
 
   window.addEventListener("beforeunload", () => {
+    window.FSRP_LIVE_RADIO?.disconnect?.();
     micStream?.getTracks().forEach((track) => track.stop());
     Object.values(streams).forEach((stream) => stream?.getTracks().forEach((track) => track.stop()));
   });

@@ -113,6 +113,7 @@
       user = data.user;
       sessionStorage.setItem("fsrpStaffOpsToken", token);
       sessionStorage.setItem("fsrpStaffOpsUser", JSON.stringify(user));
+      document.dispatchEvent(new CustomEvent("fsrp:staff-session", { detail: { user, signedIn: true } }));
       if (message) message.textContent = "";
       await loadState();
       unlock();
@@ -154,6 +155,7 @@
     state = structuredClone(EMPTY_STATE);
     sessionStorage.removeItem("fsrpStaffOpsToken");
     sessionStorage.removeItem("fsrpStaffOpsUser");
+    document.dispatchEvent(new CustomEvent("fsrp:staff-session", { detail: { signedIn: false } }));
     if ($("#staffops-workspace")) $("#staffops-workspace").hidden = true;
     if ($("#staffops-access")) $("#staffops-access").hidden = false;
     if (showMessage) toast("Staff Operations signed out");

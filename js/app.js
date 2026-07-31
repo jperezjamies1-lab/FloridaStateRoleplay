@@ -188,6 +188,9 @@
   window.addEventListener("online", () => FSRP_STORE.loadCloud());
 
   document.addEventListener("DOMContentLoaded", () => {
+    if ("serviceWorker" in navigator && location.protocol === "https:") {
+      navigator.serviceWorker.register("/sw.js").catch(() => undefined);
+    }
     document.getElementById("footer-year").textContent = new Date().getFullYear();
     render();
     window.setTimeout(() => document.getElementById("app-loader")?.classList.add("is-hidden"), 140);

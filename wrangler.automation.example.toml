@@ -1,0 +1,18 @@
+name = "fsrp-community-automation"
+main = "workers/community-automation-cron.js"
+compatibility_date = "2026-07-31"
+
+[[kv_namespaces]]
+binding = "SITE_SETTINGS"
+id = "PASTE_THE_SAME_SITE_SETTINGS_KV_ID_HERE"
+
+[triggers]
+crons = ["*/15 * * * *"]
+
+[vars]
+STAFF_WEEKLY_MINUTES_TARGET = "120"
+
+# Encrypted Worker secrets:
+# AUTOMATION_CRON_TOKEN
+# ERLC_SERVER_KEY
+# DISCORD_AUTOMATION_WEBHOOK (optional)

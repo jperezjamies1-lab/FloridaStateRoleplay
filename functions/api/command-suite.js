@@ -10,11 +10,11 @@ const encoder = new TextEncoder();
 const decoder = new TextDecoder();
 
 const EMPTY_STATE = {
-  k9Units: [],
-  k9Deployments: [],
   watchdogAlerts: [],
   watchdogSnapshots: [],
   modActions: [],
+  banBolos: [],
+  automationEvents: [],
   audit: [],
   settings: {
     watchdogEnabled: true,
@@ -22,7 +22,12 @@ const EMPTY_STATE = {
     strictness: 55,
     movementThreshold: 250,
     killBurstThreshold: 4,
-    autoBanThreshold: 95
+    autoBanThreshold: 95,
+    rules: [],
+    autoShiftStart: false,
+    autoShiftEnd: false,
+    suspendAccessLock: true,
+    linkedStaff: []
   }
 };
 
@@ -56,7 +61,7 @@ function emptyState() {
 
 function repairState(value) {
   const state = value && typeof value === "object" && !Array.isArray(value) ? value : emptyState();
-  for (const key of ["k9Units", "k9Deployments", "watchdogAlerts", "watchdogSnapshots", "modActions", "audit"]) {
+  for (const key of ["watchdogAlerts", "watchdogSnapshots", "modActions", "banBolos", "automationEvents", "audit"]) {
     if (!Array.isArray(state[key])) state[key] = [];
   }
   state.settings = { ...EMPTY_STATE.settings, ...(state.settings && typeof state.settings === "object" ? state.settings : {}) };
@@ -301,7 +306,7 @@ function webhookFor(kind, env) {
   return normalize({
     watchdog: env.DISCORD_WATCHDOG_WEBHOOK,
     moderation: env.DISCORD_MODERATION_WEBHOOK,
-    k9: env.DISCORD_K9_WEBHOOK
+    bolo: env.DISCORD_WATCHDOG_WEBHOOK || env.DISCORD_MODERATION_WEBHOOK
   }[kind] || env.DISCORD_STAFF_WEBHOOK);
 }
 
@@ -430,6 +435,30 @@ function scanSignals(live, previous, settings) {
 
   const staffIds = new Set(live.staffIds || []);
   const dangerousCommands = [":ban", ":kick", ":mod", ":admin", ":shutdown", ":jail", ":kill", ":unadmin", ":unmod"];
+  const dangerousByActor = new Map();
+  for (const log of live.commandLogs) {
+    if (recentTimestamp(log.timestamp) < now - 60 * 1000) continue;
+    if (!dangerousCommands.some((command) => log.command.toLowerCase().startsWith(command))) continue;
+    const key = log.player.toLowerCase();
+    if (!dangerousByActor.has(key)) dangerousByActor.set(key, []);
+    dangerousByActor.get(key).push(log);
+  }
+  const staffBurstThreshold = Math.max(5, Number(settings.staffCommandBurstThreshold) || 8);
+  for (const logs of dangerousByActor.values()) {
+    if (logs.length < staffBurstThreshold) continue;
+    const actor = logs[0].player;
+    const player = live.players.find((entry) => entry.name.toLowerCase() === actor.toLowerCase());
+    const listedStaff = Boolean(player?.userId && staffIds.has(String(player.userId)));
+    alerts.push(createAlert({
+      player: actor,
+      type: "moderator-command-burst",
+      title: "Moderator action burst requires review",
+      detail: `${actor} used ${logs.length} high-impact commands in approximately one minute. ${listedStaff ? "The account is listed as staff, so this is an administrative-abuse review and never an automatic staff ban." : "The account was not listed as staff at scan time."}`,
+      score: listedStaff ? 68 : 92,
+      signals: [listedStaff ? "moderator-oversight" : "command-abuse"],
+      evidence: { marker: Math.floor(now / 60000), commands: logs.slice(0, 15).map((entry) => entry.command), listedStaff }
+    }));
+  }
   for (const log of live.commandLogs) {
     if (recentTimestamp(log.timestamp) < now - 2 * 60 * 1000) continue;
     const player = live.players.find((entry) => entry.name.toLowerCase() === log.player.toLowerCase());
@@ -530,9 +559,9 @@ export async function onRequestGet({ env }) {
     storageReady: Boolean(storeFor(env)),
     staffSessionReady: Boolean(sessionSecret(env)),
     erlcReady: Boolean(normalize(env.ERLC_SERVER_KEY)),
-    k9DiscordReady: Boolean(webhookFor("k9", env)),
     moderationDiscordReady: Boolean(webhookFor("moderation", env)),
     watchdogDiscordReady: Boolean(webhookFor("watchdog", env)),
+    liveRadioReady: Boolean(normalize(env.RADIO_WORKER_URL) && normalize(env.RADIO_SESSION_SECRET)),
     autoBanEnabled: normalize(env.WATCHDOG_AUTO_BAN_ENABLED).toLowerCase() === "true",
     apiVersion: 1
   });
@@ -567,7 +596,7 @@ export async function onRequestPost({ request, env }) {
       try { live = await fetchErlc(env); }
       catch (error) { liveError = error.message; }
     }
-    return json({ ok: true, state: publicState(state, user), user, live, liveError, apiVersion: 1 });
+    return json({ ok: true, state: { ...publicState(state, user), readiness: { liveRadioReady: Boolean(normalize(env.RADIO_WORKER_URL) && normalize(env.RADIO_SESSION_SECRET)), discordReady: Boolean(webhookFor("watchdog", env) || webhookFor("moderation", env)) } }, user, live, liveError, apiVersion: 2 });
   }
 
   if (data.action === "moderate") {
@@ -663,74 +692,78 @@ export async function onRequestPost({ request, env }) {
       strictness: Math.max(1, Math.min(100, Number(patch.strictness) || state.settings.strictness)),
       movementThreshold: Math.max(100, Math.min(1500, Number(patch.movementThreshold) || state.settings.movementThreshold)),
       killBurstThreshold: Math.max(3, Math.min(12, Number(patch.killBurstThreshold) || state.settings.killBurstThreshold)),
-      autoBanThreshold: Math.max(90, Math.min(100, Number(patch.autoBanThreshold) || state.settings.autoBanThreshold))
+      autoBanThreshold: Math.max(90, Math.min(100, Number(patch.autoBanThreshold) || state.settings.autoBanThreshold)),
+      rules: Array.isArray(patch.rules) ? patch.rules.slice(0, 5).map((value) => cleanString(value, 300)).filter(Boolean) : state.settings.rules
     };
     addAudit(state, user, "Watchdog Settings Updated", JSON.stringify(state.settings));
     await saveState(store, state);
     return json({ ok: true, settings: state.settings, state: publicState(state, user), apiVersion: 1 });
   }
 
-  if (data.action === "k9-save") {
-    if (level(user) < LEVELS.supervisor) return json({ error: "Supervisor access is required to manage K9 units." }, 403);
+  if (data.action === "bolo-save") {
+    if (level(user) < LEVELS.supervisor) return json({ error: "Supervisor access is required to create Ban BOLOs." }, 403);
     const source = data.item && typeof data.item === "object" ? data.item : {};
-    const item = {
-      id: cleanString(source.id || crypto.randomUUID(), 100),
-      k9Name: cleanString(source.k9Name, 100),
-      handler: cleanString(source.handler, 120),
-      handlerCallsign: cleanString(source.handlerCallsign, 60),
-      agency: cleanString(source.agency || "OCSO", 80),
-      certifications: Array.isArray(source.certifications) ? source.certifications.slice(0, 12).map((value) => cleanString(value, 100)).filter(Boolean) : [],
-      status: cleanString(source.status || "Available", 60),
-      notes: cleanLong(source.notes, 1600),
-      updatedAt: Date.now(),
-      updatedBy: user.name
-    };
-    if (!item.k9Name || !item.handler) return json({ error: "K9 name and handler are required." }, 400);
-    const index = state.k9Units.findIndex((entry) => entry.id === item.id);
-    if (index < 0) state.k9Units.unshift({ ...item, createdAt: Date.now() });
-    else state.k9Units[index] = { ...state.k9Units[index], ...item };
-    state.k9Units = state.k9Units.slice(0, 150);
-    addAudit(state, user, "K9 Unit Saved", `${item.handlerCallsign} / ${item.handler}`, item.k9Name);
-    await saveState(store, state);
-    return json({ ok: true, item, state: publicState(state, user), apiVersion: 1 });
-  }
-
-  if (data.action === "k9-deploy") {
-    if (level(user) < LEVELS.staff) return json({ error: "Staff access is required." }, 403);
-    const source = data.item && typeof data.item === "object" ? data.item : {};
-    const unit = state.k9Units.find((entry) => entry.id === source.k9Id);
     const item = {
       id: crypto.randomUUID(),
-      deploymentId: `K9-${String(state.k9Deployments.length + 1).padStart(4, "0")}`,
-      k9Id: cleanString(source.k9Id, 100),
-      k9Name: cleanString(unit?.k9Name || source.k9Name, 100),
-      handler: cleanString(unit?.handler || source.handler || user.name, 120),
-      handlerCallsign: cleanString(unit?.handlerCallsign || source.handlerCallsign || user.callsign, 60),
-      agency: cleanString(unit?.agency || source.agency || "OCSO", 80),
-      callNumber: cleanString(source.callNumber, 80),
-      location: cleanString(source.location, 180),
-      task: cleanString(source.task, 120),
-      result: cleanString(source.result || "Deployed", 120),
-      details: cleanLong(source.details, 2400),
-      evidenceUrl: cleanString(source.evidenceUrl, 1800),
+      player: cleanString(source.player, 100),
+      action: cleanString(source.action || "Alert Staff", 100),
+      reason: cleanLong(source.reason, 2400),
+      status: "Active",
       createdAt: Date.now(),
-      createdBy: user.name
+      createdBy: user.name,
+      createdById: user.id
     };
-    if (!item.k9Name || !item.task) return json({ error: "Select a K9 unit and deployment task." }, 400);
-    state.k9Deployments.unshift(item);
-    state.k9Deployments = state.k9Deployments.slice(0, 600);
-    addAudit(state, user, "K9 Deployment", `${item.task} · ${item.result}`, item.k9Name);
+    if (!item.player || !item.reason) return json({ error: "Roblox username and reason are required." }, 400);
+    state.banBolos.unshift(item);
+    state.banBolos = state.banBolos.slice(0, 500);
+    state.automationEvents.unshift({ id: crypto.randomUUID(), type: "Ban BOLO Created", detail: `${item.player} · ${item.action}`, createdAt: Date.now(), actor: user.name });
+    state.automationEvents = state.automationEvents.slice(0, 600);
+    addAudit(state, user, "Ban BOLO Created", item.reason, item.player);
     await saveState(store, state);
-    const discord = await sendDiscord("k9", `FSRP K9 Deployment · ${item.deploymentId}`, [
-      { name: "K9", value: `${item.k9Name} · ${item.handlerCallsign || item.handler}`, inline: true },
-      { name: "Agency", value: item.agency, inline: true },
-      { name: "Task", value: item.task, inline: true },
-      { name: "Location", value: item.location || "Not provided" },
-      { name: "Result", value: item.result },
-      { name: "Details", value: item.details || "No additional details" },
-      ...(item.evidenceUrl ? [{ name: "Evidence", value: item.evidenceUrl }] : [])
-    ], env, 0x22c55e);
-    return json({ ok: true, item, state: publicState(state, user), discord, apiVersion: 1 });
+    const discord = await sendDiscord("bolo", "FSRP Ban BOLO Created", [
+      { name: "Player", value: item.player, inline: true },
+      { name: "Requested action", value: item.action, inline: true },
+      { name: "Created by", value: user.name, inline: true },
+      { name: "Reason", value: item.reason }
+    ], env, 0xf59e0b);
+    return json({ ok: true, item, state: publicState(state, user), discord, apiVersion: 2 });
+  }
+
+  if (data.action === "bolo-update") {
+    if (level(user) < LEVELS.supervisor) return json({ error: "Supervisor access is required to update Ban BOLOs." }, 403);
+    const item = state.banBolos.find((entry) => entry.id === data.id);
+    if (!item) return json({ error: "Ban BOLO was not found." }, 404);
+    item.status = cleanString(data.status || "Closed", 80);
+    item.reviewNote = cleanLong(data.note, 1600);
+    item.updatedAt = Date.now();
+    item.updatedBy = user.name;
+    state.automationEvents.unshift({ id: crypto.randomUUID(), type: `Ban BOLO ${item.status}`, detail: `${item.player} · ${item.reviewNote || "No note"}`, createdAt: Date.now(), actor: user.name });
+    state.automationEvents = state.automationEvents.slice(0, 600);
+    addAudit(state, user, `Ban BOLO ${item.status}`, item.reviewNote, item.player);
+    await saveState(store, state);
+    return json({ ok: true, item, state: publicState(state, user), apiVersion: 2 });
+  }
+
+  if (data.action === "automation-settings") {
+    if (level(user) < LEVELS.hr) return json({ error: "HR access is required to change automation settings." }, 403);
+    const patch = data.settings && typeof data.settings === "object" ? data.settings : {};
+    const linkedStaff = Array.isArray(patch.linkedStaff) ? patch.linkedStaff.slice(0, 150).map((entry) => ({
+      roblox: cleanString(entry?.roblox, 100),
+      username: cleanString(entry?.username, 100),
+      callsign: cleanString(entry?.callsign, 60)
+    })).filter((entry) => entry.roblox) : state.settings.linkedStaff;
+    state.settings = {
+      ...state.settings,
+      autoShiftStart: patch.autoShiftStart !== undefined ? Boolean(patch.autoShiftStart) : state.settings.autoShiftStart,
+      autoShiftEnd: patch.autoShiftEnd !== undefined ? Boolean(patch.autoShiftEnd) : state.settings.autoShiftEnd,
+      suspendAccessLock: patch.suspendAccessLock !== undefined ? Boolean(patch.suspendAccessLock) : state.settings.suspendAccessLock,
+      linkedStaff
+    };
+    state.automationEvents.unshift({ id: crypto.randomUUID(), type: "Automation Settings Updated", detail: `${linkedStaff.length} linked staff account(s)`, createdAt: Date.now(), actor: user.name });
+    state.automationEvents = state.automationEvents.slice(0, 600);
+    addAudit(state, user, "Automation Settings Updated", JSON.stringify({ autoShiftStart: state.settings.autoShiftStart, autoShiftEnd: state.settings.autoShiftEnd, suspendAccessLock: state.settings.suspendAccessLock, linkedStaff: linkedStaff.length }));
+    await saveState(store, state);
+    return json({ ok: true, settings: state.settings, state: publicState(state, user), apiVersion: 2 });
   }
 
   return json({ error: "Unknown Command Suite action." }, 400);

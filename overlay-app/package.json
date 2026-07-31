@@ -1,0 +1,13 @@
+{
+  "name": "fsrp-companion-overlay",
+  "version": "1.0.0",
+  "private": true,
+  "description": "External always-on-top FSRP CAD and live radio companion. Does not inject into Roblox.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "devDependencies": {
+    "electron": "^37.2.0"
+  }
+}

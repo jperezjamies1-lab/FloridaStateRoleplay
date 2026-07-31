@@ -1,0 +1,19 @@
+name = "fsrp-live-radio"
+main = "workers/live-radio.js"
+compatibility_date = "2026-07-31"
+
+[durable_objects]
+bindings = [
+  { name = "RADIO_ROOM", class_name = "RadioRoom" }
+]
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["RadioRoom"]
+
+# Required encrypted Worker secret:
+# RADIO_SESSION_SECRET
+#
+# Optional plain variable. Use a comma-separated list after the first deploy,
+# for example https://your-site.pages.dev,https://fsrp.example.com
+# RADIO_ALLOWED_ORIGINS

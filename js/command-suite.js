@@ -8,12 +8,11 @@
 
   let token = sessionStorage.getItem("fsrpStaffOpsToken") || "";
   let user = null;
-  let state = { k9Units: [], k9Deployments: [], watchdogAlerts: [], modActions: [], audit: [], settings: {} };
+  let state = { watchdogAlerts: [], watchdogSnapshots: [], modActions: [], banBolos: [], automationEvents: [], audit: [], settings: {} };
   let live = null;
   let refreshTimer = null;
   let overlayWindow = null;
   let reportEvidenceUrl = "";
-  let k9EvidenceUrl = "";
   const demo = location.hostname === "localhost" || location.hostname === "127.0.0.1" || location.protocol === "file:";
 
   try { user = JSON.parse(sessionStorage.getItem("fsrpStaffOpsUser") || "null"); } catch { user = null; }
@@ -65,14 +64,23 @@
     if (action === "watchdog-review") {
       const alert = state.watchdogAlerts.find((entry) => entry.id === payload.id); if (alert) alert.status = payload.decision; return Promise.resolve({ ok: true, state, alert });
     }
-    if (action === "k9-save") {
-      const item = { ...payload.item, id: payload.item.id || crypto.randomUUID(), updatedAt: Date.now(), updatedBy: user.name };
-      const index = state.k9Units.findIndex((entry) => entry.id === item.id); if (index < 0) state.k9Units.unshift(item); else state.k9Units[index] = item;
+    if (action === "watchdog-settings") {
+      state.settings = { ...state.settings, ...(payload.settings || {}) };
+      return Promise.resolve({ ok: true, state, settings: state.settings });
+    }
+    if (action === "bolo-save") {
+      const item = { ...payload.item, id: payload.item?.id || crypto.randomUUID(), status: "Active", createdAt: Date.now(), createdBy: user.name };
+      state.banBolos.unshift(item);
       return Promise.resolve({ ok: true, state, item });
     }
-    if (action === "k9-deploy") {
-      const item = { ...payload.item, id: crypto.randomUUID(), deploymentId: `K9-${String(state.k9Deployments.length + 1).padStart(4, "0")}`, createdAt: Date.now(), createdBy: user.name };
-      state.k9Deployments.unshift(item); return Promise.resolve({ ok: true, state, item });
+    if (action === "bolo-update") {
+      const item = state.banBolos.find((entry) => entry.id === payload.id);
+      if (item) { item.status = payload.status || "Closed"; item.reviewNote = payload.note || ""; item.updatedAt = Date.now(); }
+      return Promise.resolve({ ok: true, state, item });
+    }
+    if (action === "automation-settings") {
+      state.settings = { ...state.settings, ...(payload.settings || {}) };
+      return Promise.resolve({ ok: true, state, settings: state.settings });
     }
     return Promise.resolve({ ok: true, state });
   }
@@ -138,15 +146,30 @@
     }).join("") : '<div class="command-empty">No Watchdog alerts are waiting for review.</div>';
   }
 
-  function renderK9() {
-    const roster = $("#command-k9-roster");
-    const units = state.k9Units || [];
-    roster.innerHTML = units.length ? units.map((unit) => `<article class="command-k9-card"><div class="command-k9-mark">K9</div><div><h4>${esc(unit.k9Name)}</h4><small>${esc(unit.handlerCallsign || "No callsign")} · ${esc(unit.handler)} · ${esc(unit.agency)}</small><small>${esc((unit.certifications || []).join(" · ") || "No certifications listed")}</small></div><button class="command-status" type="button" data-edit-k9="${esc(unit.id)}"><i></i>${esc(unit.status || "Available")}</button></article>`).join("") : '<div class="command-empty">No K9 teams have been published.</div>';
-    const selector = $("#command-deploy-k9");
-    selector.innerHTML = '<option value="">Select K9 team</option>' + units.map((unit) => `<option value="${esc(unit.id)}">${esc(unit.k9Name)} · ${esc(unit.handlerCallsign || unit.handler)}</option>`).join("");
-    const history = $("#command-k9-history");
-    const deployments = state.k9Deployments || [];
-    history.innerHTML = deployments.length ? deployments.slice(0, 150).map((item) => `<article class="command-row"><span><strong>${esc(item.deploymentId || "K9")}: ${esc(item.k9Name)} · ${esc(item.task)}</strong><small>${esc(item.location || "Location not listed")} · ${esc(item.result || "Deployed")} · ${new Date(item.createdAt).toLocaleString()}</small><small>${esc(item.details || "No additional notes")}</small></span>${item.evidenceUrl ? `<a class="btn btn-ghost btn-small" href="${esc(item.evidenceUrl)}" target="_blank" rel="noopener">Evidence</a>` : '<span class="badge">Logged</span>'}</article>`).join("") : '<div class="command-empty">No K9 deployments have been logged.</div>';
+  function renderAutomation() {
+    const settings = state.settings || {};
+    if ($("#command-watchdog-enabled")) $("#command-watchdog-enabled").value = String(settings.watchdogEnabled !== false);
+    if ($("#command-watchdog-review")) $("#command-watchdog-review").value = String(settings.reviewOnly !== false);
+    if ($("#command-watchdog-strictness")) $("#command-watchdog-strictness").value = settings.strictness ?? 55;
+    if ($("#command-watchdog-autoban")) $("#command-watchdog-autoban").value = settings.autoBanThreshold ?? 95;
+    if ($("#command-watchdog-rules")) $("#command-watchdog-rules").value = (settings.rules || []).join("\n");
+    if ($("#command-auto-shift-start")) $("#command-auto-shift-start").checked = Boolean(settings.autoShiftStart);
+    if ($("#command-auto-shift-end")) $("#command-auto-shift-end").checked = Boolean(settings.autoShiftEnd);
+    if ($("#command-suspend-access-lock")) $("#command-suspend-access-lock").checked = settings.suspendAccessLock !== false;
+    if ($("#command-linked-staff")) $("#command-linked-staff").value = (settings.linkedStaff || []).map((entry) => `${entry.roblox} | ${entry.username || ""} | ${entry.callsign || ""}`).join("\n");
+
+    const list = $("#command-bolo-list");
+    const bolos = state.banBolos || [];
+    if (list) list.innerHTML = bolos.length ? bolos.slice(0, 150).map((item) => `<article class="command-row"><span><strong>${esc(item.player)} · ${esc(item.action || "Alert Staff")}</strong><small>${esc(item.reason || "No reason")} · ${esc(item.createdBy || "Staff")} · ${new Date(item.createdAt).toLocaleString()}</small></span><div class="command-row-actions"><span class="badge">${esc(item.status || "Active")}</span>${item.status === "Active" && ["supervisor","hr","admin"].includes(user?.role) ? `<button class="btn btn-ghost btn-small" data-bolo-status="Closed" data-bolo-id="${esc(item.id)}">Close</button>` : ""}</div></article>`).join("") : '<div class="command-empty">No active Ban BOLOs.</div>';
+
+    const events = $("#command-automation-events");
+    const eventItems = state.automationEvents || [];
+    if (events) events.innerHTML = eventItems.length ? eventItems.slice(0, 100).map((item) => `<article class="command-row"><span><strong>${esc(item.type || "Automation")}</strong><small>${esc(item.detail || "No details")}</small></span><time>${new Date(item.createdAt).toLocaleString()}</time></article>`).join("") : '<div class="command-empty">No automation events yet.</div>';
+
+    if ($("#command-ready-erlc")) $("#command-ready-erlc").textContent = live?.players ? "READY" : "OFFLINE";
+    if ($("#command-ready-watchdog")) $("#command-ready-watchdog").textContent = settings.watchdogEnabled === false ? "OFF" : "READY";
+    if ($("#command-ready-radio")) $("#command-ready-radio").textContent = state.readiness?.liveRadioReady ? "READY" : "SETUP";
+    if ($("#command-ready-discord")) $("#command-ready-discord").textContent = state.readiness?.discordReady ? "READY" : "OPTIONAL";
   }
 
   function renderAudit() {
@@ -159,7 +182,7 @@
     renderLive();
     renderModLog();
     renderWatchdog();
-    renderK9();
+    renderAutomation();
     renderAudit();
   }
 
@@ -288,56 +311,69 @@
     } catch (error) { toast(error.message); }
   }
 
-  function editK9(id) {
-    const unit = state.k9Units.find((entry) => entry.id === id); if (!unit) return;
-    $("#command-k9-id").value = unit.id; $("#command-k9-name").value = unit.k9Name || ""; $("#command-k9-handler").value = unit.handler || "";
-    $("#command-k9-callsign").value = unit.handlerCallsign || ""; $("#command-k9-agency").value = unit.agency || "OCSO";
-    $("#command-k9-certifications").value = (unit.certifications || []).join(", "); $("#command-k9-status").value = unit.status || "Available";
-  }
-
-  async function saveK9() {
+  async function saveWatchdogPolicy() {
     try {
-      const item = {
-        id: $("#command-k9-id").value,
-        k9Name: $("#command-k9-name").value,
-        handler: $("#command-k9-handler").value,
-        handlerCallsign: $("#command-k9-callsign").value,
-        agency: $("#command-k9-agency").value,
-        certifications: $("#command-k9-certifications").value.split(",").map((value) => value.trim()).filter(Boolean),
-        status: $("#command-k9-status").value
+      const rules = String($("#command-watchdog-rules")?.value || "").split(/\n+/).map((value) => value.trim()).filter(Boolean).slice(0, 5);
+      const settings = {
+        watchdogEnabled: $("#command-watchdog-enabled").value === "true",
+        reviewOnly: $("#command-watchdog-review").value === "true",
+        strictness: Number($("#command-watchdog-strictness").value) || 55,
+        autoBanThreshold: Number($("#command-watchdog-autoban").value) || 95,
+        rules
       };
-      const data = await api("k9-save", { item }); state = data.state || state; renderK9(); renderAudit();
-      for (const id of ["command-k9-id", "command-k9-name", "command-k9-handler", "command-k9-callsign", "command-k9-certifications"]) $(`#${id}`).value = "";
-      toast("K9 team saved.", true);
+      const data = await api("watchdog-settings", { settings });
+      state = data.state || state; renderWatchdog(); renderAutomation(); renderAudit();
+      toast("Watchdog policy saved.", true);
     } catch (error) { toast(error.message); }
   }
 
-  async function logK9() {
+  async function saveBolo() {
     try {
-      if ($("#command-k9-evidence").files?.[0]) k9EvidenceUrl = await uploadEvidence($("#command-k9-evidence"));
-      const k9Id = $("#command-deploy-k9").value;
-      const unit = state.k9Units.find((entry) => entry.id === k9Id);
       const item = {
-        k9Id,
-        k9Name: unit?.k9Name,
-        handler: unit?.handler,
-        handlerCallsign: unit?.handlerCallsign,
-        agency: unit?.agency,
-        task: $("#command-deploy-task").value,
-        callNumber: $("#command-deploy-call").value,
-        location: $("#command-deploy-location").value,
-        result: $("#command-deploy-result").value,
-        details: $("#command-deploy-details").value,
-        evidenceUrl: k9EvidenceUrl
+        player: String($("#command-bolo-player")?.value || "").trim(),
+        action: $("#command-bolo-action")?.value || "Alert Staff",
+        reason: String($("#command-bolo-reason")?.value || "").trim()
       };
-      const data = await api("k9-deploy", { item }); state = data.state || state; renderK9(); renderAudit();
-      $("#command-deploy-details").value = ""; $("#command-k9-evidence").value = "";
-      toast("K9 deployment logged and sent to Discord when configured.", true);
+      if (!item.player || !item.reason) throw new Error("Roblox username and reason are required.");
+      const data = await api("bolo-save", { item });
+      state = data.state || state; renderAutomation(); renderAudit();
+      $("#command-bolo-player").value = ""; $("#command-bolo-reason").value = "";
+      toast("Ban BOLO created.", true);
+    } catch (error) { toast(error.message); }
+  }
+
+  async function updateBolo(id, status) {
+    const note = prompt("Review note:", "Closed by staff") || "";
+    try {
+      const data = await api("bolo-update", { id, status, note });
+      state = data.state || state; renderAutomation(); renderAudit();
+      toast(`Ban BOLO marked ${status}.`, true);
+    } catch (error) { toast(error.message); }
+  }
+
+  function parseLinkedStaff() {
+    return String($("#command-linked-staff")?.value || "").split(/\n+/).map((line) => {
+      const [roblox, username, callsign] = line.split("|").map((part) => String(part || "").trim());
+      return { roblox, username, callsign };
+    }).filter((entry) => entry.roblox).slice(0, 150);
+  }
+
+  async function saveAutomation() {
+    try {
+      const settings = {
+        autoShiftStart: Boolean($("#command-auto-shift-start")?.checked),
+        autoShiftEnd: Boolean($("#command-auto-shift-end")?.checked),
+        suspendAccessLock: Boolean($("#command-suspend-access-lock")?.checked),
+        linkedStaff: parseLinkedStaff()
+      };
+      const data = await api("automation-settings", { settings });
+      state = data.state || state; renderAutomation(); renderAudit();
+      toast("Session automation saved.", true);
     } catch (error) { toast(error.message); }
   }
 
   function exportAudit() {
-    const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), audit: state.audit || [], modActions: state.modActions || [], watchdogAlerts: state.watchdogAlerts || [], k9Deployments: state.k9Deployments || [] }, null, 2)], { type: "application/json" });
+    const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), audit: state.audit || [], modActions: state.modActions || [], watchdogAlerts: state.watchdogAlerts || [], banBolos: state.banBolos || [], automationEvents: state.automationEvents || [] }, null, 2)], { type: "application/json" });
     const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `FSRP-Command-Suite-${Date.now()}.json`; link.click(); URL.revokeObjectURL(link.href);
   }
 
@@ -362,9 +398,10 @@
     $("#command-submit-report")?.addEventListener("click", submitWatchdogReport);
     $("#command-report-evidence")?.addEventListener("change", () => uploadEvidence($("#command-report-evidence"), $("#command-report-preview")).then((url) => { reportEvidenceUrl = url; }).catch((error) => toast(error.message)));
     $("#command-watchdog-list")?.addEventListener("click", (event) => { const button = event.target.closest("[data-watchdog-decision]"); if (button) reviewAlert(button.dataset.alertId, button.dataset.watchdogDecision); });
-    $("#command-save-k9")?.addEventListener("click", saveK9);
-    $("#command-k9-roster")?.addEventListener("click", (event) => { const button = event.target.closest("[data-edit-k9]"); if (button) editK9(button.dataset.editK9); });
-    $("#command-log-k9")?.addEventListener("click", logK9);
+    $("#command-save-watchdog-settings")?.addEventListener("click", saveWatchdogPolicy);
+    $("#command-save-bolo")?.addEventListener("click", saveBolo);
+    $("#command-bolo-list")?.addEventListener("click", (event) => { const button = event.target.closest("[data-bolo-status]"); if (button) updateBolo(button.dataset.boloId, button.dataset.boloStatus); });
+    $("#command-save-automation")?.addEventListener("click", saveAutomation);
     $("#command-export-audit")?.addEventListener("click", exportAudit);
     document.addEventListener("visibilitychange", scheduleRefresh);
     document.addEventListener("fsrp:route", (event) => { if (event.detail === "command-suite") loadState(false); else clearTimeout(refreshTimer); });

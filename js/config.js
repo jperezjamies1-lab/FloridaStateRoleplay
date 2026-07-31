@@ -1,6 +1,6 @@
 window.FSRP_DEFAULTS = {
-  "schemaVersion": 5,
-  "version": 5,
+  "schemaVersion": 6,
+  "version": 6,
   "hero": {
     "title1": "Florida State",
     "title2": "Roleplay.",
@@ -312,9 +312,9 @@ window.FSRP_DEFAULTS = {
       "id": "command-suite",
       "icon": "OPS",
       "title": "Staff Command Suite",
-      "body": "Live ER:LC moderation, external staff overlay data, evidence-backed Watchdog review, K9 operations, and complete audit history.",
+      "body": "Live ER:LC moderation, external staff overlay data, evidence-backed Watchdog review, community automation, and complete audit history.",
       "published": true,
-      "description": "Live ER:LC moderation, external staff overlay data, evidence-backed Watchdog review, K9 operations, and complete audit history."
+      "description": "Live ER:LC moderation, external staff overlay data, evidence-backed Watchdog review, community automation, and complete audit history."
     },
     {
       "id": "automation",
@@ -657,7 +657,8 @@ window.FSRP_DEFAULTS = {
     "support": true,
     "cad": true,
     "staff-ops": true,
-    "command-suite": true
+    "command-suite": true,
+    "community-suite": true
   },
   "maintenance": {
     "enabled": false,

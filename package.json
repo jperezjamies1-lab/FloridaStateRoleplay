@@ -1,9 +1,10 @@
 {
   "name": "fsrp-v3-enhanced-roleplay-platform",
-  "version": "3.7.0",
-  "description": "Florida State Roleplay V3 enhanced community hub with realistic roleplay CAD/MDT and digital radio console",
+  "version": "4.2.0",
+  "description": "Florida State Roleplay operations platform with CAD, live radio, Staff Operations, Watchdog, forms, applications, verification, automation, analytics, and Discord integration",
   "private": true,
   "scripts": {
-    "test": "node test_site.mjs"
-  }
+    "test": "node test_site.mjs && node test_staff_ops.mjs && node test_command_suite.mjs && node test_community_suite.mjs"
+  },
+  "type": "module"
 }

@@ -1,0 +1,26 @@
+{
+  "name": "Florida State Roleplay Operations Platform",
+  "short_name": "FSRP Ops",
+  "description": "FSRP community, CAD, staff operations, Watchdog, forms, analytics, and live radio companion.",
+  "start_url": "/#home",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#03070d",
+  "theme_color": "#07121f",
+  "categories": ["productivity", "utilities", "social"],
+  "icons": [
+    {
+      "src": "/assets/brand/fsrp-logo.png",
+      "sizes": "412x412",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    { "name": "Roleplay CAD", "url": "/#cad" },
+    { "name": "Staff Operations", "url": "/#staff-ops" },
+    { "name": "Command Suite", "url": "/#command-suite" },
+    { "name": "Community Management", "url": "/#community-suite" }
+  ]
+}

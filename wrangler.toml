@@ -30,7 +30,6 @@ id = "d5253d8c54c54cb19f08b3bc3b61e90e"
 # No new KV namespace is required.
 # Optional encrypted Production secrets:
 # DISCORD_WATCHDOG_WEBHOOK
-# DISCORD_K9_WEBHOOK
 # WATCHDOG_CRON_TOKEN
 # WATCHDOG_AUTO_BAN_ENABLED
 # WATCHDOG_AUTO_BAN_THRESHOLD

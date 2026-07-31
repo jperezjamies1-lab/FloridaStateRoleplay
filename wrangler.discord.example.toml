@@ -1,0 +1,14 @@
+name = "fsrp-discord-bot"
+main = "workers/discord-bot.js"
+compatibility_date = "2026-07-31"
+
+[vars]
+FSRP_SITE_URL = "https://YOUR-PAGES-DOMAIN.pages.dev"
+
+# Encrypted Worker secret:
+# DISCORD_PUBLIC_KEY
+#
+# The command registration script uses local environment variables:
+# DISCORD_BOT_TOKEN
+# DISCORD_APPLICATION_ID
+# DISCORD_GUILD_ID (optional, recommended while testing)

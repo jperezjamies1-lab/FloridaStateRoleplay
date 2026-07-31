@@ -1,1 +1,1 @@
-4.0.0 — Command Suite, Watchdog & K9
+4.2.0 — FSRP Operations Platform, Live Radio & Community Suite

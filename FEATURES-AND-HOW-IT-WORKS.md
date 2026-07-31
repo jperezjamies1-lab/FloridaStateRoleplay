@@ -1,135 +1,84 @@
-# FSRP V3 Enhanced — Features and Operation
+# FSRP 4.2.0 — Features and How They Work
 
-## Foundation preserved
+## Public website
 
-This version uses the uploaded V3 full backup as its base. It preserves the original FSRP logo, original V3 repository structure, legacy backup, existing `SITE_SETTINGS` namespace, routes, Manager concept, and Cloudflare Pages deployment method.
+- Original FSRP logo and dark Florida glassmorphism design
+- Cinematic palm-tree intro followed by a separate loader
+- Intro image or video support
+- Live device clock
+- Automatic five-word update ticker
+- Three-second announcement takeover remembered per announcement ID
+- Staff Spotlight and recognition board
+- Live streamer cards for YouTube, Twitch, and manager-controlled TikTok status
+- Maintenance safety bypass and optional original waiting music
+- Installable PWA and offline static-shell support
+- Logo easter eggs preserved
 
-## Cinematic intro
+## CAD / MDT
 
-The opening sequence is a real intro followed by a separate loader:
+- FBI, FHP, OCSO, FFW, and Staff Team access codes
+- Eight-hour signed sessions
+- Live ER:LC private-server roster, callsigns, teams, locations, queue, and server information
+- Calls, unit statuses, 911 queue, dispatch feed, panic, records, vehicles, reports, citations, warrants, BOLOs, evidence, and audit history
+- Schematic live unit map from official ER:LC coordinates
+- Multi-monitor map popout
+- Dispatch Blue, Terminal Green, and Tactical Amber workspace themes
+- Compact and wide layouts
+- Browser voice-command assistant for the CAD command bar where supported
+- Local bodycam/dashcam recording and optional talkgroup live-bodycam streaming
 
-1. Florida night/sunset scene appears.
-2. Palm trees move.
-3. Left palm falls right and right palm falls left.
-4. The loader stage appears.
-5. The public website opens.
-6. The live device clock continues updating.
+## Live radio
 
-Manager controls:
+- Real WebRTC microphone audio while PTT is held
+- Durable Object signaling and talkgroup presence
+- Department permissions from signed CAD tokens
+- One normal transmitter at a time
+- Staff priority preemption and channel lock
+- Emergency traffic mode, panic indicators, reconnect, signal state, tones, mute, deafen, and external popout
+- STUN included; optional short-lived Cloudflare TURN credentials
+- External Electron overlay source included
 
-- Enable/disable intro
-- Show every refresh or once per tab
-- Animated background only
-- Image URL
-- MP4/WEBM video URL
-- Local image/video preview
+The radio is near-real-time. No internet voice system has literally zero latency. It is external to Roblox and cannot draw controls inside the ER:LC game client.
 
-## Moving five-word ticker
+## Staff Operations
 
-The ticker moves automatically from left to right. Every entry is automatically trimmed to a maximum of five words.
+- Shifts, breaks, weekly activity, and exports
+- LOA requests and supervisor review
+- Moderation cases and punishment history
+- Staff infractions, investigations, training, promotions/demotions, requests, confidential notes, and evidence
+- Staff, Supervisor, HR, and Admin permission levels
+- Discord routing and complete audit history
 
-Manager path:
+## Watchdog and Command Suite
 
-```text
-Manager → Intro, Ticker & Takeover
-```
+- Live ER:LC roster and moderation actions
+- Player evidence review for impossible movement patterns, rapid kill bursts, unauthorized commands, and repeated signals
+- Moderator command-burst oversight for possible administrative abuse
+- Review notes, screenshots, Discord alerts, and audit history
+- Automatic bans remain disabled by default and require multiple independent high-confidence signals plus explicit configuration
+- External staff companion window; no Roblox injection
 
-## Three-second announcement takeover
+## Community Management
 
-A large announcement appears in the middle of the screen after the intro. It closes after three seconds or when the visitor presses X. The announcement ID is saved on the visitor's device, so the same ID does not appear again after reloading. Change the ID to publish a new takeover.
+- Custom form builder
+- Staff and department applications
+- Private-server join requests
+- Ban appeals
+- Media, Event, and Design applications
+- Feedback and verification requests
+- Review queue, pending counts, approval/denial/needs-info decisions
+- Discord result DMs and role assignment
+- Optional official Roblox OAuth verification
+- Giveaways, winner selection, reaction-board highlights
+- Department hierarchy and tool access
+- Trigger/action/condition automation rules
+- Staff activity, website traffic, ER:LC peak, queue, and unique-player analytics
 
-## Staff Spotlight
+## Optional Workers
 
-The Staff page includes:
+- Discord slash commands
+- Scheduled community automation
+- Always-on Watchdog scans
+- Live WebRTC radio
 
-- Featured staff member
-- Name, initials/avatar, rank, team, and recognition reason
-- Achievement tags
-- Staff Recognition Board
-- Recent Promotion
-- Most Active Staff
-- Training Excellence
-
-The Staff and Manager code is kept in external JavaScript/CSS files so source code cannot display as page text.
-
-## Streamer Live Dashboard
-
-Official creator cards support:
-
-- YouTube
-- Twitch
-- TikTok
-- Creator name
-- Platform
-- Avatar
-- Stream title
-- LIVE glow and badge
-- Watch Live button
-
-YouTube and Twitch can check official APIs after their Cloudflare secrets are added. TikTok can be marked live from Manager.
-
-## Roleplay CAD
-
-Authorized agencies:
-
-- FBI
-- FHP
-- FFW
-- Staff Team
-
-Systems:
-
-- Secure department codes
-- Signed eight-hour CAD sessions
-- Dispatch log
-- Unit board and callsigns
-- Unit status updates
-- 911 calls
-- Person and plate records
-- Reports
-- Citations
-- Warrants and BOLOs
-- Panic button
-- Radio channels
-- Shared text radio traffic
-- Push-to-talk effects
-- Bodycam preview and local recording
-- Dashcam preview and local recording
-
-Camera use always requires browser permission. Recordings stay on the user's device and are not uploaded automatically.
-
-The CAD automatically reuses `SITE_SETTINGS`. It does not require a separate `CAD_STATE` binding.
-
-## Maintenance and waiting music
-
-Maintenance includes:
-
-- Glassmorphism card
-- Animated background lights
-- Original generated ambient waiting music
-- Optional custom music URL
-- Volume control
-- Discord button
-- Manager button
-- Continue to Website button
-- URL bypass
-
-Maintenance requires a double confirmation and safety version 3.
-
-## Glassmorphism
-
-Glass effects are applied to navigation, cards, Staff Spotlight, Streamer Dashboard, Manager, CAD, maintenance, service notices, and overlays.
-
-## Easter eggs
-
-### LWKTIMMY Role · 1 of 1
-
-Click an FSRP logo twice within about 1.2 seconds.
-
-### Party Mode
-
-Click an FSRP logo four times. Party Mode runs for one minute with animated lighting, confetti, countdown, and original browser-generated music.
-
-## Cache protection
-
-All CSS and JavaScript references use version `3.5.1`. HTML is served with no-cache headers. This prevents older maintenance CSS or scripts from remaining stuck after a deployment.
+Optional modules are separated so their setup cannot trap or break the public website.
