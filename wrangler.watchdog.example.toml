@@ -1,0 +1,10 @@
+name = "fsrp-watchdog-cron"
+main = "workers/watchdog-cron.js"
+compatibility_date = "2026-07-31"
+
+[triggers]
+crons = ["* * * * *"]
+
+# Add these as encrypted Worker secrets, not plain text:
+# FSRP_SITE_URL=https://your-site.pages.dev
+# WATCHDOG_CRON_TOKEN=<same long random value used by the Pages project>

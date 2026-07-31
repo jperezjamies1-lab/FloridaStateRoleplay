@@ -1,6 +1,6 @@
 window.FSRP_DEFAULTS = {
-  "schemaVersion": 4,
-  "version": 4,
+  "schemaVersion": 5,
+  "version": 5,
   "hero": {
     "title1": "Florida State",
     "title2": "Roleplay.",
@@ -309,6 +309,14 @@ window.FSRP_DEFAULTS = {
       "description": "Organized records and operations tools support immersive law-enforcement, civilian, federal, and justice scenes."
     },
     {
+      "id": "command-suite",
+      "icon": "OPS",
+      "title": "Staff Command Suite",
+      "body": "Live ER:LC moderation, external staff overlay data, evidence-backed Watchdog review, K9 operations, and complete audit history.",
+      "published": true,
+      "description": "Live ER:LC moderation, external staff overlay data, evidence-backed Watchdog review, K9 operations, and complete audit history."
+    },
+    {
       "id": "automation",
       "icon": "BOT",
       "title": "Discord Automation",
@@ -421,7 +429,7 @@ window.FSRP_DEFAULTS = {
     {
       "id": "cad-access",
       "question": "Who can use the roleplay CAD?",
-      "answer": "The integrated CAD is for authorized FBI, FHP, FFW, and Staff Team members using private department access codes.",
+      "answer": "The integrated CAD is for authorized FBI, FHP, OCSO, FFW, and Staff Team members using private department access codes.",
       "published": true
     }
   ],
@@ -647,7 +655,9 @@ window.FSRP_DEFAULTS = {
     "marketplace": true,
     "rules": true,
     "support": true,
-    "cad": true
+    "cad": true,
+    "staff-ops": true,
+    "command-suite": true
   },
   "maintenance": {
     "enabled": false,
@@ -672,6 +682,11 @@ window.FSRP_DEFAULTS = {
   "cad": {
     "enabled": true,
     "defaultChannel": "FSRP OPS 1"
+  },
+  "staffOps": {
+    "enabled": true,
+    "evidenceEnabled": true,
+    "discordLoggingEnabled": true
   },
   "sceneOfWeek": {
     "title": "Scene of the Week",

@@ -1,1 +1,1 @@
-3.7.0-ocso-erlc-live-integration
+4.0.0 — Command Suite, Watchdog & K9

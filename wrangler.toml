@@ -20,3 +20,18 @@ id = "d5253d8c54c54cb19f08b3bc3b61e90e"
 # CAD_OCSO_CODE
 # ERLC_SERVER_KEY
 # Keep secret values in Cloudflare, never in this file.
+
+# Staff Operations automatically stores records under a separate key in
+# SITE_SETTINGS. A separate STAFF_STATE KV binding is optional, not required.
+# Permanent evidence screenshots use the optional MEDIA_BUCKET R2 binding.
+# Access codes and webhook URLs must remain Cloudflare encrypted secrets.
+
+# Staff Command Suite stores data under fsrp_command_suite_v1 in SITE_SETTINGS.
+# No new KV namespace is required.
+# Optional encrypted Production secrets:
+# DISCORD_WATCHDOG_WEBHOOK
+# DISCORD_K9_WEBHOOK
+# WATCHDOG_CRON_TOKEN
+# WATCHDOG_AUTO_BAN_ENABLED
+# WATCHDOG_AUTO_BAN_THRESHOLD
+# The separate cron Worker uses wrangler.watchdog.example.toml.
