@@ -15,3 +15,8 @@ id = "d5253d8c54c54cb19f08b3bc3b61e90e"
 # [[r2_buckets]]
 # binding = "MEDIA_BUCKET"
 # bucket_name = "fsrp-media"
+
+# Encrypted Production secrets used by CAD/ER:LC integration:
+# CAD_OCSO_CODE
+# ERLC_SERVER_KEY
+# Keep secret values in Cloudflare, never in this file.

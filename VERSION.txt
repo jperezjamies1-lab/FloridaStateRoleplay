@@ -1,4 +1,1 @@
-FSRP V3 Enhanced 3.5.1
-Base: FloridaStateRoleplayWebsite-V3-FULL-BACKUP(2)(1).zip
-Schema: 4
-Maintenance safety: 3
+3.7.0-ocso-erlc-live-integration

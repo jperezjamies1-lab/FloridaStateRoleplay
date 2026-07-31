@@ -33,7 +33,7 @@ The included `wrangler.toml` preserves the working V3 KV namespace:
 SITE_SETTINGS → d5253d8c54c54cb19f08b3bc3b61e90e
 ```
 
-The CAD stores its data under `fsrp_cad_state_v1` inside that same namespace. A separate `CAD_STATE` binding is optional and is not required.
+The CAD stores its data under `fsrp_cad_state_v2` inside that same namespace. A separate `CAD_STATE` binding is optional and is not required.
 
 ## 3. Variables and encrypted secrets
 
@@ -61,9 +61,18 @@ When `AUTH_SECRET` is missing, this build signs Manager sessions using the exist
 ```text
 CAD_FBI_CODE
 CAD_FHP_CODE
+CAD_OCSO_CODE
 CAD_FFW_CODE
 CAD_STAFF_CODE
 ```
+
+For official live ER:LC server synchronization, also add:
+
+```text
+ERLC_SERVER_KEY
+```
+
+Get the key from your ER:LC private server settings after purchasing the ER:LC API server pack. Keep it encrypted in Cloudflare Production; never place it in GitHub or browser JavaScript.
 
 These are the private department login codes members type into the CAD.
 

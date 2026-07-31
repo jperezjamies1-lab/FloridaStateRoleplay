@@ -22,7 +22,7 @@
   <link rel="stylesheet" href="/css/animations.css?v=3.5.1">
   <link rel="stylesheet" href="/css/mobile.css?v=3.5.1">
   <link rel="stylesheet" href="/css/features.css?v=3.5.1">
-  <link rel="stylesheet" href="/css/cad.css?v=3.5.1">
+  <link rel="stylesheet" href="/css/cad.css?v=3.6.0">
   <link rel="stylesheet" href="/css/streamers.css?v=3.5.1">
 </head>
 <body>
@@ -300,56 +300,162 @@
 
     <!-- ROLEPLAY CAD -->
     <section class="page-view" id="page-cad" data-page="cad">
-      <header class="page-hero cad-hero" data-watermark="CAD"><div class="container page-hero-grid"><div><span class="eyebrow">FSRP Integrated Roleplay System</span><h1 class="page-title">Dispatch ready.<br><span class="title-accent">Built for the scene.</span></h1><p>Secure tools for FBI, FHP, FFW, and the Staff Team. Access codes are checked server-side and never stored in public website code.</p></div><span class="badge"><i class="status-dot online"></i>API-ready</span></div></header>
-      <div class="section-block"><div class="container">
-        <section class="cad-access panel" id="cad-access">
-          <div><span class="eyebrow">Authorized access only</span><h2>Open the FSRP CAD</h2><p>Enter your assigned department access code. Codes are configured as Cloudflare secrets for FBI, FHP, FFW, and Staff Team.</p></div>
-          <div class="cad-login-form"><div class="field"><label for="cad-access-code">Department access code</label><input id="cad-access-code" type="password" autocomplete="off" placeholder="Enter secure code"></div><button class="btn btn-primary" id="cad-login-btn">Connect to CAD</button><p class="muted" id="cad-login-message"></p></div>
-        </section>
-
-        <section class="cad-workspace" id="cad-workspace" hidden>
-          <div class="cad-topbar panel">
-            <div><span class="eyebrow">Connected agency</span><h2 id="cad-agency-label">FSRP CAD</h2></div>
-            <div class="cad-top-actions"><span class="badge is-live"><i class="status-dot online"></i><span id="cad-connection-label">Connected</span></span><button class="btn btn-danger btn-small" id="cad-panic-btn">Emergency / Panic</button><button class="btn btn-ghost btn-small" id="cad-logout-btn">Log out</button></div>
+      <header class="page-hero cad-hero" data-watermark="CAD">
+        <div class="container page-hero-grid">
+          <div>
+            <span class="eyebrow">FSRP Integrated CAD / MDT</span>
+            <h1 class="page-title">Run the shift.<br><span class="title-accent">Control the scene.</span></h1>
+            <p>A roleplay-only operations platform for FBI, FHP, OCSO, FFW, and the Staff Team with dispatch calls, unit tracking, records, reports, alerts, radio talkgroups, panic status, bodycam, and dashcam tools.</p>
           </div>
+          <span class="badge"><i class="status-dot online"></i>Roleplay System</span>
+        </div>
+      </header>
 
-          <div class="cad-layout">
-            <aside class="cad-sidebar panel">
-              <button class="cad-nav is-active" data-cad-tab="dispatch">Dispatch</button>
-              <button class="cad-nav" data-cad-tab="units">Unit Board</button>
-              <button class="cad-nav" data-cad-tab="calls">911 Calls</button>
-              <button class="cad-nav" data-cad-tab="records">Records</button>
-              <button class="cad-nav" data-cad-tab="reports">Reports</button>
-              <button class="cad-nav" data-cad-tab="citations">Citations</button>
-              <button class="cad-nav" data-cad-tab="warrants">Warrants / BOLO</button>
-              <button class="cad-nav" data-cad-tab="radio">Radio Console</button>
-              <button class="cad-nav" data-cad-tab="camera">Bodycam / Dashcam</button>
-            </aside>
-
-            <div class="cad-main">
-              <section class="cad-panel is-active" data-cad-panel="dispatch">
-                <div class="cad-grid two"><article class="panel cad-card"><div class="cad-card-head"><h3>Live Dispatch Feed</h3><button class="btn btn-ghost btn-small" id="cad-clear-feed">Clear local view</button></div><div class="dispatch-feed" id="cad-dispatch-feed"></div></article><article class="panel cad-card"><h3>Create Dispatch Entry</h3><div class="field"><label>Call type</label><select id="cad-dispatch-type"><option>Traffic Stop</option><option>Priority Scene</option><option>Backup Requested</option><option>BOLO Update</option><option>Staff Assistance</option><option>General Dispatch</option></select></div><div class="field"><label>Location</label><input id="cad-dispatch-location" placeholder="Liberty County location"></div><div class="field"><label>Details</label><textarea id="cad-dispatch-details" placeholder="Roleplay details"></textarea></div><button class="btn btn-primary" id="cad-dispatch-submit">Publish Dispatch</button></article></div>
-              </section>
-
-              <section class="cad-panel" data-cad-panel="units"><div class="cad-grid two"><article class="panel cad-card"><h3>My Unit</h3><div class="field-grid"><div class="field"><label>Callsign</label><input id="cad-unit-callsign" placeholder="1K-81"></div><div class="field"><label>Status</label><select id="cad-unit-status"><option>10-8 In Service</option><option>10-6 Busy</option><option>10-7 Out of Service</option><option>10-23 On Scene</option><option>10-38 Traffic Stop</option><option>Signal 100</option></select></div></div><button class="btn btn-primary" id="cad-unit-update">Update Unit</button></article><article class="panel cad-card"><h3>Active Units</h3><div class="unit-board" id="cad-unit-board"></div></article></div></section>
-
-              <section class="cad-panel" data-cad-panel="calls"><div class="cad-grid two"><article class="panel cad-card"><h3>Incoming 911 Calls</h3><div id="cad-call-list" class="record-list"></div></article><article class="panel cad-card"><h3>Create Roleplay Call</h3><div class="field"><label>Caller</label><input id="cad-call-caller" placeholder="Civilian username"></div><div class="field"><label>Location</label><input id="cad-call-location" placeholder="Call location"></div><div class="field"><label>Emergency</label><textarea id="cad-call-details"></textarea></div><button class="btn btn-primary" id="cad-call-submit">Send to Dispatch</button></article></div></section>
-
-              <section class="cad-panel" data-cad-panel="records"><div class="cad-grid two"><article class="panel cad-card"><h3>Search Records</h3><div class="field"><label>Name / plate / username</label><input id="cad-record-search" placeholder="Search roleplay records"></div><button class="btn btn-secondary" id="cad-record-search-btn">Search</button><div class="record-list" id="cad-record-results"></div></article><article class="panel cad-card"><h3>Add Roleplay Record</h3><div class="field-grid"><div class="field"><label>Name</label><input id="cad-record-name"></div><div class="field"><label>Plate</label><input id="cad-record-plate"></div></div><div class="field"><label>Notes</label><textarea id="cad-record-notes"></textarea></div><button class="btn btn-primary" id="cad-record-add">Save Record</button></article></div></section>
-
-              <section class="cad-panel" data-cad-panel="reports"><div class="cad-grid two"><article class="panel cad-card"><h3>Incident Reports</h3><div id="cad-report-list" class="record-list"></div></article><article class="panel cad-card"><h3>New Report</h3><div class="field"><label>Title</label><input id="cad-report-title"></div><div class="field"><label>Report narrative</label><textarea id="cad-report-body"></textarea></div><button class="btn btn-primary" id="cad-report-submit">File Report</button></article></div></section>
-
-              <section class="cad-panel" data-cad-panel="citations"><div class="cad-grid two"><article class="panel cad-card"><h3>Citations</h3><div id="cad-citation-list" class="record-list"></div></article><article class="panel cad-card"><h3>Issue Citation</h3><div class="field-grid"><div class="field"><label>Subject</label><input id="cad-citation-subject"></div><div class="field"><label>Amount</label><input id="cad-citation-amount" placeholder="$250"></div></div><div class="field"><label>Offense</label><input id="cad-citation-offense"></div><button class="btn btn-primary" id="cad-citation-submit">Issue Citation</button></article></div></section>
-
-              <section class="cad-panel" data-cad-panel="warrants"><div class="cad-grid two"><article class="panel cad-card"><h3>Active Warrants & BOLOs</h3><div id="cad-warrant-list" class="record-list"></div></article><article class="panel cad-card"><h3>Create Warrant / BOLO</h3><div class="field"><label>Type</label><select id="cad-warrant-type"><option>BOLO</option><option>Arrest Warrant</option><option>Vehicle Alert</option><option>Missing Person</option></select></div><div class="field"><label>Subject</label><input id="cad-warrant-subject"></div><div class="field"><label>Details</label><textarea id="cad-warrant-details"></textarea></div><button class="btn btn-primary" id="cad-warrant-submit">Publish Alert</button></article></div></section>
-
-              <section class="cad-panel" data-cad-panel="radio"><div class="cad-grid two"><article class="panel cad-card radio-console"><div class="radio-display"><span id="cad-radio-channel">FSRP OPS 1</span><strong id="cad-radio-state">STANDBY</strong></div><button class="radio-ptt" id="cad-radio-ptt">HOLD TO TALK</button><p class="muted">The browser radio provides push-to-talk effects and a shared text dispatch log. Live multi-user voice requires a separate real-time voice service.</p></article><article class="panel cad-card"><h3>Radio Message</h3><div class="field"><label>Channel</label><select id="cad-radio-channel-select"><option>FSRP OPS 1</option><option>FHP TAC 1</option><option>FBI FED 1</option><option>FFW OPS</option><option>STAFF ADMIN</option></select></div><div class="field"><label>Transmission</label><textarea id="cad-radio-message"></textarea></div><button class="btn btn-primary" id="cad-radio-send">Transmit Text</button><div class="record-list cad-radio-log" id="cad-radio-log"></div></article></div></section>
-
-              <section class="cad-panel" data-cad-panel="camera"><div class="cad-grid two"><article class="panel cad-card"><div class="cad-card-head"><h3>Bodycam</h3><span class="badge" id="bodycam-status">Off</span></div><video class="cad-camera" id="bodycam-video" autoplay muted playsinline></video><div class="manager-actions"><button class="btn btn-primary btn-small" id="bodycam-start">Start Camera</button><button class="btn btn-danger btn-small" id="bodycam-record">Record</button><button class="btn btn-ghost btn-small" id="bodycam-stop">Stop</button></div></article><article class="panel cad-card"><div class="cad-card-head"><h3>Dashcam</h3><span class="badge" id="dashcam-status">Off</span></div><video class="cad-camera" id="dashcam-video" autoplay muted playsinline></video><div class="manager-actions"><button class="btn btn-primary btn-small" id="dashcam-start">Start Camera</button><button class="btn btn-danger btn-small" id="dashcam-record">Record</button><button class="btn btn-ghost btn-small" id="dashcam-stop">Stop</button></div></article></div><p class="muted camera-privacy">Camera access always requires the visitor’s browser permission. Recordings stay on the visitor’s device and are downloaded locally; they are not uploaded automatically.</p></section>
+      <div class="section-block">
+        <div class="container">
+          <section class="cad-access panel" id="cad-access">
+            <div>
+              <span class="eyebrow">Authorized roleplay access</span>
+              <h2>Connect to FSRP Operations</h2>
+              <p>Enter your department CAD code. Access is checked by a Cloudflare Function and the code is never stored inside public browser files.</p>
+              <div class="cad-security-points">
+                <span>Eight-hour signed session</span>
+                <span>Agency-based talkgroups</span>
+                <span>Official ER:LC live sync</span>
+                <span>Shared Cloudflare CAD state</span>
+              </div>
             </div>
-          </div>
-        </section>
-      </div></div>
+            <div class="cad-login-form">
+              <div class="field"><label for="cad-access-code">Department access code</label><input id="cad-access-code" type="password" autocomplete="off" placeholder="Enter secure code"></div>
+              <button class="btn btn-primary" id="cad-login-btn">Connect to CAD</button>
+              <p class="muted" id="cad-login-message"></p>
+            </div>
+          </section>
+
+          <section class="cad-workspace" id="cad-workspace" hidden>
+            <div class="cad-topbar panel">
+              <div class="cad-identity">
+                <img src="/assets/brand/fsrp-logo.png" alt="FSRP">
+                <div><span class="eyebrow">Connected agency</span><h2 id="cad-agency-label">FSRP CAD</h2><small id="cad-session-label">Secure roleplay session</small></div>
+              </div>
+              <div class="cad-top-actions">
+                <span class="badge is-live"><i class="status-dot online"></i><span id="cad-connection-label">Connected</span></span>
+                <button class="btn btn-danger btn-small" id="cad-panic-btn">Activate Panic</button>
+                <button class="btn btn-ghost btn-small" id="cad-logout-btn">Log out</button>
+              </div>
+            </div>
+
+            <div class="cad-alert-banner" id="cad-panic-banner" hidden>
+              <strong>PANIC ACTIVE</strong><span id="cad-panic-banner-text">An FSRP unit needs immediate assistance.</span><button class="btn btn-danger btn-small" id="cad-clear-my-panic">Clear My Panic</button>
+            </div>
+
+            <div class="cad-layout">
+              <aside class="cad-sidebar panel">
+                <div class="cad-sidebar-title">OPERATIONS</div>
+                <button class="cad-nav is-active" data-cad-tab="overview"><span>▦</span>Overview</button>
+                <button class="cad-nav" data-cad-tab="dispatch"><span>⌁</span>Dispatch</button>
+                <button class="cad-nav" data-cad-tab="units"><span>◉</span>Unit Board</button>
+                <button class="cad-nav" data-cad-tab="calls"><span>☎</span>911 Calls</button>
+                <button class="cad-nav" data-cad-tab="records"><span>⌕</span>People & Vehicles</button>
+                <button class="cad-nav" data-cad-tab="reports"><span>▤</span>Reports</button>
+                <button class="cad-nav" data-cad-tab="citations"><span>§</span>Citations</button>
+                <button class="cad-nav" data-cad-tab="warrants"><span>⚠</span>Warrants / BOLO</button>
+                <button class="cad-nav" data-cad-tab="radio"><span>◖</span>Digital Radio</button>
+                <button class="cad-nav" data-cad-tab="camera"><span>●</span>Bodycam / Dashcam</button>
+                <button class="cad-nav" data-cad-tab="audit"><span>≡</span>Activity Log</button>
+              </aside>
+
+              <div class="cad-main">
+                <section class="cad-panel is-active" data-cad-panel="overview">
+                  <div class="cad-metric-grid">
+                    <article class="cad-metric"><span>ACTIVE UNITS</span><strong id="cad-metric-units">0</strong><small>Current shift</small></article>
+                    <article class="cad-metric"><span>OPEN CALLS</span><strong id="cad-metric-calls">0</strong><small>Pending or dispatched</small></article>
+                    <article class="cad-metric danger"><span>PANIC UNITS</span><strong id="cad-metric-panic">0</strong><small>Emergency activations</small></article>
+                    <article class="cad-metric"><span>RADIO ONLINE</span><strong id="cad-metric-radio">0</strong><small>Talkgroup presence</small></article>
+                  </div>
+                  <article class="panel cad-card cad-erlc-live">
+                    <div class="cad-card-head">
+                      <div><span class="eyebrow">Official ER:LC connection</span><h3>Live Private Server Sync</h3><p class="muted" id="cad-erlc-status">Checking ER:LC connection…</p></div>
+                      <button class="btn btn-secondary btn-small" id="cad-erlc-refresh">Refresh ER:LC</button>
+                    </div>
+                    <div class="erlc-live-metrics">
+                      <div><span>SERVER CODE</span><strong id="cad-erlc-server">—</strong></div>
+                      <div><span>PLAYERS</span><strong id="cad-erlc-players">—</strong></div>
+                      <div><span>QUEUE</span><strong id="cad-erlc-queue">—</strong></div>
+                      <div><span>MY IN-GAME UNIT</span><strong id="cad-erlc-unit">Not synced</strong></div>
+                    </div>
+                    <div class="erlc-player-list" id="cad-erlc-player-list"><p class="muted">Connect the ERLC_SERVER_KEY secret to load live players.</p></div>
+                  </article>
+                  <div class="cad-grid two">
+                    <article class="panel cad-card"><div class="cad-card-head"><div><span class="eyebrow">Priority board</span><h3>Active Calls</h3></div><button class="btn btn-ghost btn-small" data-cad-jump="dispatch">Open Dispatch</button></div><div class="record-list" id="cad-overview-calls"></div></article>
+                    <article class="panel cad-card"><div class="cad-card-head"><div><span class="eyebrow">Shift status</span><h3>Units & Alerts</h3></div><button class="btn btn-ghost btn-small" data-cad-jump="units">Open Units</button></div><div class="unit-board" id="cad-overview-units"></div></article>
+                  </div>
+                  <article class="panel cad-card cad-cli-card"><div><span class="eyebrow">Quick command line</span><h3>CAD Command Bar</h3><p class="muted">Examples: <code>STATUS 10-8</code>, <code>PANIC</code>, <code>ATTACH FSRP-1001</code>, or <code>CHANNEL FHP PRIMARY</code>.</p></div><div class="cad-cli-row"><input id="cad-command-input" placeholder="Enter CAD command"><button class="btn btn-primary" id="cad-command-run">Run</button></div><p class="muted" id="cad-command-result"></p></article>
+                </section>
+
+                <section class="cad-panel" data-cad-panel="dispatch">
+                  <div class="cad-grid two">
+                    <article class="panel cad-card"><div class="cad-card-head"><div><span class="eyebrow">Live operations</span><h3>Dispatch Feed</h3></div><button class="btn btn-ghost btn-small" id="cad-clear-feed">Clear Local View</button></div><div class="dispatch-feed" id="cad-dispatch-feed"></div></article>
+                    <article class="panel cad-card"><span class="eyebrow">New incident</span><h3>Create Dispatch Call</h3><div class="field-grid"><div class="field"><label>Priority</label><select id="cad-dispatch-priority"><option>Priority 3</option><option>Priority 2</option><option>Priority 1</option><option>Priority 4</option></select></div><div class="field"><label>Call type</label><select id="cad-dispatch-type"><option>Traffic Stop</option><option>Priority Scene</option><option>Backup Requested</option><option>Vehicle Pursuit</option><option>Suspicious Activity</option><option>BOLO Update</option><option>Staff Assistance</option><option>General Dispatch</option></select></div></div><div class="field"><label>Location</label><input id="cad-dispatch-location" placeholder="Liberty County location"></div><div class="field"><label>Details</label><textarea id="cad-dispatch-details" placeholder="Roleplay details and known information"></textarea></div><button class="btn btn-primary" id="cad-dispatch-submit">Create Call</button></article>
+                  </div>
+                </section>
+
+                <section class="cad-panel" data-cad-panel="units">
+                  <div class="cad-grid two">
+                    <article class="panel cad-card"><span class="eyebrow">My shift</span><h3>Unit Controls</h3><div class="field-grid"><div class="field"><label>Roblox username</label><input id="cad-unit-roblox" placeholder="Your exact Roblox username"></div><div class="field"><label>Callsign</label><input id="cad-unit-callsign" placeholder="1K-81"></div><div class="field"><label>Current status</label><select id="cad-unit-status"><option>10-8 In Service</option><option>10-6 Busy</option><option>10-7 Out of Service</option><option>10-23 On Scene</option><option>10-38 Traffic Stop</option><option>10-80 Pursuit</option><option>10-97 En Route</option><option>10-98 Available</option><option>Signal 100</option></select></div></div><div class="field"><label>Current location</label><input id="cad-unit-location" placeholder="Downtown / Postal / Landmark"></div><div class="cad-status-shortcuts"><button data-unit-status="10-8 In Service">10-8</button><button data-unit-status="10-6 Busy">10-6</button><button data-unit-status="10-23 On Scene">10-23</button><button data-unit-status="10-38 Traffic Stop">10-38</button><button data-unit-status="10-80 Pursuit">10-80</button><button data-unit-status="10-7 Out of Service">10-7</button></div><div class="manager-actions"><button class="btn btn-primary" id="cad-unit-update">Update Unit</button><button class="btn btn-secondary" id="cad-erlc-sync-unit">Sync From ER:LC</button></div><p class="muted">Live sync fills your in-game callsign, team, and current ER:LC street/postal when the official API is connected.</p></article>
+                    <article class="panel cad-card"><div class="cad-card-head"><div><span class="eyebrow">Live roster</span><h3>Active Units</h3></div><span class="badge" id="cad-unit-count">0 Units</span></div><div class="unit-board" id="cad-unit-board"></div></article>
+                  </div>
+                </section>
+
+                <section class="cad-panel" data-cad-panel="calls">
+                  <div class="cad-grid two"><article class="panel cad-card"><div class="cad-card-head"><div><span class="eyebrow">Communications</span><h3>911 Call Queue</h3></div><span class="badge" id="cad-call-count">0 Calls</span></div><div id="cad-call-list" class="record-list"></div></article><article class="panel cad-card"><span class="eyebrow">Roleplay caller</span><h3>Create 911 Call</h3><div class="field-grid"><div class="field"><label>Caller</label><input id="cad-call-caller" placeholder="Civilian username"></div><div class="field"><label>Callback number</label><input id="cad-call-phone" placeholder="555-0100"></div></div><div class="field"><label>Location</label><input id="cad-call-location" placeholder="Call location"></div><div class="field"><label>Emergency</label><textarea id="cad-call-details" placeholder="What is happening?"></textarea></div><button class="btn btn-primary" id="cad-call-submit">Send to Dispatch</button></article></div>
+                </section>
+
+                <section class="cad-panel" data-cad-panel="records">
+                  <div class="cad-grid two">
+                    <article class="panel cad-card"><span class="eyebrow">MDT lookup</span><h3>Search Database</h3><div class="field"><label>Name, username, plate, or vehicle</label><input id="cad-record-search" placeholder="Search FSRP roleplay records"></div><button class="btn btn-secondary" id="cad-record-search-btn">Run Search</button><div class="record-list" id="cad-record-results"></div></article>
+                    <article class="panel cad-card"><div class="cad-record-tabs"><button class="is-active" data-record-form="person">Person</button><button data-record-form="vehicle">Vehicle</button></div><div id="cad-person-form"><h3>Add Person Record</h3><div class="field-grid"><div class="field"><label>Name</label><input id="cad-person-name"></div><div class="field"><label>Roblox username</label><input id="cad-person-username"></div><div class="field"><label>Date of birth</label><input id="cad-person-dob" placeholder="MM/DD/YYYY"></div><div class="field"><label>License status</label><select id="cad-person-license"><option>Valid</option><option>Suspended</option><option>Revoked</option><option>None</option></select></div></div><div class="field"><label>Roleplay notes</label><textarea id="cad-person-notes"></textarea></div><button class="btn btn-primary" id="cad-person-add">Save Person</button></div><div id="cad-vehicle-form" hidden><h3>Add Vehicle Record</h3><div class="field-grid"><div class="field"><label>Plate</label><input id="cad-vehicle-plate"></div><div class="field"><label>Registered owner</label><input id="cad-vehicle-owner"></div><div class="field"><label>Vehicle</label><input id="cad-vehicle-model" placeholder="2021 Chevrolet Tahoe"></div><div class="field"><label>Color</label><input id="cad-vehicle-color"></div><div class="field"><label>Registration</label><select id="cad-vehicle-registration"><option>Valid</option><option>Expired</option><option>Suspended</option></select></div><div class="field"><label>Flag</label><select id="cad-vehicle-flag"><option>Clear</option><option>Stolen</option><option>BOLO</option><option>Impounded</option></select></div></div><button class="btn btn-primary" id="cad-vehicle-add">Save Vehicle</button></div></article>
+                  </div>
+                </section>
+
+                <section class="cad-panel" data-cad-panel="reports"><div class="cad-grid two"><article class="panel cad-card"><div class="cad-card-head"><h3>Incident Reports</h3><span class="badge" id="cad-report-count">0 Reports</span></div><div id="cad-report-list" class="record-list"></div></article><article class="panel cad-card"><span class="eyebrow">Official narrative</span><h3>New Report</h3><div class="field-grid"><div class="field"><label>Report type</label><select id="cad-report-type"><option>Incident Report</option><option>Arrest Report</option><option>Field Interview</option><option>Vehicle Tow</option><option>Supervisor Review</option></select></div><div class="field"><label>Title</label><input id="cad-report-title"></div></div><div class="field"><label>Report narrative</label><textarea id="cad-report-body" placeholder="Write the roleplay report narrative"></textarea></div><button class="btn btn-primary" id="cad-report-submit">File Report</button></article></div></section>
+
+                <section class="cad-panel" data-cad-panel="citations"><div class="cad-grid two"><article class="panel cad-card"><div class="cad-card-head"><h3>Citations</h3><span class="badge" id="cad-citation-count">0 Citations</span></div><div id="cad-citation-list" class="record-list"></div></article><article class="panel cad-card"><span class="eyebrow">Traffic enforcement</span><h3>Issue Citation</h3><div class="field-grid"><div class="field"><label>Subject</label><input id="cad-citation-subject"></div><div class="field"><label>Plate</label><input id="cad-citation-plate"></div><div class="field"><label>Amount</label><input id="cad-citation-amount" placeholder="$250"></div><div class="field"><label>Location</label><input id="cad-citation-location"></div></div><div class="field"><label>Offense</label><input id="cad-citation-offense"></div><button class="btn btn-primary" id="cad-citation-submit">Issue Citation</button></article></div></section>
+
+                <section class="cad-panel" data-cad-panel="warrants"><div class="cad-grid two"><article class="panel cad-card"><div class="cad-card-head"><h3>Active Alerts</h3><span class="badge is-warning" id="cad-warrant-count">0 Alerts</span></div><div id="cad-warrant-list" class="record-list"></div></article><article class="panel cad-card"><span class="eyebrow">Agency alert</span><h3>Create Warrant / BOLO</h3><div class="field"><label>Type</label><select id="cad-warrant-type"><option>BOLO</option><option>Arrest Warrant</option><option>Vehicle Alert</option><option>Missing Person</option></select></div><div class="field-grid"><div class="field"><label>Subject</label><input id="cad-warrant-subject"></div><div class="field"><label>Priority</label><select id="cad-warrant-priority"><option>Normal</option><option>High</option><option>Critical</option></select></div></div><div class="field"><label>Details</label><textarea id="cad-warrant-details"></textarea></div><button class="btn btn-primary" id="cad-warrant-submit">Publish Alert</button></article></div></section>
+
+                <section class="cad-panel" data-cad-panel="radio">
+                  <div class="cad-radio-layout">
+                    <article class="panel cad-card radio-console-pro">
+                      <div class="radio-device-head"><span>FSRP DIGITAL RADIO</span><strong id="cad-radio-clock">--:--</strong></div>
+                      <div class="radio-screen">
+                        <div class="radio-screen-top"><span id="cad-radio-zone">ZONE 1</span><span id="cad-radio-signal">▮▮▮▮▮</span></div>
+                        <strong id="cad-radio-channel">STATEWIDE</strong>
+                        <span id="cad-radio-state">STANDBY</span>
+                        <small id="cad-radio-speaker">No active transmission</small>
+                        <div class="radio-wave" id="cad-radio-wave"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+                      </div>
+                      <div class="radio-knobs"><label>Volume <input id="cad-radio-volume" type="range" min="0" max="1" step="0.05" value="0.65"></label><label>Signal <span id="cad-radio-signal-label">Excellent</span></label></div>
+                      <button class="radio-ptt" id="cad-radio-ptt"><span>PTT</span><small>HOLD TO TRANSMIT</small></button>
+                      <div class="radio-controls"><button id="cad-radio-mic">Enable Mic Meter</button><button id="cad-radio-scan">Scan Off</button><button id="cad-radio-mute">Mute Off</button><button id="cad-radio-tone">Alert Tone</button></div>
+                      <p class="muted">This version shares channels, PTT status, callsigns, panic alerts, and text traffic. The microphone meter is local only; transmitting live voice between different users requires a separate WebRTC voice service.</p>
+                    </article>
+                    <div class="cad-radio-stack">
+                      <article class="panel cad-card"><div class="cad-card-head"><div><span class="eyebrow">Talkgroup</span><h3>Channel Control</h3></div><span class="badge is-live" id="cad-radio-online-count">0 Online</span></div><div class="field"><label>Active channel</label><select id="cad-radio-channel-select"></select></div><div class="radio-quick-transmissions"><button data-radio-quick="10-8, in service.">10-8</button><button data-radio-quick="10-23, on scene.">10-23</button><button data-radio-quick="Show me en route.">EN ROUTE</button><button data-radio-quick="Requesting additional unit.">BACKUP</button><button data-radio-quick="Traffic stop initiated.">STOP</button><button data-radio-quick="Priority traffic only.">SIGNAL 100</button></div><div class="field"><label>Text transmission</label><textarea id="cad-radio-message" placeholder="Type a radio transmission"></textarea></div><button class="btn btn-primary" id="cad-radio-send">Transmit Text</button></article>
+                      <article class="panel cad-card"><div class="cad-card-head"><h3>Connected Units</h3><span class="badge" id="cad-radio-presence-count">0</span></div><div class="radio-presence-list" id="cad-radio-presence-list"></div></article>
+                      <article class="panel cad-card"><div class="cad-card-head"><h3>Radio Traffic</h3><button class="btn btn-ghost btn-small" id="cad-radio-clear-local">Clear Local</button></div><div class="record-list cad-radio-log" id="cad-radio-log"></div></article>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="cad-panel" data-cad-panel="camera"><div class="cad-grid two"><article class="panel cad-card"><div class="cad-card-head"><div><span class="eyebrow">Officer camera</span><h3>Bodycam</h3></div><span class="badge" id="bodycam-status">Off</span></div><div class="cad-camera-wrap"><video class="cad-camera" id="bodycam-video" autoplay muted playsinline></video><div class="camera-overlay"><span>FSRP BODYCAM</span><strong id="bodycam-overlay-callsign">UNIT</strong><time id="bodycam-overlay-time">--:--:--</time></div></div><div class="manager-actions"><button class="btn btn-primary btn-small" id="bodycam-start">Start Camera</button><button class="btn btn-danger btn-small" id="bodycam-record">Record</button><button class="btn btn-ghost btn-small" id="bodycam-stop">Stop</button></div></article><article class="panel cad-card"><div class="cad-card-head"><div><span class="eyebrow">Vehicle camera</span><h3>Dashcam</h3></div><span class="badge" id="dashcam-status">Off</span></div><div class="cad-camera-wrap"><video class="cad-camera" id="dashcam-video" autoplay muted playsinline></video><div class="camera-overlay"><span>FSRP DASHCAM</span><strong id="dashcam-overlay-callsign">UNIT</strong><time id="dashcam-overlay-time">--:--:--</time></div></div><div class="manager-actions"><button class="btn btn-primary btn-small" id="dashcam-start">Start Camera</button><button class="btn btn-danger btn-small" id="dashcam-record">Record</button><button class="btn btn-ghost btn-small" id="dashcam-stop">Stop</button></div></article></div><p class="muted camera-privacy">Camera access requires browser permission. Recordings stay on the visitor's device and download locally; they are not uploaded automatically.</p></section>
+
+                <section class="cad-panel" data-cad-panel="audit"><article class="panel cad-card"><div class="cad-card-head"><div><span class="eyebrow">Accountability</span><h3>CAD Activity Log</h3></div><span class="badge" id="cad-audit-count">0 Events</span></div><div class="record-list" id="cad-audit-list"></div></article></section>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
     </section>
 
     <!-- MANAGER -->
@@ -380,7 +486,7 @@
             <section class="manager-section" data-manager-panel="experience"><article class="panel manager-card"><h2>Intro media, live ticker, and announcement takeover</h2><p class="section-copy">Use a direct MP4/WEBM video URL or image URL. A local file can be previewed in this browser; use Asset Library for permanent cloud media.</p><div class="field-grid"><div class="field"><label>Intro enabled</label><select data-bind="experience.introEnabled"><option value="true">Enabled</option><option value="false">Disabled</option></select></div><div class="field"><label>Intro media type</label><select data-bind="experience.introMediaType"><option value="image">Image / PNG</option><option value="video">Video</option><option value="none">Animated background only</option></select></div><div class="field"><label>Intro media URL</label><input data-bind="experience.introMediaUrl" placeholder="https://...mp4 or /api/media?key=..."></div><div class="field"><label>Show intro every refresh</label><select data-bind="experience.introEveryRefresh"><option value="true">Every refresh</option><option value="false">Once per tab</option></select></div></div><div class="field" style="margin-top:14px"><label>Preview local video or image</label><input id="intro-local-file" type="file" accept="image/*,video/mp4,video/webm"></div></article><article class="panel manager-card"><h2>Moving update ticker</h2><p class="section-copy">Each message is automatically limited to five words and moves continuously from left to right.</p><div class="editor-list" id="ticker-editor"></div><button class="btn btn-secondary btn-small" data-add-item="ticker">Add ticker message</button></article><article class="panel manager-card"><h2>Three-second announcement takeover</h2><div class="field-grid"><div class="field"><label>Enabled</label><select data-bind="takeover.enabled"><option value="true">Enabled</option><option value="false">Disabled</option></select></div><div class="field"><label>Announcement ID</label><input data-bind="takeover.id" placeholder="Change this ID to show a new announcement"></div><div class="field"><label>Title</label><input data-bind="takeover.title"></div><div class="field"><label>Button label</label><input data-bind="takeover.buttonLabel"></div><div class="field"><label>Button URL</label><input data-bind="takeover.buttonUrl"></div></div><div class="field" style="margin-top:14px"><label>Message</label><textarea data-bind="takeover.message"></textarea></div><p class="muted">Each visitor sees an announcement ID once. Closing it or waiting three seconds saves that ID on their device, so it will not reappear after reload.</p></article><article class="panel manager-card"><h2>Staff Spotlight</h2><div class="field-grid"><div class="field"><label>Name</label><input data-bind="spotlight.name"></div><div class="field"><label>Initials</label><input data-bind="spotlight.initials"></div><div class="field"><label>Avatar URL</label><input data-bind="spotlight.avatarUrl"></div><div class="field"><label>Rank</label><input data-bind="spotlight.rank"></div><div class="field"><label>Team</label><input data-bind="spotlight.team"></div></div><div class="field" style="margin-top:14px"><label>Recognition reason</label><textarea data-bind="spotlight.reason"></textarea></div></article></section>
 
             <section class="manager-section" data-manager-panel="streamers"><article class="panel manager-card"><h2>Streamer Live Dashboard</h2><p class="section-copy">Add official creators. YouTube uses a channel ID, Twitch uses a username, and TikTok currently uses the Manager live switch because TikTok does not provide a general public live-status API. Live titles must match one of your FSRP keywords.</p><div class="field"><label>FSRP live-title keywords</label><input id="streamer-keywords" placeholder="FSRP, Florida State Roleplay, ER:LC"></div><div class="editor-list" id="streamer-editor" style="margin-top:16px"></div><button class="btn btn-secondary btn-small" data-add-item="streamers">Add official streamer</button></article></section>
-            <section class="manager-section" data-manager-panel="cad-settings"><article class="panel manager-card"><h2>CAD public settings</h2><p class="section-copy">Access codes are not entered here. Set them as Cloudflare secrets named CAD_FBI_CODE, CAD_FHP_CODE, CAD_FFW_CODE, and CAD_STAFF_CODE. CAD_TOKEN_SECRET is optional because the CAD can reuse the Manager signing secret.</p><div class="field-grid"><div class="field"><label>CAD enabled</label><select data-bind="cad.enabled"><option value="true">Enabled</option><option value="false">Disabled</option></select></div><div class="field"><label>Default radio channel</label><input data-bind="cad.defaultChannel"></div><div class="field"><label>Server code</label><input data-bind="status.code"></div><div class="field"><label>Priority status</label><input data-bind="status.priority"></div></div></article></section>
+            <section class="manager-section" data-manager-panel="cad-settings"><article class="panel manager-card"><h2>CAD public settings</h2><p class="section-copy">Access codes are not entered here. Set them as Cloudflare secrets named CAD_FBI_CODE, CAD_FHP_CODE, CAD_OCSO_CODE, CAD_FFW_CODE, and CAD_STAFF_CODE. Add ERLC_SERVER_KEY to connect live ER:LC players, callsigns, locations, queue, emergency calls, and vehicles. CAD_TOKEN_SECRET is optional because the CAD can reuse the Manager signing secret.</p><div class="field-grid"><div class="field"><label>CAD enabled</label><select data-bind="cad.enabled"><option value="true">Enabled</option><option value="false">Disabled</option></select></div><div class="field"><label>Default radio channel</label><input data-bind="cad.defaultChannel"></div><div class="field"><label>Server code</label><input data-bind="status.code"></div><div class="field"><label>Priority status</label><input data-bind="status.priority"></div></div></article></section>
             <section class="manager-section" data-manager-panel="backup"><article class="panel manager-card"><h2>Backup, restore, and publishing</h2><p class="section-copy">Export the complete editable website state before major changes. Import restores a selected JSON backup into preview, then you can publish it.</p><div class="manager-actions"><button class="btn btn-secondary" id="export-btn">Export JSON Backup</button><label class="btn btn-ghost" for="import-file">Import JSON Backup</label><input id="import-file" type="file" accept="application/json" hidden><button class="btn btn-danger" id="reset-preview-btn">Reset Preview to Defaults</button></div></article></section>
             <div class="save-bar"><span class="save-state" id="save-state">Preview is up to date.</span><div class="manager-actions" style="margin:0"><button class="btn btn-ghost btn-small" id="preview-refresh-btn">Refresh Preview</button><button class="btn btn-primary btn-small" id="publish-btn">Publish to Cloud</button></div></div>
           </div>
@@ -481,7 +587,7 @@
   <script src="/js/manager.js?v=3.5.1" defer></script>
   <script src="/js/app.js?v=3.5.1" defer></script>
   <script src="/js/features.js?v=3.5.1" defer></script>
-  <script src="/js/cad.js?v=3.5.1" defer></script>
+  <script src="/js/cad.js?v=3.6.0" defer></script>
   <script src="/js/streamers.js?v=3.5.1" defer></script>
 
 </body>

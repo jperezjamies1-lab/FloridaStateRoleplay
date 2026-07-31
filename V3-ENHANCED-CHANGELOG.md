@@ -1,28 +1,26 @@
-# V3 Enhanced 3.5.1 Changelog
+# V3 Enhanced 3.7.0 — OCSO + Official ER:LC Live Integration
 
-- Rebuilt directly from the user-provided V3 full backup
-- Preserved the original V3 FSRP logo byte-for-byte
-- Preserved the working `SITE_SETTINGS` KV namespace
-- Restored the full V3 rules, marketplace, gallery, platform, FAQ, support, announcement, and timeline content
-- Added automatic migration for the original V3 Cloudflare `live` storage format
-- Added automatic migration for earlier incomplete enhanced settings
-- Added cinematic intro and separate loader
-- Added image/video intro media
-- Added live device time
-- Added five-word left-to-right ticker
-- Added three-second announcement takeover
-- Added Staff Spotlight and Recognition Board
-- Added Streamer Live Dashboard
-- Added FBI/FHP/FFW/Staff CAD
-- Added dispatch, units, calls, records, reports, citations, warrants, BOLOs, radio, bodycam, and dashcam
-- Added glassmorphism throughout the website
-- Added maintenance waiting music and permanent bypass controls
-- Added LWKTIMMY 1-of-1 easter egg
-- Added one-minute Party Mode
-- Removed FD from department and whitelist systems
-- Kept CIV public and explicitly not whitelisted
-- Made `CAD_STATE` unnecessary by reusing `SITE_SETTINGS`
-- Made `AUTH_SECRET` and `CAD_TOKEN_SECRET` optional secure fallbacks
-- Added maintenance safety migration 3
-- Added cache-busting version 3.5.1 and no-cache HTML headers
-- Added complete Manager editing for restored marketplace, support, system, staff, department, rule, gallery, and visibility fields
+- Added OCSO CAD login through `CAD_OCSO_CODE`.
+- Added OCSO Primary, TAC 1, and TAC 2 radio talkgroups.
+- Added official ER:LC private-server synchronization through encrypted `ERLC_SERVER_KEY`.
+- Added live server code, player count, queue, players, callsigns, teams, and street/postal locations.
+- Added Unit Controls Roblox username field and **Sync From ER:LC**.
+- Kept the ER:LC API key server-side inside Cloudflare Functions.
+- Clarified that the companion radio cannot place custom UI inside the ER:LC game itself.
+
+# FSRP V3 Enhanced Changelog
+
+## 3.6.0 — Realistic CAD / MDT and Digital Radio
+
+- Rebuilt the CAD workspace around connected calls, units, records, vehicles, reports, citations, alerts, radio, cameras, and audit history.
+- Added dispatch call priorities, call numbers, call statuses, attached units, and quick actions.
+- Added people and vehicle databases with search.
+- Added agency talkgroups for FBI, FHP, FFW, and Staff Team.
+- Added shared PTT state, connected-unit presence, scan mode, mute, volume, tones, quick radio phrases, and a local microphone meter.
+- Added panic activation, panic banner, and dispatch alerts.
+- Added bodycam/dashcam timestamp and callsign overlays.
+- Added a CAD command line.
+- Added role-aware edit permissions and signed session IDs.
+- Migrates older `fsrp_cad_state_v1` data into the new `fsrp_cad_state_v2` state automatically.
+- Continues to reuse `SITE_SETTINGS`; `CAD_STATE` remains optional.
+- Passed 146/146 static package checks and a dynamic API flow test.

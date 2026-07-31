@@ -24,3 +24,8 @@
 - [ ] Open an incognito/private window
 - [ ] Confirm maintenance is not visible
 - [ ] Test intro, ticker, Staff, CAD, Manager, and Discord links
+
+
+### ER:LC live integration
+
+Add `ERLC_SERVER_KEY` as an encrypted Production secret, then redeploy. Add `CAD_OCSO_CODE` for OCSO CAD login access.
