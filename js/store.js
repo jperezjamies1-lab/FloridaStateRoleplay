@@ -33,9 +33,26 @@
     return true;
   }
 
+  function sanitizeMaintenance(value) {
+    const output = clone(value || {});
+    if (!output.maintenance || typeof output.maintenance !== "object") return output;
+
+    const isCurrentSafetyVersion = Number(output.maintenance.safetyVersion) >= 2;
+    if (!isCurrentSafetyVersion) {
+      output.maintenance.enabled = false;
+      output.maintenance.publicLockConfirmed = false;
+      output.maintenance.safetyVersion = 2;
+    }
+
+    if (output.maintenance.enabled === true && output.maintenance.publicLockConfirmed !== true) {
+      output.maintenance.enabled = false;
+    }
+    return output;
+  }
+
   function loadPreview() {
     try {
-      return JSON.parse(localStorage.getItem(PREVIEW_KEY) || "{}");
+      return sanitizeMaintenance(JSON.parse(localStorage.getItem(PREVIEW_KEY) || "{}"));
     } catch {
       return {};
     }
@@ -75,7 +92,7 @@
         });
         if (!response.ok) throw new Error(`Settings API returned ${response.status}`);
         const data = await response.json();
-        const cloudContent = data.content || data.settings || null;
+        const cloudContent = sanitizeMaintenance(data.content || data.settings || null);
         const cloudStatus = data.status || null;
         if (cloudContent || cloudStatus) {
           const next = merge(state, cloudContent || {});

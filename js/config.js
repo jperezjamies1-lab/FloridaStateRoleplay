@@ -287,6 +287,8 @@ window.FSRP_DEFAULTS = {
   },
   "maintenance": {
     "enabled": false,
+    "publicLockConfirmed": false,
+    "safetyVersion": 2,
     "title": "Community Hub maintenance",
     "message": "Florida State Roleplay is applying an official website update.",
     "musicEnabled": true,

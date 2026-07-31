@@ -93,6 +93,9 @@ check("Streamer Live Dashboard and API are integrated", html.includes('id="strea
 check("maintenance waiting music is integrated", html.includes("data-waiting-music") && featuresJs.includes("startWaitingMusic") && configJs.includes('"musicEnabled": true'));
 check("ticker enforces five words and moves left to right", featuresJs.includes("slice(0, 5)") && fs.readFileSync("css/features.css", "utf8").includes("tickerMoveLeftToRight"));
 check("maintenance mode defaults off", /"maintenance"\s*:\s*\{[\s\S]*?"enabled"\s*:\s*false/.test(configJs));
+check("maintenance requires explicit public lock confirmation", fs.readFileSync("js/app.js", "utf8").includes("publicLockConfirmed === true") && configJs.includes('"publicLockConfirmed": false'));
+check("stale maintenance KV is automatically neutralized", fs.readFileSync("js/store.js", "utf8").includes("sanitizeMaintenance") && fs.readFileSync("functions/api/settings.js", "utf8").includes("safetyVersion"));
+check("maintenance has a public escape button and URL bypass", html.includes("Continue to Website") && fs.readFileSync("js/app.js", "utf8").includes('get("maintenance") === "off"'));
 check("CAD verifies its KV binding before issuing login", cadApiJs.indexOf("if (!env.CAD_STATE)") !== -1 && cadApiJs.indexOf("if (!env.CAD_STATE)") < cadApiJs.indexOf("issue(match.role"));
 check("CAD refreshes safely without setInterval", fs.readFileSync("js/cad.js", "utf8").includes("setTimeout") && !fs.readFileSync("js/cad.js", "utf8").includes("setInterval"));
 

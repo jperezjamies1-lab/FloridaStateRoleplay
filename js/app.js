@@ -124,8 +124,12 @@
   function renderMaintenance(site) {
     const maintenance = document.getElementById("maintenance-screen");
     if (!maintenance) return;
-    const bypass = sessionStorage.getItem("fsrpMaintenanceBypass") === "1" || location.hash === "#manager";
-    maintenance.hidden = !site.maintenance?.enabled || bypass;
+    const queryBypass = new URLSearchParams(location.search).get("maintenance") === "off";
+    const bypass = sessionStorage.getItem("fsrpMaintenanceBypass") === "1" || location.hash === "#manager" || queryBypass;
+    const maintenanceEnabled = site.maintenance?.enabled === true
+      && site.maintenance?.publicLockConfirmed === true
+      && Number(site.maintenance?.safetyVersion) >= 2;
+    maintenance.hidden = !maintenanceEnabled || bypass;
     document.getElementById("maintenance-title").textContent = site.maintenance?.title || "Community Hub maintenance";
     document.getElementById("maintenance-message").textContent = site.maintenance?.message || "Florida State Roleplay is applying an official website update.";
     const musicButtons = maintenance.querySelectorAll("[data-waiting-music]");

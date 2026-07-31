@@ -194,7 +194,14 @@
   async function publish() {
     if (role === "preview") return toast("Local preview is saved in this browser. Sign in to publish to Cloudflare.");
     try {
-      const current = FSRP_STORE.get();
+      const current = clone(FSRP_STORE.get());
+      if (role === "admin") {
+        current.maintenance ??= {};
+        current.maintenance.safetyVersion = 2;
+        if (current.maintenance.enabled === true && current.maintenance.publicLockConfirmed !== true) {
+          return toast("Confirm the public maintenance lock before publishing, or turn maintenance off.");
+        }
+      }
       FSRP_STORE.validatePublishable(current);
       const payload = role === "operations" ? { status: current.status } : { content: current };
       const response = await fetch("/api/settings", {

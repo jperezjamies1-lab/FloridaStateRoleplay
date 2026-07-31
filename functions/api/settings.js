@@ -32,10 +32,19 @@ async function verifyToken(token, secret) {
 
 export async function onRequestGet({ env }) {
   if (!env.SITE_SETTINGS) return json({ content: null, status: null, configured: false });
-  const [content, status] = await Promise.all([
+  const [storedContent, status] = await Promise.all([
     env.SITE_SETTINGS.get(CONTENT_KEY, "json"),
     env.SITE_SETTINGS.get(STATUS_KEY, "json"),
   ]);
+  const content = storedContent && typeof storedContent === "object" ? structuredClone(storedContent) : storedContent;
+  if (content?.maintenance && Number(content.maintenance.safetyVersion) < 2) {
+    content.maintenance.enabled = false;
+    content.maintenance.publicLockConfirmed = false;
+    content.maintenance.safetyVersion = 2;
+  }
+  if (content?.maintenance?.enabled === true && content.maintenance.publicLockConfirmed !== true) {
+    content.maintenance.enabled = false;
+  }
   return json({ content, status, configured: true });
 }
 
@@ -57,6 +66,11 @@ export async function onRequestPut({ request, env }) {
   if (user.role !== "admin") return json({ error: "Admin access required." }, 403);
   const content = data.content || data.settings;
   if (!content || typeof content !== "object") return json({ error: "Missing website content." }, 400);
+  content.maintenance ??= {};
+  content.maintenance.safetyVersion = 2;
+  if (content.maintenance.enabled === true && content.maintenance.publicLockConfirmed !== true) {
+    return json({ error: "Public maintenance requires explicit confirmation." }, 400);
+  }
   await env.SITE_SETTINGS.put(CONTENT_KEY, JSON.stringify(content));
   if (content.status) await env.SITE_SETTINGS.put(STATUS_KEY, JSON.stringify(content.status));
   return json({ ok: true, scope: "full" });
